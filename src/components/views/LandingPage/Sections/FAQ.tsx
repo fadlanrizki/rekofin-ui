@@ -1,36 +1,37 @@
 import Accordion from "@mui/material/Accordion";
-import AccordionActions from "@mui/material/AccordionActions";
 import AccordionSummary from "@mui/material/AccordionSummary";
 import AccordionDetails from "@mui/material/AccordionDetails";
 import Typography from "@mui/material/Typography";
-// import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
-import Button from "@mui/material/Button";
+import { FaChevronDown } from "react-icons/fa";
 
-const SectionFAQ = () => {
+const FAQ = () => {
   return (
-    <div className="w-full flex justify-center">
-      <div className="w-1/2">
-        <h2 className="text-3xl font-bold text-[#003366]">
-          FAQ (Frequently Asked Questions)
+    <section id="faq" className="w-full py-20 flex justify-center">
+      <div className="w-3/4 md:w-1/2">
+        <h2 className="text-3xl font-bold text-[#003366] text-center">
+          FAQ
+          <br />
+          (Frequently Asked Questions)
         </h2>
         <div className="mt-10">
           <Accordion>
             <AccordionSummary
-              //   expandIcon={<ExpandMoreIcon />}
+              expandIcon={<FaChevronDown />}
               aria-controls="panel1-content"
               id="panel1-header"
             >
-              <Typography component="span">Apa itu Finwise</Typography>
+              <Typography component="span">Apa itu Rekofin</Typography>
             </AccordionSummary>
             <AccordionDetails>
-              Finwise adalah aplikasi berbasis web yang berfungsi untuk
+              Rekofin adalah aplikasi berbasis web yang berfungsi untuk
               memberikan rekomendasi strategi pengelolaan keuangan yang
-              diperuntukan bagi karyawan berdasarkan
+              diperuntukan bagi karyawan berdasarkan kondisi finansial yang di
+              input oleh user.
             </AccordionDetails>
           </Accordion>
           <Accordion>
             <AccordionSummary
-              //   expandIcon={<ExpandMoreIcon />}
+              expandIcon={<FaChevronDown />}
               aria-controls="panel2-content"
               id="panel2-header"
             >
@@ -47,7 +48,7 @@ const SectionFAQ = () => {
           </Accordion>
           <Accordion>
             <AccordionSummary
-              //   expandIcon={<ExpandMoreIcon />}
+              expandIcon={<FaChevronDown />}
               aria-controls="panel2-content"
               id="panel2-header"
             >
@@ -63,8 +64,8 @@ const SectionFAQ = () => {
           </Accordion>
         </div>
       </div>
-    </div>
+    </section>
   );
 };
 
-export default SectionFAQ;
+export default FAQ;

@@ -1,12 +1,10 @@
-// components/shared/Footer.tsx
-
-function SectionFooter() {
+function Footer() {
   return (
     <footer className="bg-gray-900 text-white py-8 px-4">
       <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-4 gap-8">
         {/* Logo & Deskripsi */}
         <div>
-          <h2 className="text-xl font-bold mb-2">Finwise</h2>
+          <h2 className="text-xl font-bold mb-2">Rekofin</h2>
           <p className="text-sm text-gray-400">
             Aplikasi sistem pakar untuk membantu karyawan mengelola keuangan secara cerdas dan efisien.
           </p>
@@ -41,10 +39,10 @@ function SectionFooter() {
 
       {/* Copyright */}
       <div className="mt-8 text-center text-sm text-gray-500">
-        &copy; {new Date().getFullYear()} Finwise. All rights reserved.
+        &copy; {new Date().getFullYear()} Rekofin. All rights reserved.
       </div>
     </footer>
   );
 }
 
-export default SectionFooter;
+export default Footer;

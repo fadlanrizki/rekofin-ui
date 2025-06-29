@@ -1,9 +1,7 @@
-const Register = () => {
-    return (
-        <div>
-            Register      
-        </div>
-    );
-}
+import Register from "@/components/views/Register";
 
-export default Register;
+const RegisterPage = () => {
+  return <Register />;
+};
+
+export default RegisterPage;

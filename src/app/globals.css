@@ -1,5 +1,13 @@
 @import "tailwindcss";
-
+@theme {
+  --color-primary: #003366;
+  --color-secondary: #2ecc71;
+  --color-accent: #f1c40f;
+  --color-textMain: #2c3e50;
+  --color-textSub: #7f8c8d;
+  --color-danger: #e74c3c;
+  --color-background-light: #f9f9f9
+}
 :root {
   --background: #ffffff;
   --foreground: #171717;
@@ -17,4 +25,8 @@
     --background: #0a0a0a;
     --foreground: #ededed;
   }
+}
+
+html {
+  scroll-behavior: smooth;
 }
