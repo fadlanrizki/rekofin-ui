@@ -8,6 +8,9 @@ import Logo from "@/components/shared/Logo";
 
 const Login = () => {
   const [showPassword, setShowPassword] = useState(false);
+
+  console.log("test");
+  
   return (
     <div className="flex min-h-screen">
       {/*Left: Branding Section */}
