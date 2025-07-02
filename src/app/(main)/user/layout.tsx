@@ -31,7 +31,7 @@ const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
         </div>
 
         <div className="flex items-center gap-5">
-          <p className="text-textMain text-[1rem]">Megumi Katou</p>
+          <p className="text-textMain text-[1rem]">Fadlan Rizki</p>
           <FaUserCircle size={30} />
         </div>
       </header>

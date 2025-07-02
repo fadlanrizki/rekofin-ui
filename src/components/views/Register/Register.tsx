@@ -9,7 +9,7 @@ function Register() {
   return (
     <div className="flex min-h-screen">
       {/* KIRI: Branding Section */}
-      <div className="w-1/2 bg-[#003366] text-white flex flex-col justify-center items-center px-10 py-12">
+      <div className="w-1/2 bg-[#003366] text-white hidden md:flex flex-col justify-center items-center px-10 py-12">
         <h1 className="text-3xl font-bold text-center mb-4">
           Daftarkan Akunmu
         </h1>
@@ -27,7 +27,7 @@ function Register() {
       </div>
 
       {/* KANAN: Form Register */}
-      <div className="w-1/2 bg-[#f9f9f9] flex flex-col items-center justify-center px-8">
+      <div className="w-full md:w-1/2 bg-[#f9f9f9] flex flex-col items-center justify-center px-8">
         <Link className="text-center text-primary" href="/">
           <Logo />
         </Link>
