@@ -36,7 +36,6 @@ const listMenu = [
 
 const Header = () => {
   const [openDrawer, setOpenDrawer] = useState(false);
-  const [menuId, setMenuId] = useState(0);
   
   return (
     <div className="w-full flex justify-center py-8 px-5 font-bold text-white bg-primary border-b-1 sticky z-100 top-0">
@@ -50,9 +49,8 @@ const Header = () => {
             <Link
               key={menu.id}
               href={menu.url}
-              onClick={() => setMenuId(menu.id)}
             >
-              <h2 className={`${menu.id === menuId ? "font-bold" : "font-light"} text-[1rem]` }>
+              <h2 className='font-bold'>
                 {menu.name}
               </h2>
             </Link>
