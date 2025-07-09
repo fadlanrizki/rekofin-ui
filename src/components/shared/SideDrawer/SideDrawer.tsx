@@ -5,8 +5,9 @@ import Drawer from "@mui/material/Drawer";
 import List from "@mui/material/List";
 import ListItem from "@mui/material/ListItem";
 import ListItemButton from "@mui/material/ListItemButton";
-import ListItemIcon from "@mui/material/ListItemIcon";
 import ListItemText from "@mui/material/ListItemText";
+import Logo from "../Logo";
+import Link from "next/link";
 
 type DrawerType = {
   open: boolean;
@@ -15,24 +16,51 @@ type DrawerType = {
   children?: React.ReactNode;
 };
 
+const listMenu = [
+  {
+    id: 1,
+    name: "Tentang",
+    url: "#about",
+  },
+  {
+    id: 2,
+    name: "FAQ",
+    url: "#faq",
+  },
+  {
+    id: 3,
+    name: "Daftar",
+    url: "/register",
+  },
+  {
+    id: 4,
+    name: "Masuk",
+    url: "/login",
+  },
+];
+
 const SideDrawer = (props: DrawerType) => {
-  const { open, onClose, anchor, children } = props;
+  const { open, onClose, anchor } = props;
   return (
     <Drawer open={open} anchor={anchor} onClose={onClose}>
-      <Box sx={{ width: 250 }} role="presentation">
-        <List>
-          {["All mail", "Trash", "Spam"].map((text, index) => (
-            <ListItem key={text} disablePadding>
-              <ListItemButton>
-                <ListItemIcon>
-                  {/* {index % 2 === 0 ? <InboxIcon /> : <MailIcon />} */}
-                  icon
-                </ListItemIcon>
-                <ListItemText primary={text} />
-              </ListItemButton>
-            </ListItem>
-          ))}
-        </List>
+      <Box sx={{ width: 250, height: "100%", boxSizing: "border-box" }} role="presentation" className="overflow-y-hidden">
+        <div className="h-full flex flex-col gap-5">
+          <div className="text-center p-10 text-primary">
+            <Logo />
+          </div>
+          <List>
+            {listMenu.map((item, index) => (
+              <ListItem key={index} disablePadding>
+                <ListItemButton>
+                  <Link href={item.url}>
+                  <ListItemText primary={item.name} />
+                  </Link>
+                </ListItemButton>
+              </ListItem>
+            ))}
+          </List>
+          
+        </div>
       </Box>
     </Drawer>
   );
