@@ -24,9 +24,12 @@ const Hero = () => {
                   Mulai Sekarang
                 </button>
               </Link>
+              <Link href="#about">
               <button className="border border-secondary text-secondary px-6 py-3 rounded-xl font-semibold hover:bg-[#e9fcef] transition">
                 Pelajari Lebih Lanjut
               </button>
+              </Link>
+              
             </div>
           </div>
           <div className="hidden xl:block mt-10">
