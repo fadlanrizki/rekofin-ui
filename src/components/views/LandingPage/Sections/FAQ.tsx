@@ -10,7 +10,7 @@ import { Divider } from "@mui/material";
 const FAQ = () => {
   return (
     <section id="faq" className="w-full flex justify-center">
-      <div className="w-3/4 md:w-1/2 flex flex-col gap-10 items-center py-20">
+      <div className="w-3/4 md:w-1/2 flex flex-col gap-10 items-center py-40">
         <h2 className="text-3xl font-bold text-[#003366] text-center">
           FAQ
           <br />
