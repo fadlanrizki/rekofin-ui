@@ -20,13 +20,16 @@ const Hero = () => {
             </p>
             <div className="flex gap-4 justify-center md:justify-start">
               <Link href={"/login"}>
-                <button className="bg-secondary text-white px-6 py-3 rounded-xl font-semibold shadow-md hover:bg-[#27ae60] transition">
+                <button className="bg-secondary text-white px-6 py-3 rounded-xl font-semibold shadow-md hover:bg-[#27ae60] transition cursor-pointer">
                   Mulai Sekarang
                 </button>
               </Link>
-              <button className="border border-secondary text-secondary px-6 py-3 rounded-xl font-semibold hover:bg-[#e9fcef] transition">
+              <Link href="#about">
+              <button className="border border-secondary text-secondary px-6 py-3 rounded-xl font-semibold hover:bg-[#e9fcef] transition cursor-pointer">
                 Pelajari Lebih Lanjut
               </button>
+              </Link>
+              
             </div>
           </div>
           <div className="hidden xl:block mt-10">

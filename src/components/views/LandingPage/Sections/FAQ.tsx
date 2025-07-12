@@ -3,24 +3,33 @@ import AccordionSummary from "@mui/material/AccordionSummary";
 import AccordionDetails from "@mui/material/AccordionDetails";
 import Typography from "@mui/material/Typography";
 import { FaChevronDown } from "react-icons/fa";
+import List from "@mui/material/List";
+import ListItem from "@mui/material/ListItem";
+import { Divider } from "@mui/material";
 
 const FAQ = () => {
   return (
-    <section id="faq" className="w-full py-20 flex justify-center">
-      <div className="w-3/4 md:w-1/2">
+    <section id="faq" className="w-full flex justify-center">
+      <div className="w-3/4 md:w-1/2 flex flex-col gap-10 items-center py-40">
         <h2 className="text-3xl font-bold text-[#003366] text-center">
           FAQ
           <br />
-          (Frequently Asked Questions)
+          <span className="text-[1.3rem]">(Frequently Asked Questions)</span>
         </h2>
-        <div className="mt-10">
+        <p className="text-center">
+          Butuh bantuan? Berikut adalah beberapa pertanyaan umum yang mungkin
+          dapat membantu Anda.
+        </p>
+        <div>
           <Accordion>
             <AccordionSummary
               expandIcon={<FaChevronDown />}
               aria-controls="panel1-content"
               id="panel1-header"
             >
-              <Typography component="span">Apa itu Rekofin</Typography>
+              <Typography component="span" className="text-primary">
+                <strong>Apa itu Rekofin</strong>
+              </Typography>
             </AccordionSummary>
             <AccordionDetails>
               Rekofin adalah aplikasi berbasis web yang berfungsi untuk
@@ -35,7 +44,9 @@ const FAQ = () => {
               aria-controls="panel2-content"
               id="panel2-header"
             >
-              <Typography component="span">Apa itu Sistem Pakar</Typography>
+              <Typography component="span" className="text-primary">
+                <strong>Apa itu Sistem Pakar</strong>
+              </Typography>
             </AccordionSummary>
             <AccordionDetails>
               Sistem Pakar adalah sebuah program komputer yang mencoba meniru
@@ -52,7 +63,9 @@ const FAQ = () => {
               aria-controls="panel2-content"
               id="panel2-header"
             >
-              <Typography component="span">Apa itu Forward Chaining</Typography>
+              <Typography component="span" className="text-primary">
+                <strong>Apa itu Forward Chaining</strong>
+              </Typography>
             </AccordionSummary>
             <AccordionDetails>
               Forward Chaining disebut juga pendekatan berbasis data{" "}
@@ -69,27 +82,38 @@ const FAQ = () => {
               aria-controls="panel2-content"
               id="panel2-header"
             >
-              <Typography component="span">
-                Bagaimana Cara Kerja Forward Chaining
+              <Typography component="span" className="text-primary">
+                <strong>Cara Kerja Forward Chaining</strong>
               </Typography>
             </AccordionSummary>
             <AccordionDetails>
-              <div className="block">
-                <ul>
-                  <li>Sistem memulai dengan kumpulan fakta awal.</li>
-                  <li>
-                    Fakta tersebut dievaluasi terhadap if-then rules yang ada.
-                  </li>
-                  <li>
-                    Jika kondisi pada bagian “if” dari sebuah aturan terpenuhi,
-                    maka bagian “then” akan diaktifkan.
-                  </li>
-                  <li>
+              <List>
+                <ListItem>
+                  <p>Sistem memulai dengan kumpulan fakta awal.</p>
+                </ListItem>
+                <Divider component="li" />
+                <ListItem>
+                  <p>
+                    Fakta tersebut dievaluasi terhadap{" "}
+                    <strong> IF-THEN </strong> rules yang ada.
+                  </p>
+                </ListItem>
+                <Divider component="li" />
+                <ListItem>
+                  <p>
+                    Jika kondisi pada bagian <strong>“IF”</strong> dari sebuah
+                    aturan terpenuhi, maka bagian <strong>“THEN”</strong> akan
+                    diaktifkan.
+                  </p>
+                </ListItem>
+                <Divider component="li" />
+                <ListItem>
+                  <p>
                     Proses berlanjut hingga ditemukan kesimpulan atau tidak ada
                     aturan lagi yang bisa diterapkan.
-                  </li>
-                </ul>
-              </div>
+                  </p>
+                </ListItem>
+              </List>
             </AccordionDetails>
           </Accordion>
         </div>
