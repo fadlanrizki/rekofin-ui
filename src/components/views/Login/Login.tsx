@@ -1,16 +1,11 @@
 "use client";
 import Image from "next/image";
-import { TextField, Button, InputAdornment, IconButton } from "@mui/material";
-import { FaEye, FaEyeSlash } from "react-icons/fa";
-import { useState } from "react";
+import { TextField, Button } from "@mui/material";
 import Link from "next/link";
 import Logo from "@/components/shared/Logo";
+import PasswordTextfield from "@/components/shared/Textfield/PasswordTextfield/PasswordTextfield";
 
-const Login = () => {
-  const [showPassword, setShowPassword] = useState(false);
-
-  console.log("test");
-  
+const Login = () => {  
   return (
     <div className="flex min-h-screen">
       {/*Left: Branding Section */}
@@ -54,30 +49,7 @@ const Login = () => {
               type="email"
               placeholder="user@example.com"
             />
-            <TextField
-              fullWidth
-              label="Password"
-              variant="outlined"
-              type="password"
-              placeholder="••••••••"
-              InputProps={{
-                endAdornment: (
-                  <InputAdornment position="end">
-                    <IconButton
-                      aria-label="toggle password visibility"
-                      onClick={() => setShowPassword(!showPassword)}
-                      edge="end"
-                    >
-                      {showPassword ? (
-                        <FaEye size={20} />
-                      ) : (
-                        <FaEyeSlash size={20} />
-                      )}
-                    </IconButton>
-                  </InputAdornment>
-                ),
-              }}
-            />
+            <PasswordTextfield />
 
             <Button
               fullWidth

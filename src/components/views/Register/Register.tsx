@@ -4,6 +4,7 @@ import Logo from "@/components/shared/Logo";
 import { TextField, Button } from "@mui/material";
 import Link from "next/link";
 import Image from "next/image";
+import PasswordTextfield from "@/components/shared/Textfield/PasswordTextfield/PasswordTextfield";
 
 function Register() {
   return (
@@ -41,6 +42,13 @@ function Register() {
               label="Nama Lengkap"
               variant="outlined"
               type="text"
+              placeholder="Nama Lengkap"
+            />
+            <TextField
+              fullWidth
+              label="username"
+              variant="outlined"
+              type="text"
               placeholder="username"
             />
             <TextField
@@ -50,20 +58,9 @@ function Register() {
               type="email"
               placeholder="user@example.com"
             />
-            <TextField
-              fullWidth
-              label="Password"
-              variant="outlined"
-              type="password"
-              placeholder="••••••••"
-            />
-            <TextField
-              fullWidth
-              label="Konfirmasi Password"
-              variant="outlined"
-              type="password"
-              placeholder="••••••••"
-            />
+            <PasswordTextfield />
+            <PasswordTextfield label="Konfirmasi Password" />
+
             <Button
               fullWidth
               variant="contained"
