@@ -43,23 +43,26 @@ const SideDrawer = (props: DrawerType) => {
   const { open, onClose, anchor } = props;
   return (
     <Drawer open={open} anchor={anchor} onClose={onClose}>
-      <Box sx={{ width: 250, height: "100%", boxSizing: "border-box" }} role="presentation" className="overflow-y-hidden">
+      <Box
+        sx={{ width: 250, height: "100%", boxSizing: "border-box" }}
+        role="presentation"
+        className="overflow-y-hidden"
+      >
         <div className="h-full flex flex-col gap-5">
           <div className="text-center p-10 text-primary">
             <Logo />
           </div>
           <List>
             {listMenu.map((item, index) => (
-              <ListItem key={index} disablePadding>
-                <ListItemButton>
-                  <Link href={item.url}>
-                  <ListItemText primary={item.name} />
-                  </Link>
-                </ListItemButton>
-              </ListItem>
+              <Link key={index} href={item.url}>
+                <ListItem disablePadding>
+                  <ListItemButton>
+                    <ListItemText className="text-right" primary={item.name} />
+                  </ListItemButton>
+                </ListItem>
+              </Link>
             ))}
           </List>
-          
         </div>
       </Box>
     </Drawer>
