@@ -1,8 +1,8 @@
+import ProfileView from "@/components/views/Profile/ProfileView";
+
 const ProfilePage = () => {
     return (
-        <div>
-            Profile Page
-        </div>
+        <ProfileView />
     );
 }
 
