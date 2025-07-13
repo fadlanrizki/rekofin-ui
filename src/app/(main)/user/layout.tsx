@@ -13,7 +13,7 @@ const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
   const [openSidebar, setOpenSidebar] = useState(true);
   return (
     <main
-      className="min-h-screen w-full flex flex-col bg-background-light text-gray-700"
+      className="h-screen w-full overflow-hidden flex flex-col bg-background-light text-gray-700"
       x-data="layout"
     >
       <header className="flex w-full items-center justify-between border-b-2 border-gray-200 bg-white py-3 px-10">
@@ -108,7 +108,7 @@ const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
           </div>
         </aside>
 
-        <div className="w-full p-4">{children}</div>
+        <div className="w-full p-4 h-[95vh] overflow-y-auto box-border">{children}</div>
       </div>
     </main>
   );

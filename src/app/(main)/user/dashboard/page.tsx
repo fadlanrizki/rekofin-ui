@@ -1,8 +1,8 @@
+import UserDashboardView from "@/components/views/Dashboard/User/UserDashboardView";
+
 const DashboardPage = () => {
     return (
-        <div>
-            Dashboard Page
-        </div>
+        <UserDashboardView />
     );
 }
 
