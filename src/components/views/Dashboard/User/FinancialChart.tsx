@@ -6,7 +6,7 @@ import SummaryCard from "./SummaryCard";
 
 const pieOption = {
   title: {
-    text: "Financial Distribution",
+    text: "Distribusi Keuangan",
     left: "center"
   },
   tooltip: {
@@ -87,10 +87,10 @@ export default function FinancialChart() {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <SummaryCard title="Income" value="Rp 7.500.000" icon="💰" />
-        <SummaryCard title="Savings" value="Rp 1.000.000" icon="🏦" />
-        <SummaryCard title="Emergency Fund" value="Rp 2.000.000" icon="🚨" />
-        <SummaryCard title="Investments" value="Rp 1.500.000" icon="📈" />
+        <SummaryCard title="Pendapatan" value="Rp 7.500.000" icon="💰" />
+        <SummaryCard title="Tabungan" value="Rp 1.000.000" icon="🏦" />
+        <SummaryCard title="Dana Darurat" value="Rp 2.000.000" icon="🚨" />
+        <SummaryCard title="Investasi" value="Rp 1.500.000" icon="📈" />
       </div>
     </div>
   );
