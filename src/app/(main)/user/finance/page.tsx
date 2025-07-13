@@ -1,8 +1,8 @@
+import FinanceView from "@/components/views/Finance/FinanceView";
+
 const FinancePage = () => {
     return (
-        <div>
-            Finance Page            
-        </div>
+        <FinanceView />
     );
 }
 
