@@ -1,8 +1,8 @@
+import RecommendationView from "@/components/views/Recommendation/RecommendationView";
+
 const RecommendationPage = () => {
     return (
-        <div>
-            Recommendation Page
-        </div>
+        <RecommendationView />
     );
 }
 
