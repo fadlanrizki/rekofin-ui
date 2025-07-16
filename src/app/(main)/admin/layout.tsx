@@ -41,7 +41,7 @@ const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
         <aside
           className={
             openSidebar
-              ? "flex w-72 flex-col justify-between space-y-2 border-r-2 border-gray-200 bg-primary p-2 text-white font-medium"
+              ? "flex w-82 flex-col justify-between space-y-2 border-r-2 border-gray-200 bg-primary p-2 text-white font-medium"
               : "hidden"
           }
         >
@@ -74,6 +74,16 @@ const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
                 <IoTrailSignSharp size={25} />
               </span>
               <span>Manage Rule</span>
+            </Link>
+
+            <Link
+              href="/admin/manage-rule"
+              className="flex items-center space-x-1 rounded-md px-2 py-3 hover:bg-gray-100 hover:text-primary"
+            >
+              <span className="text-2xl">
+                <IoTrailSignSharp size={25} />
+              </span>
+              <span>Manage Recommendation</span>
             </Link>
 
           </div>

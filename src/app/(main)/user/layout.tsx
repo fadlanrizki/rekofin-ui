@@ -95,7 +95,7 @@ const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
               </Link>
             ))}
           </aside>
-        <div className="w-full p-4 h-[92vh] overflow-y-auto box-border">
+        <div className="w-full px-4 pt-4 pb-6 h-[92vh] overflow-y-auto box-border">
           {children}
         </div>
       </div>

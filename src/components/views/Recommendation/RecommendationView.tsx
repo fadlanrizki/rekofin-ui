@@ -2,15 +2,15 @@
 import {
   Box,
   Typography,
-  ToggleButtonGroup,
-  ToggleButton,
   Grid,
   Card,
   CardContent,
   Pagination,
 } from "@mui/material";
 import Image from "next/image";
-import { useState } from "react";
+import { FaLightbulb } from "react-icons/fa6";
+import RecommendationFilter from "./RecommendationFIlter";
+
 
 const recommendations = [
   {
@@ -42,13 +42,8 @@ const recommendations = [
 ];
 
 export default function RecommendationSection() {
-  const [sourceFilter, setSourceFilter] = useState<string | null>(null);
   // const [isCompleteData, setIsCompleteData] = useState(false);
   const isComplete = true;
-
-  const filtered = sourceFilter
-    ? recommendations.filter((rec) => rec.source === sourceFilter)
-    : recommendations;
 
   return isComplete ? (
     <div className="flex flex-col gap-3">
@@ -61,22 +56,11 @@ export default function RecommendationSection() {
         </Typography>
 
         <Box mb={3}>
-          <ToggleButtonGroup
-            value={sourceFilter}
-            exclusive
-            onChange={(_, value) => setSourceFilter(value)}
-            aria-label="filter source"
-            className="bg-white"
-          >
-            <ToggleButton value={""}>All</ToggleButton>
-            <ToggleButton value="book">📘 Buku</ToggleButton>
-            <ToggleButton value="education">🌐 Edukasi</ToggleButton>
-            <ToggleButton value="influencer">👤 Influencer</ToggleButton>
-          </ToggleButtonGroup>
+          <RecommendationFilter onChange={() => {}} />
         </Box>
 
         <Grid container spacing={3}>
-          {filtered.map((item, index) => (
+          {recommendations.map((item, index) => (
             <Grid size={{ xs: 12, md: 6, lg: 4 }} key={index}>
               <Card variant="outlined">
                 <CardContent>
@@ -104,10 +88,18 @@ export default function RecommendationSection() {
       </Box>
 
       <Box
-        p={4}
-        className="bg-white shadow-[0px_2px_8px_0px_rgba(99,_99,_99,_0.2)] rounded-md h-[300px]"
+        px={4}
+        py={3}
+        className="bg-blue-200 shadow-[0px_2px_8px_0px_rgba(99,_99,_99,_0.2)] rounded-md flex flex-col"
       >
-        test
+        <div className="flex gap-1 text-primary font-bold items-center">
+          <p className="text-[1rem]">Tips untuk Pengguna</p>
+          <FaLightbulb size={15} />
+        </div>
+
+        <div>
+          <p className="text-[0.8rem]">Anda dapat memperbarui Rekomendasi dengan melakukan update data pada menu Input Keuangan</p>
+        </div>
       </Box>
     </div>
   ) : (
