@@ -13,6 +13,7 @@ export const ROUTE_PATHS = {
     DASHBOARD: `${adminPrefix}/dashboard`,
     MANAGE_RULE: `${adminPrefix}/manage-rule`,
     MANAGE_USER: `${adminPrefix}/manage-user`,
+    MANAGE_RECOMMENDATION: `${adminPrefix}/manage-recommendation`
   },
   LOGIN: "/login",
   REGISTER: "/register",

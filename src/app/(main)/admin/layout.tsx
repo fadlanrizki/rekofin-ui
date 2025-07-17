@@ -8,7 +8,7 @@ import Link from "next/link";
 import { useState } from "react";
 import { MdManageAccounts } from "react-icons/md";
 import { IoTrailSignSharp } from "react-icons/io5";
-
+import { VscLightbulbSparkle } from "react-icons/vsc";
 
 const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
   const [openSidebar, setOpenSidebar] = useState(true);
@@ -63,7 +63,7 @@ const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
               <span className="text-2xl">
                 <MdManageAccounts size={25} />
               </span>
-              <span>Manage User</span>
+              <span>Kelola User</span>
             </Link>
 
             <Link
@@ -73,21 +73,18 @@ const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
               <span className="text-2xl">
                 <IoTrailSignSharp size={25} />
               </span>
-              <span>Manage Rule</span>
+              <span>Kelola Aturan</span>
             </Link>
 
             <Link
-              href="/admin/manage-rule"
+              href="/admin/manage-recommendation"
               className="flex items-center space-x-1 rounded-md px-2 py-3 hover:bg-gray-100 hover:text-primary"
             >
               <span className="text-2xl">
-                <IoTrailSignSharp size={25} />
+                <VscLightbulbSparkle size={25} />
               </span>
-              <span>Manage Recommendation</span>
+              <span>Kelola Rekomendasi</span>
             </Link>
-
-          </div>
-          <div>
             <Link
               href="/login"
               className="flex items-center space-x-1 rounded-md px-2 py-3 hover:bg-gray-100 hover:text-primary"

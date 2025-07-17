@@ -1,7 +1,7 @@
-import React from 'react'
+import ManageRulesView from '@/components/views/ManageRule/ManageRuleView'
 
 export default function ManageRulePage() {
   return (
-    <div>ManageRulePage</div>
+    <ManageRulesView />
   )
 }
