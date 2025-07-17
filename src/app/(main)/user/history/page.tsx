@@ -1,8 +1,8 @@
+import HistoryView from "@/components/views/History/HistoryView";
+
 const HistoryPage = () => {
     return (
-        <div>
-            History Page
-        </div>
+        <HistoryView />
     );
 }
 

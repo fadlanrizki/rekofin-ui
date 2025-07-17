@@ -5,6 +5,7 @@ import {
     AccordionSummary,
     FormControlLabel,
     Grid,
+    IconButton,
     Radio,
     RadioGroup,
     TextField,
@@ -106,7 +107,7 @@ export default function FinancialInputForm() {
         </AccordionSummary>
         <AccordionDetails>
           <RadioGroup
-            className="w-[300px]"
+            className="w-[200px]"
             value={formData.riskProfile}
             onChange={(e) => handleChange("riskProfile", e.target.value)}
           >
@@ -117,10 +118,12 @@ export default function FinancialInputForm() {
                 label="Conservative"
               />
               <Tooltip title="Cenderung memilih investasi aman dengan risiko rendah dan imbal hasil kecil.">
-                <IoMdInformationCircleOutline
-                  className="text-primary"
-                  size={20}
-                />
+                <IconButton>
+                  <IoMdInformationCircleOutline
+                    className="text-primary"
+                    size={20}
+                  />  
+                </IconButton>
               </Tooltip>
             </div>
 
@@ -131,10 +134,12 @@ export default function FinancialInputForm() {
                 label="Moderate"
               />
               <Tooltip title="Seimbang antara risiko dan keuntungan, cocok bagi yang ingin stabil tetapi tetap tumbuh.">
-                <IoMdInformationCircleOutline
-                  className="text-primary"
-                  size={20}
-                />
+                <IconButton>
+                  <IoMdInformationCircleOutline
+                    className="text-primary"
+                    size={20}
+                  />  
+                </IconButton>
               </Tooltip>
             </div>
 
@@ -145,10 +150,12 @@ export default function FinancialInputForm() {
                 label="Aggressive"
               />
               <Tooltip title="Berani mengambil risiko tinggi demi potensi keuntungan yang lebih besar.">
-                <IoMdInformationCircleOutline
-                  className="text-primary"
-                  size={20}
-                />
+                <IconButton>
+                  <IoMdInformationCircleOutline
+                    className="text-primary"
+                    size={20}
+                  />  
+                </IconButton>
               </Tooltip>
             </div>
           </RadioGroup>
@@ -162,7 +169,7 @@ export default function FinancialInputForm() {
         </AccordionSummary>
         <AccordionDetails>
           <RadioGroup
-            className="w-[300px]"
+            className="w-[200px]"
             value={formData.financialPrinciple}
             onChange={(e) => handleChange("financialPrinciple", e.target.value)}
           >
@@ -173,10 +180,12 @@ export default function FinancialInputForm() {
                 label="Syariah"
               />
               <Tooltip title="Hanya merekomendasikan strategi yang sesuai prinsip syariah.">
-                <IoMdInformationCircleOutline
-                  className="text-primary"
-                  size={20}
-                />
+                <IconButton>
+                  <IoMdInformationCircleOutline
+                    className="text-primary"
+                    size={20}
+                  />  
+                </IconButton>
               </Tooltip>
             </div>
             <div className="flex justify-between items-center">
@@ -186,20 +195,24 @@ export default function FinancialInputForm() {
                 label="Conventional"
               />
               <Tooltip title="Hanya menggunakan pendekatan dan instrumen konvensional.">
-                <IoMdInformationCircleOutline
-                  className="text-primary"
-                  size={20}
-                />
+                <IconButton>
+                  <IoMdInformationCircleOutline
+                    className="text-primary"
+                    size={20}
+                  />  
+                </IconButton>
               </Tooltip>
             </div>
             <div className="flex justify-between items-center">
               <FormControlLabel value="both" control={<Radio />} label="Both" />
 
               <Tooltip title="Gabungan dari syariah dan konvensional, memberikan opsi lebih luas.">
-                <IoMdInformationCircleOutline
-                  className="text-primary"
-                  size={20}
-                />
+                <IconButton>
+                  <IoMdInformationCircleOutline
+                    className="text-primary"
+                    size={20}
+                  />  
+                </IconButton>
               </Tooltip>
             </div>
           </RadioGroup>
