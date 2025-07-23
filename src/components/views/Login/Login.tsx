@@ -46,11 +46,12 @@ const Login = () => {
     try {
       setLoading(true);
       const res = await loginService(formData);
-      
-      if (res?.data?.role !== "user") {
+
+      if (res?.data?.role === "user") {
+        router.push(ROUTE_PATHS.USER.DASHBOARD);
+      } else {
         router.push(ROUTE_PATHS.ADMIN.DASHBOARD);
       }
-      router.push(ROUTE_PATHS.USER.DASHBOARD);
     } catch (error) {
       if (axios.isAxiosError(error)) {
         setError(error?.response?.data?.message);
@@ -96,7 +97,7 @@ const Login = () => {
             <Logo />
           </Link>
           <div className="w-full max-w-md">
-            <h2 className="text-2xl font-bold text-gray-800 mb-6 text-center">
+            <h2 className="text-lg font-medium text-gray-800 mb-6 text-left">
               Masuk ke Akun Anda
             </h2>
             <form

@@ -1,5 +1,5 @@
 import { Dialog } from "@mui/material";
-import errorAnimation from "../../../../public/animation/error-animation.json";
+import successAnimation from "../../../../public/animation/success-animation.json";
 import Lottie from "lottie-react";
 type ModalFailedPropsType = {
   open: boolean;
@@ -7,7 +7,7 @@ type ModalFailedPropsType = {
   message?: string;
 };
 
-export default function ModalFailed({
+export default function ModalSuccess({
   open,
   onClose,
   message
@@ -22,11 +22,11 @@ export default function ModalFailed({
       <div className="w-full flex items-center justify-center">
         <div className="w-[300px] flex flex-col items-center bg-white p-5 py-7 rounded-lg">
           <Lottie
-            animationData={errorAnimation}
+            animationData={successAnimation}
             loop={false}
             style={{ width: "200px" }}
           />
-          <p className="font-semibold text-lg text-gray-600 text-center">{message ?? "Terjadi Kesalahan Pada Sistem !"}</p>
+          <p className="font-semibold text-lg text-gray-600 text-center">{message}</p>
         </div>
       </div>
     </Dialog>

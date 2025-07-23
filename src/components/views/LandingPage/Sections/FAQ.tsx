@@ -16,7 +16,7 @@ const FAQ = () => {
           <br />
           <span className="text-[1.3rem]">(Frequently Asked Questions)</span>
         </h2>
-        <p className="text-center text-lg">
+        <p className="text-center text-lg text-gray-500">
           Butuh bantuan? Berikut adalah beberapa pertanyaan umum yang mungkin
           dapat membantu Anda.
         </p>

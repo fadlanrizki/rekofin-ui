@@ -5,11 +5,14 @@ import { TextField, Button } from "@mui/material";
 import Link from "next/link";
 import Image from "next/image";
 import PasswordTextfield from "@/components/shared/Textfield/PasswordTextfield/PasswordTextfield";
-import { FormEvent, useState } from "react";
+import { ChangeEvent, FormEvent, useState } from "react";
 import { registerService } from "@/service/authService";
-import Snackbar from "@mui/material/Snackbar";
+import { UserRegisterResponseType } from "@/types/user";
+import axios from "axios";
+import ModalSuccess from "@/components/shared/Modal/ModalSuccess";
+import ModalFailed from "@/components/shared/Modal/ModalFailed";
 
-const initiateValue = {
+const initialValue = {
   fullName: "",
   username: "",
   email: "",
@@ -18,14 +21,15 @@ const initiateValue = {
 };
 
 function Register() {
-  const [userData, setUserData] = useState(initiateValue);
-
+  const [userData, setUserData] = useState(initialValue);
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(false);
-  const [openSnackBar, setOpenSnackBar] = useState(false);
   const [message, setMessage] = useState("");
+  const [openModalSuccess, setOpenModalSuccess] = useState(false);
+  const [openModalFailed, setOpenModalFailed] = useState(false);
 
-  const handleChange = (event: any) => {
+  const handleChange = (
+    event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+  ) => {
     const { name, value } = event.target;
 
     setUserData((prev) => {
@@ -37,19 +41,23 @@ function Register() {
   };
 
   const handleReset = () => {
-    setUserData(initiateValue);
+    setUserData(initialValue);
   };
 
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
-    setOpenSnackBar(true);
     e.preventDefault();
     try {
       setLoading(true);
       const res: UserRegisterResponseType = await registerService(userData);
-      setMessage(res.message ?? "");
-      setOpenSnackBar(true);
-    } catch (e) {
-      console.log(e);
+      setMessage(res.message);
+      setOpenModalSuccess(true);
+    } catch (error) {
+      if (axios.isAxiosError(error)) {
+        setMessage(error?.response?.data?.message);
+      } else if (error instanceof Error) {
+        setMessage(error?.message);
+      }
+      setOpenModalFailed(true);
     } finally {
       setLoading(false);
       handleReset();
@@ -82,7 +90,7 @@ function Register() {
           <Logo />
         </Link>
         <div className="w-full max-w-md">
-          <h2 className="text-2xl font-bold text-gray-800 my-10 text-center">
+          <h2 className="text-lg font-medium text-gray-800 my-10 text-left">
             Buat Akun Baru
           </h2>
           <form
@@ -97,6 +105,7 @@ function Register() {
               placeholder="Nama Lengkap"
               onChange={handleChange}
               name="fullName"
+              value={userData.fullName}
             />
             <TextField
               fullWidth
@@ -106,6 +115,7 @@ function Register() {
               placeholder="username"
               name="username"
               onChange={handleChange}
+              value={userData.username}
             />
             <TextField
               fullWidth
@@ -115,16 +125,19 @@ function Register() {
               placeholder="user@example.com"
               onChange={handleChange}
               name={"email"}
+              value={userData.email}
             />
             <PasswordTextfield
               label="Password"
               onChange={handleChange}
               name="password"
+              value={userData.password}
             />
             <PasswordTextfield
               label="Konfirmasi Password"
               onChange={handleChange}
               name="confirm_password"
+              value={userData.confirm_password}
             />
 
             <Button
@@ -151,13 +164,15 @@ function Register() {
           </p>
         </div>
       </div>
-      <Snackbar
-        anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
-        open={openSnackBar}
-        onClose={() => setOpenSnackBar(false)}
+      <ModalSuccess
+        open={openModalSuccess}
+        onClose={() => setOpenModalSuccess(false)}
         message={message}
-        key={"bottom" + "right"}
-        autoHideDuration={5000}
+      />
+      <ModalFailed
+        open={openModalFailed}
+        onClose={() => setOpenModalFailed(false)}
+        message={message}
       />
     </div>
   );
