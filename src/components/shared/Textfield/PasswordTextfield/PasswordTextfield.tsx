@@ -1,5 +1,5 @@
 "use client";
-import React, { ChangeEventHandler } from "react";
+import React from "react";
 import { TextField, InputAdornment, IconButton } from "@mui/material";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
 import { useTogglePassword } from "./useTogglePassword";
@@ -7,13 +7,15 @@ import { useTogglePassword } from "./useTogglePassword";
 type PasswordTextfieldType = {
   label?: string | "Password";
   name?: string;
-  onChange?: (event: any) => void;
+  onChange?: (event: React.ChangeEvent<HTMLTextAreaElement | HTMLInputElement>) => void;
+  value: string;
 };
 
 const PasswordTextfield = ({
   label = "Password",
   name,
   onChange,
+  value
 }: PasswordTextfieldType) => {
   const { visible, toggle, inputType } = useTogglePassword();
   return (
@@ -24,6 +26,7 @@ const PasswordTextfield = ({
       variant="outlined"
       type={inputType}
       placeholder="••••••••"
+      value={value}
       onChange={onChange}
       InputProps={{
         endAdornment: (
