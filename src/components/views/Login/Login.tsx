@@ -6,10 +6,12 @@ import { Button, TextField } from "@mui/material";
 import Image from "next/image";
 import Link from "next/link";
 import { ChangeEvent, FormEvent, useState } from "react";
-import Snackbar from "@mui/material/Snackbar";
 
 import { useRouter } from "next/navigation";
 import { ROUTE_PATHS } from "@/utils/constants/routes";
+import { UserLoginRequestType } from "@/types/user";
+import ModalFailed from "@/components/shared/Modal/ModalFailed";
+import axios from "axios";
 
 const initialValue = {
   username: "",
@@ -19,9 +21,11 @@ const initialValue = {
 const Login = () => {
   const router = useRouter();
   const [formData, setFormData] = useState<UserLoginRequestType>(initialValue);
-  const [error, setError] = useState();
+
+  const [error, setError] = useState<string>("");
+  const [openModalFailed, setOpenModalFailed] = useState(false);
+
   const [loading, setLoading] = useState(false);
-  const [openSnackBar, setOpenSnackBar] = useState(false);
 
   const handleChange = (
     e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
@@ -29,7 +33,7 @@ const Login = () => {
     const name = e?.target.name;
     const value = e.target.value;
 
-    setFormData((prev) => {
+    setFormData((prev: UserLoginRequestType) => {
       return {
         ...prev,
         [name]: value,
@@ -42,12 +46,18 @@ const Login = () => {
     try {
       setLoading(true);
       const res = await loginService(formData);
-      if (res.data.role === "user") {
-        router.push(ROUTE_PATHS.USER.DASHBOARD);
-      } else {
-        router.push(ROUTE_PATHS.ADMIN.DASHBOARD)
+      
+      if (res?.data?.role !== "user") {
+        router.push(ROUTE_PATHS.ADMIN.DASHBOARD);
       }
-    } catch (e) {
+      router.push(ROUTE_PATHS.USER.DASHBOARD);
+    } catch (error) {
+      if (axios.isAxiosError(error)) {
+        setError(error?.response?.data?.message);
+      } else if (error instanceof Error) {
+        setError(error.message);
+      }
+      setOpenModalFailed(true);
     } finally {
       setLoading(false);
     }
@@ -101,8 +111,13 @@ const Login = () => {
                 placeholder="user@example.com"
                 name="username"
                 onChange={handleChange}
+                value={formData.username}
               />
-              <PasswordTextfield name="password" onChange={handleChange} />
+              <PasswordTextfield
+                name="password"
+                onChange={handleChange}
+                value={formData.password}
+              />
 
               <Button
                 fullWidth
@@ -128,6 +143,11 @@ const Login = () => {
             </p>
           </div>
         </div>
+        <ModalFailed
+          open={openModalFailed}
+          onClose={() => setOpenModalFailed(false)}
+          message={error}
+        />
       </div>
     </>
   );
