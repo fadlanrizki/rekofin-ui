@@ -8,9 +8,8 @@ const axiosInstance = axios.create({
   },
 });
 
-type ApiMethod = 'GET' | 'POST' | 'PUT' | 'DELETE';
-
 export const apiClient = {
+
   get: async <T>(url: string, params?: object): Promise<T> => {
     const response = await axiosInstance.get<T>(url, { params });
     return response.data;
