@@ -1,9 +1,11 @@
-type UserLoginRequestType = {
+import { StatusOk } from "./response";
+
+export type UserLoginRequestType = {
   username: string;
   password: string;
 };
 
-type UserLoginResponseType = {
+export type UserLoginResponseType = StatusOk & {
   data: {
     username: string;
     fullname: string;
@@ -13,17 +15,17 @@ type UserLoginResponseType = {
   message?: string;
 };
 
-type UserRegisterRequestType = {
+export type UserRegisterRequestType = {
   username: string;
   fullName: string;
   email: string;
   password: string;
 };
 
-type UserRegisterResponseType = {
-    data: {
-        username: string;
-        fullName: string;
-    }
-    message: string
-}
+export type UserRegisterResponseType = StatusOk & {
+  data: {
+    username: string;
+    fullName: string;
+  };
+  message: string;
+};
