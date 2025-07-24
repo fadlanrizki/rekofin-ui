@@ -78,7 +78,7 @@ const Quote = () => {
         {quotes.map((quote: QuoteType, index) => (
           <SwiperSlide key={index}>
             <div className="flex flex-col m-auto w-full px-10 md:w-1/2 items-center justify-evenly gap-5 text-white py-20 box-border">
-              <p className="text-gray-700 text-center text-2xl md:text-xl italic font-light">“{quote.text}”</p>
+              <p className="text-gray-700 text-center text-2xl md:text-4xl italic font-semibold">“{quote.text}”</p>
               <div className="text-center">
                 <p className="text-lg text-primary md:text-base font-semibold mt-2">{quote.author}</p>
                 <p className="text-sm text-gray-500">{quote.role}</p>

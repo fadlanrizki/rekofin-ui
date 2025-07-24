@@ -5,18 +5,29 @@ import { FaEye, FaEyeSlash } from "react-icons/fa";
 import { useTogglePassword } from "./useTogglePassword";
 
 type PasswordTextfieldType = {
-  label?: string | 'Password';
+  label?: string | "Password";
+  name?: string;
+  onChange?: (event: React.ChangeEvent<HTMLTextAreaElement | HTMLInputElement>) => void;
+  value: string;
 };
 
-const PasswordTextfield = ({ label = 'Password' }: PasswordTextfieldType) => {
+const PasswordTextfield = ({
+  label = "Password",
+  name,
+  onChange,
+  value
+}: PasswordTextfieldType) => {
   const { visible, toggle, inputType } = useTogglePassword();
   return (
     <TextField
       fullWidth
+      name={name}
       label={label}
       variant="outlined"
       type={inputType}
       placeholder="••••••••"
+      value={value}
+      onChange={onChange}
       InputProps={{
         endAdornment: (
           <InputAdornment position="end">
