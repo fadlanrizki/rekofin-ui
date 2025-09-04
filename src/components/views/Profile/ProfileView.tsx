@@ -1,5 +1,6 @@
 "use client";
 
+import PasswordTextfield from "@/components/shared/Textfield/PasswordTextfield/PasswordTextfield";
 import {
   Avatar,
   Box,
@@ -11,10 +12,33 @@ import {
   TextField,
   Typography,
 } from "@mui/material";
+import { useForm } from "react-hook-form";
+import * as z from "zod";
+import { zodResolver } from "@hookform/resolvers/zod";
+
+const profileForm = z.object({
+  fullName: z.string().optional(),
+  occupation: z.string().optional(),
+  email: z.string().optional(),
+  password: z.string().optional(),
+  newPassword: z.string().optional(),
+  confirmPassword: z.string(),
+});
+
+type ProfileForm = z.infer<typeof profileForm>;
 
 export default function ProfileView() {
+  const { register, handleSubmit } = useForm<ProfileForm>({
+    resolver: zodResolver(profileForm),
+  });
+
+  const onSubmit = (data: ProfileForm) => {
+    console.log(data);
+    
+  }
+
   return (
-    <Container maxWidth="lg" sx={{ py: 5 }}>
+    <Container maxWidth="lg">
       {/* Title */}
       <Typography variant="h4" gutterBottom>
         Profile
@@ -23,7 +47,7 @@ export default function ProfileView() {
       <Grid container spacing={4}>
         {/* Left Column - Profile Info */}
         <Grid size={{ xs: 12, md: 4 }}>
-          <Card>
+          <Card className="h-full">
             <CardContent
               sx={{
                 display: "flex",
@@ -53,91 +77,89 @@ export default function ProfileView() {
 
         {/* Right Column - Profile Form */}
         <Grid size={{ xs: 12, md: 8 }}>
-          <Card>
+          <Card className="h-full">
             <CardContent>
               <Grid container spacing={2}>
                 <Grid size={{ xs: 12 }}>
                   <TextField
+                    {...register("fullName")}
                     label="Full Name"
                     fullWidth
                     variant="outlined"
-                    defaultValue="John Doe"
                   />
                 </Grid>
                 <Grid size={{ xs: 12 }}>
                   <TextField
+                    {...register("occupation")}
                     label="Occupation"
                     fullWidth
                     variant="outlined"
-                    defaultValue="Software Engineer"
                   />
                 </Grid>
                 <Grid size={{ xs: 12 }}>
                   <TextField
+                    {...register("email")}
                     label="Email"
                     fullWidth
                     variant="outlined"
-                    value="john@example.com"
                     InputProps={{ readOnly: true }}
                   />
                 </Grid>
               </Grid>
-
-              <Box display="flex" justifyContent="flex-end" gap={2} mt={4}>
-                <Button variant="outlined" color="secondary">
-                  Cancel
-                </Button>
-                <Button variant="contained" color="primary">
-                  Save Changes
-                </Button>
-              </Box>
             </CardContent>
           </Card>
         </Grid>
       </Grid>
 
       {/* Optional: Change Password Section */}
-      <Box mt={6} maxWidth="full" mx="auto">
-        <Card>
-          <CardContent>
-            <Typography variant="h6" gutterBottom>
-              Change Password
-            </Typography>
-            <Grid container spacing={2}>
-              <Grid size={{ xs: 12 }}>
-                <TextField
-                  type="password"
-                  label="Current Password"
-                  fullWidth
-                  variant="outlined"
-                />
-              </Grid>
-              <Grid size={{ xs: 12, sm: 6 }}>
-                <TextField
-                  type="password"
-                  label="New Password"
-                  fullWidth
-                  variant="outlined"
-                />
-              </Grid>
-              <Grid size={{ xs: 12, sm: 6 }}>
-                <TextField
-                  type="password"
-                  label="Confirm New Password"
-                  fullWidth
-                  variant="outlined"
-                />
-              </Grid>
-            </Grid>
-
-            <Box display="flex" justifyContent="flex-end" mt={3}>
-              <Button variant="contained" color="success">
-                Update Password
+      <Grid container rowSpacing={4}>
+        <Grid size={12}>
+          <Box mt={6} maxWidth="full" mx="auto">
+            <Card>
+              <CardContent>
+                <Typography variant="h6" gutterBottom>
+                  Change Password
+                </Typography>
+                <Grid container spacing={2}>
+                  <Grid size={{ xs: 12 }}>
+                    <PasswordTextfield
+                      {...register("password")}
+                      label="Current Password"
+                    />
+                  </Grid>
+                  <Grid size={{ xs: 12, sm: 6 }}>
+                    <PasswordTextfield
+                      {...register("newPassword")}
+                      type="password"
+                      label="New Password"
+                    />
+                  </Grid>
+                  <Grid size={{ xs: 12, sm: 6 }}>
+                    <PasswordTextfield
+                      {...register("confirmPassword")}
+                      type="password"
+                      label="Confirm New Password"
+                    />
+                  </Grid>
+                </Grid>
+              </CardContent>
+            </Card>
+          </Box>
+        </Grid>
+        <Grid size={12}>
+          <Box>
+            <Grid
+              container
+              size={{ xs: 12, sm: 12 }}
+              justifyContent={"flex-end"}
+            >
+              <Button onClick={() => {handleSubmit(onSubmit)}} variant="contained" color="primary">
+                Update Profile
               </Button>
-            </Box>
-          </CardContent>
-        </Card>
-      </Box>
+            </Grid>
+          </Box>
+        </Grid>
+      </Grid>
     </Container>
   );
 }

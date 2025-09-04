@@ -42,9 +42,19 @@ const dummyUsers = [
   },
 ]
 
+type UserData = {
+  id: number;
+  fullName: string;
+  email: string;
+  role: string;
+}
+
 export default function ManageUserView() {
   const [search, setSearch] = useState('')
   const [filterRole, setFilterRole] = useState('All')
+  const [users, setUsersData] = useState<UserData[]>([]);
+
+
 
   const filteredUsers = dummyUsers.filter((user) => {
     const matchRole =
