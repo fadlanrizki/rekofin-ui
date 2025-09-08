@@ -1,38 +1,57 @@
 "use client";
 import {
-    Accordion,
-    AccordionDetails,
-    AccordionSummary,
-    FormControlLabel,
-    Grid,
-    IconButton,
-    Radio,
-    RadioGroup,
-    TextField,
-    Tooltip,
-    Typography
+  Accordion,
+  AccordionDetails,
+  AccordionSummary,
+  Button,
+  FormControlLabel,
+  Grid,
+  IconButton,
+  Radio,
+  RadioGroup,
+  TextField,
+  Tooltip,
+  Typography,
 } from "@mui/material";
 import { FaChevronDown } from "react-icons/fa";
-
-import { useState } from "react";
 import { IoMdInformationCircleOutline } from "react-icons/io";
+import { useForm } from "react-hook-form";
+import { z } from "zod";
+import { zodResolver } from "@hookform/resolvers/zod";
 
-export default function FinancialInputForm() {
-  const [formData, setFormData] = useState({
-    income: "",
-    savings: "",
-    emergencyFund: "",
-    investment: "",
-    debt: "",
-    expenses: "",
-    riskProfile: "moderate",
-    financialPrinciple: "both",
+const financeForm = z.object({
+  income: z.string().min(1, "Required"),
+  savings: z.string().min(1, "Required"),
+  emergencyFund: z.string().min(1, "Required"),
+  investment: z.string().min(1, "Required"),
+  debt: z.string().min(1, "Required"),
+  expenses: z.string().min(1, "Required"),
+  riskProfile: z.string().optional(),
+  financialPrinciple: z.string().optional()
+});
+
+type FinanceForm = z.infer<typeof financeForm>;
+
+export default function FinanceView() {
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+    watch
+  } = useForm<FinanceForm>({
+    resolver: zodResolver(financeForm),
   });
 
-  const handleChange = (key: string, value: string) => {
-    setFormData((prev) => ({ ...prev, [key]: value }));
+  const onSubmit = (data: FinanceForm) => {
+    console.log(JSON.stringify(data));
+
+    // TODO hit API
   };
 
+  console.log(errors);
+  console.log("watch ", watch());
+  
+  
   return (
     <div className="space-y-4">
       {/* Section 1: Main Financial Info */}
@@ -44,56 +63,62 @@ export default function FinancialInputForm() {
           <Grid container spacing={2}>
             <Grid size={{ xs: 12, sm: 6 }}>
               <TextField
+                {...register("income")}
                 label="Monthly Income"
                 fullWidth
                 type="number"
-                value={formData.income}
-                onChange={(e) => handleChange("income", e.target.value)}
+                error={!!errors.income}
+                required
               />
             </Grid>
             <Grid size={{ xs: 12, sm: 6 }}>
               <TextField
+                {...register("savings")}
                 label="Total Savings"
                 fullWidth
                 type="number"
-                value={formData.savings}
-                onChange={(e) => handleChange("savings", e.target.value)}
+                error={!!errors.savings}
+                required
               />
             </Grid>
             <Grid size={{ xs: 12, sm: 6 }}>
               <TextField
+                {...register("emergencyFund")}
                 label="Emergency Fund"
                 fullWidth
                 type="number"
-                value={formData.emergencyFund}
-                onChange={(e) => handleChange("emergencyFund", e.target.value)}
+                error={!!errors.emergencyFund}
+                required
               />
             </Grid>
             <Grid size={{ xs: 12, sm: 6 }}>
               <TextField
+                {...register("investment")}
                 label="Investment"
                 fullWidth
                 type="number"
-                value={formData.investment}
-                onChange={(e) => handleChange("investment", e.target.value)}
+                error={!!errors.investment}
+                required
               />
             </Grid>
             <Grid size={{ xs: 12, sm: 6 }}>
               <TextField
+                {...register("debt")}
                 label="Debt"
                 fullWidth
                 type="number"
-                value={formData.debt}
-                onChange={(e) => handleChange("debt", e.target.value)}
+                error={!!errors.debt}
+                required
               />
             </Grid>
             <Grid size={{ xs: 12, sm: 6 }}>
               <TextField
+                {...register("expenses")}
                 label="Monthly Expenses"
                 fullWidth
                 type="number"
-                value={formData.expenses}
-                onChange={(e) => handleChange("expenses", e.target.value)}
+                error={!!errors.expenses}
+                required
               />
             </Grid>
           </Grid>
@@ -106,11 +131,7 @@ export default function FinancialInputForm() {
           <Typography fontWeight="bold">Risk Profile</Typography>
         </AccordionSummary>
         <AccordionDetails>
-          <RadioGroup
-            className="w-[200px]"
-            value={formData.riskProfile}
-            onChange={(e) => handleChange("riskProfile", e.target.value)}
-          >
+          <RadioGroup {...register("riskProfile")} className="w-[200px]">
             <div className="flex justify-between items-center">
               <FormControlLabel
                 value="conservative"
@@ -122,7 +143,7 @@ export default function FinancialInputForm() {
                   <IoMdInformationCircleOutline
                     className="text-primary"
                     size={20}
-                  />  
+                  />
                 </IconButton>
               </Tooltip>
             </div>
@@ -138,7 +159,7 @@ export default function FinancialInputForm() {
                   <IoMdInformationCircleOutline
                     className="text-primary"
                     size={20}
-                  />  
+                  />
                 </IconButton>
               </Tooltip>
             </div>
@@ -154,7 +175,7 @@ export default function FinancialInputForm() {
                   <IoMdInformationCircleOutline
                     className="text-primary"
                     size={20}
-                  />  
+                  />
                 </IconButton>
               </Tooltip>
             </div>
@@ -168,11 +189,7 @@ export default function FinancialInputForm() {
           <Typography fontWeight="bold">Financial Principle</Typography>
         </AccordionSummary>
         <AccordionDetails>
-          <RadioGroup
-            className="w-[200px]"
-            value={formData.financialPrinciple}
-            onChange={(e) => handleChange("financialPrinciple", e.target.value)}
-          >
+          <RadioGroup {...register("financialPrinciple")} className="w-[200px]">
             <div className="flex justify-between items-center">
               <FormControlLabel
                 value="syariah"
@@ -184,7 +201,7 @@ export default function FinancialInputForm() {
                   <IoMdInformationCircleOutline
                     className="text-primary"
                     size={20}
-                  />  
+                  />
                 </IconButton>
               </Tooltip>
             </div>
@@ -199,25 +216,46 @@ export default function FinancialInputForm() {
                   <IoMdInformationCircleOutline
                     className="text-primary"
                     size={20}
-                  />  
+                  />
                 </IconButton>
               </Tooltip>
             </div>
             <div className="flex justify-between items-center">
               <FormControlLabel value="both" control={<Radio />} label="Both" />
-
               <Tooltip title="Gabungan dari syariah dan konvensional, memberikan opsi lebih luas.">
                 <IconButton>
                   <IoMdInformationCircleOutline
                     className="text-primary"
                     size={20}
-                  />  
+                  />
                 </IconButton>
               </Tooltip>
             </div>
           </RadioGroup>
         </AccordionDetails>
       </Accordion>
+
+      <Grid
+        container
+        size={{ xs: 12, lg: 12 }}
+        justifyContent={"end"}
+        className="mt-20"
+      >
+        <Grid
+          container
+          justifyContent={"flex-end"}
+          className="w-full fixed bottom-0 left-0 bg-white border-t-1 border-[#c0c0c0] text-white py-6 px-4 text-lg font-medium shadow-lg"
+          gap={4}
+        >
+          <Button
+            onClick={handleSubmit(onSubmit)}
+            variant="contained"
+            color="primary"
+          >
+            Save & Get Recommendations
+          </Button>
+        </Grid>
+      </Grid>
     </div>
   );
 }
