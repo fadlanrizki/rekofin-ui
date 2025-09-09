@@ -1,4 +1,4 @@
-'use client'
+"use client";
 
 import {
   Button,
@@ -16,54 +16,60 @@ import {
   InputLabel,
   FormControl,
   Pagination,
-} from '@mui/material'
-import { useState } from 'react'
+} from "@mui/material";
+import { useState } from "react";
 import { FaEdit } from "react-icons/fa";
 import { FaTrashCan } from "react-icons/fa6";
+import AddEditUserView from "./AddEditUserView";
+import ModalCustom from "@/components/shared/Modal/ModalCustom";
+import { ManageUserForm } from "@/types/user";
 
 const dummyUsers = [
   {
     id: 1,
-    fullName: 'Fadlan Rizki',
-    email: 'fadlan@example.com',
-    role: 'Admin',
+    fullName: "Fadlan Rizki",
+    email: "fadlan@example.com",
+    role: "Admin",
   },
   {
     id: 2,
-    fullName: 'Alya Mikhaelovna Kujou',
-    email: 'alya@example.com',
-    role: 'Employee',
+    fullName: "Alya Mikhaelovna Kujou",
+    email: "alya@example.com",
+    role: "Employee",
   },
   {
     id: 3,
-    fullName: 'Megumi Katou',
-    email: 'megumi@example.com',
-    role: 'Employee',
+    fullName: "Megumi Katou",
+    email: "megumi@example.com",
+    role: "Employee",
   },
-]
-
-type UserData = {
-  id: number;
-  fullName: string;
-  email: string;
-  role: string;
-}
+];
 
 export default function ManageUserView() {
-  const [search, setSearch] = useState('')
-  const [filterRole, setFilterRole] = useState('All')
-  const [users, setUsersData] = useState<UserData[]>([]);
+  const [search, setSearch] = useState("");
+  const [filterRole, setFilterRole] = useState("All");
+  const [modalUser, setModalUser] = useState(false);
 
+  const onOpenModalUser = () => {
+    setModalUser(true);
+  };
+  const onCloseModalUser = () => {
+    setModalUser(false);
+  };
 
+  const handleSubmit = (data: ManageUserForm) => {
+    console.log(JSON.stringify(data));
+  }
 
   const filteredUsers = dummyUsers.filter((user) => {
     const matchRole =
-      filterRole === 'All' || user.role.toLowerCase() === filterRole.toLowerCase()
+      filterRole === "All" ||
+      user.role.toLowerCase() === filterRole.toLowerCase();
     const matchSearch =
       user.fullName.toLowerCase().includes(search.toLowerCase()) ||
-      user.email.toLowerCase().includes(search.toLowerCase())
-    return matchRole && matchSearch
-  })
+      user.email.toLowerCase().includes(search.toLowerCase());
+    return matchRole && matchSearch;
+  });
 
   return (
     <div className="p-6 space-y-6">
@@ -85,7 +91,7 @@ export default function ManageUserView() {
               value={filterRole}
               label="Role"
               onChange={(e) => setFilterRole(e.target.value)}
-              className='w-[200px]'
+              className="w-[200px]"
             >
               <MenuItem value="All">All</MenuItem>
               <MenuItem value="Admin">Admin</MenuItem>
@@ -93,7 +99,7 @@ export default function ManageUserView() {
             </Select>
           </FormControl>
 
-          <Button variant="contained" color="primary">
+          <Button variant="contained" color="primary" onClick={onOpenModalUser}>
             Add User
           </Button>
         </div>
@@ -121,7 +127,7 @@ export default function ManageUserView() {
                 <TableCell>
                   <div className="flex gap-2">
                     <IconButton size="small" color="primary">
-                      <FaEdit className='text-primary' />
+                      <FaEdit className="text-primary" />
                     </IconButton>
                     <IconButton size="small" color="error">
                       <FaTrashCan />
@@ -138,6 +144,10 @@ export default function ManageUserView() {
       <div className="flex justify-end">
         <Pagination count={3} color="primary" />
       </div>
+
+      <ModalCustom title="User" open={modalUser} onClose={onCloseModalUser}>
+        <AddEditUserView onSubmit={handleSubmit} onClose={onCloseModalUser} />
+      </ModalCustom>
     </div>
-  )
+  );
 }
