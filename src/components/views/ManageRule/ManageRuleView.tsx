@@ -1,6 +1,6 @@
-'use client'
+"use client";
 
-import { useState } from 'react'
+import { useState } from "react";
 import {
   Button,
   TextField,
@@ -17,54 +17,63 @@ import {
   InputLabel,
   FormControl,
   Pagination,
-} from '@mui/material'
+  Grid,
+} from "@mui/material";
 import { FaEdit } from "react-icons/fa";
 import { FaTrashCan } from "react-icons/fa6";
+import { useRouter } from "next/navigation";
+import { ROUTE_PATHS } from "@/utils/constants/routes";
 
 const allRules = [
   {
     id: 1,
-    category: 'Emergency Fund',
-    condition: 'income < 3000000 AND savings < 500000',
-    conclusion: 'Needs Emergency Fund',
-    createdBy: 'admin1',
+    category: "Emergency Fund",
+    condition: "income < 3000000 AND savings < 500000",
+    conclusion: "Needs Emergency Fund",
+    createdBy: "admin1",
   },
   {
     id: 2,
-    category: 'Investment',
-    condition: 'savings > 5000000 AND emergency_fund >= 3000000',
-    conclusion: 'Ready to Invest',
-    createdBy: 'admin2',
+    category: "Investment",
+    condition: "savings > 5000000 AND emergency_fund >= 3000000",
+    conclusion: "Ready to Invest",
+    createdBy: "admin2",
   },
   {
     id: 3,
-    category: 'Savings',
-    condition: 'income >= 5000000 AND savings < 1000000',
-    conclusion: 'Should Increase Savings',
-    createdBy: 'admin1',
+    category: "Savings",
+    condition: "income >= 5000000 AND savings < 1000000",
+    conclusion: "Should Increase Savings",
+    createdBy: "admin1",
   },
-]
+];
 
 export default function ManageRulesPage() {
-  const [search, setSearch] = useState('')
-  const [filterCategory, setFilterCategory] = useState('All')
+  const router = useRouter();
+
+  const [search, setSearch] = useState("");
+  const [filterCategory, setFilterCategory] = useState("All");
 
   const filteredRules = allRules.filter((rule) => {
     const matchCategory =
-      filterCategory === 'All' || rule.category === filterCategory
+      filterCategory === "All" || rule.category === filterCategory;
     const matchSearch = rule.condition
       .toLowerCase()
-      .includes(search.toLowerCase())
-    return matchCategory && matchSearch
-  })
+      .includes(search.toLowerCase());
+    return matchCategory && matchSearch;
+  });
+
+  const handleAddRule = () => {
+    router.push(ROUTE_PATHS.ADMIN.MANAGE_RULE.ADD);
+  };
 
   return (
     <div className="p-6 space-y-6">
       {/* Header */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-        <h1 className="text-2xl font-semibold">Manage Rules</h1>
+      <h1 className="text-2xl font-semibold">Manage Rules</h1>
 
-        <div className="flex gap-2 flex-wrap">
+      <Grid container size={12} justifyContent={"space-between"}>
+        <Grid container size={6} spacing={2}>
           <TextField
             size="small"
             label="Search rules..."
@@ -78,7 +87,7 @@ export default function ManageRulesPage() {
               value={filterCategory}
               label="Category"
               onChange={(e) => setFilterCategory(e.target.value)}
-              className='w-[200px]'
+              className="w-[200px]"
             >
               <MenuItem value="All">All</MenuItem>
               <MenuItem value="Emergency Fund">Emergency Fund</MenuItem>
@@ -86,12 +95,11 @@ export default function ManageRulesPage() {
               <MenuItem value="Savings">Savings</MenuItem>
             </Select>
           </FormControl>
-
-          <Button variant="contained" color="primary">
-            Add Rule
-          </Button>
-        </div>
-      </div>
+        </Grid>
+        <Button variant="contained" color="primary" onClick={handleAddRule}>
+          Add Rule
+        </Button>
+      </Grid>
 
       {/* Table */}
       <TableContainer component={Paper} className="rounded-lg shadow-md">
@@ -117,7 +125,7 @@ export default function ManageRulesPage() {
                 <TableCell>
                   <div className="flex gap-2">
                     <IconButton size="small">
-                      <FaEdit className='text-primary' />
+                      <FaEdit className="text-primary" />
                     </IconButton>
                     <IconButton size="small" color="error">
                       <FaTrashCan />
@@ -135,5 +143,5 @@ export default function ManageRulesPage() {
         <Pagination count={5} color="primary" />
       </div>
     </div>
-  )
+  );
 }

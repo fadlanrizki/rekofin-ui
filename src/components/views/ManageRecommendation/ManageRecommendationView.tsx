@@ -20,6 +20,8 @@ import {
 import { useState } from 'react'
 import { FaEdit } from "react-icons/fa";
 import { FaTrashCan } from "react-icons/fa6";
+import { useRouter } from 'next/navigation';
+import { ROUTE_PATHS } from '@/utils/constants/routes';
 
 const dummyRecommendations = [
   {
@@ -37,6 +39,7 @@ const dummyRecommendations = [
 ]
 
 export default function ManageRecommendationView() {
+  const router = useRouter();
   const [search, setSearch] = useState('')
   const [filterCategory, setFilterCategory] = useState('All')
   const [filterSource, setFilterSource] = useState('All')
@@ -47,6 +50,10 @@ export default function ManageRecommendationView() {
     const matchSearch = rec.title.toLowerCase().includes(search.toLowerCase())
     return matchCategory && matchSource && matchSearch
   })
+
+  const handleAdd = () => {
+    router.push(ROUTE_PATHS.ADMIN.MANAGE_RECOMMENDATION.ADD)
+  }
 
   return (
     <div className="p-6 space-y-6">
@@ -93,7 +100,7 @@ export default function ManageRecommendationView() {
           </FormControl>
           </div>
 
-          <Button variant="contained" color="primary">
+          <Button variant="contained" color="primary" onClick={handleAdd}>
             Add Recommendation
           </Button>
           </div>
