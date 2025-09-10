@@ -6,15 +6,15 @@ import Link from "next/link";
 import Image from "next/image";
 import PasswordTextfield from "@/components/shared/Textfield/PasswordTextfield/PasswordTextfield";
 import { useState } from "react";
-import { registerService } from "@/service/authService";
 import axios from "axios";
 import ModalSuccess from "@/components/shared/Modal/ModalSuccess";
 import ModalFailed from "@/components/shared/Modal/ModalFailed";
-import { z } from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "next/navigation";
 import { ROUTE_PATHS } from "@/utils/constants/routes";
+import { registerSchema, TRegister } from "@/types/auth";
+import { registerService } from "@/service/authService";
 
 const initialValue = {
   fullName: "",
@@ -24,26 +24,6 @@ const initialValue = {
   confirm_password: "",
 };
 
-const registerForm = z
-  .object({
-    fullName: z.string().min(1, "Required"),
-    username: z.string().min(1, "Required"),
-    email: z.email("Invalid email format"),
-    password: z.string().min(1, "Required"),
-    confirm_password: z.string().min(1, "Required"),
-  })
-  .superRefine((data, ctx) => {
-    if (data.password !== data.confirm_password) {
-      ctx.addIssue({
-        code: z.ZodIssueCode.custom,
-        message: "Password do not match",
-        path: ["confirm_password"],
-      });
-    }
-  });
-
-type RegisterForm = z.infer<typeof registerForm>;
-
 function Register() {
   const router = useRouter();
   const {
@@ -51,9 +31,9 @@ function Register() {
     handleSubmit,
     formState: { errors },
     reset,
-  } = useForm<RegisterForm>({
+  } = useForm<TRegister>({
     defaultValues: initialValue,
-    resolver: zodResolver(registerForm),
+    resolver: zodResolver(registerSchema),
   });
 
   const [loading, setLoading] = useState(false);
@@ -61,7 +41,7 @@ function Register() {
   const [openModalSuccess, setOpenModalSuccess] = useState(false);
   const [openModalFailed, setOpenModalFailed] = useState(false);
 
-  const onSubmit = async (data: RegisterForm) => {
+  const onSubmit = async (data: TRegister) => {
     try {
       setLoading(true);
       const res = await registerService(data);

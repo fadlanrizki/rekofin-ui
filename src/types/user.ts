@@ -1,4 +1,3 @@
-import { StatusOk } from "./response";
 import { z } from "zod";
 
 export type UserLoginRequestType = {
@@ -6,12 +5,9 @@ export type UserLoginRequestType = {
   password: string;
 };
 
-export type UserLoginResponseType = StatusOk & {
+export type UserLoginResponseType = {
   data: {
-    username: string;
-    fullname: string;
     token?: string;
-    role: string;
   };
   message?: string;
 };
@@ -21,6 +17,14 @@ export type UserRegisterRequestType = {
   fullName: string;
   email: string;
   password: string;
+};
+
+export type UserRegisterResponseType = {
+  data: {
+    fullName: string;
+    username: string;
+  };
+  message: string;
 };
 
 export const ManageUserSchema = z.object({
