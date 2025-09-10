@@ -13,18 +13,9 @@ import {
   Typography,
 } from "@mui/material";
 import React from "react";
-import { useForm } from "react-hook-form";
+import { Controller, useForm } from "react-hook-form";
 
-const roleOption = [
-  {
-    label: "User",
-    value: "user",
-  },
-  {
-    label: "Admin",
-    value: "admin",
-  },
-];
+const roleOption = ["User", "Admin"];
 
 type AddEditUserProp = {
   onSubmit: (data: ManageUserForm) => void;
@@ -49,10 +40,14 @@ export default function AddEditUserView({
     register,
     handleSubmit,
     formState: { errors },
+    watch,
+    control,
   } = useForm<ManageUserForm>({
     resolver: zodResolver(ManageUserSchema),
     defaultValues: initialValue,
   });
+
+  console.log("watch() > ", watch());
 
   return (
     <Box className="scroll-auto">
@@ -65,10 +60,8 @@ export default function AddEditUserView({
               size="small"
               fullWidth
               error={!!errors.fullName}
+              helperText={errors.fullName?.message}
             />
-            {!!errors.fullName && (
-              <p className="text-red-500">{errors.fullName.message}</p>
-            )}
           </Grid>
           <Grid size={6}>
             <Typography>Username</Typography>
@@ -77,10 +70,8 @@ export default function AddEditUserView({
               size="small"
               fullWidth
               error={!!errors.username}
+              helperText={errors.username?.message}
             />
-            {!!errors.username && (
-              <p className="text-red-500">{errors.username.message}</p>
-            )}
           </Grid>
 
           <Grid size={12}>
@@ -90,10 +81,8 @@ export default function AddEditUserView({
               size="small"
               fullWidth
               error={!!errors.email}
+              helperText={errors.email?.message}
             />
-            {!!errors.email && (
-              <p className="text-red-500">{errors.email.message}</p>
-            )}
           </Grid>
           <Grid size={6}>
             <Typography>Password</Typography>
@@ -102,10 +91,8 @@ export default function AddEditUserView({
               fullWidth
               size="small"
               error={!!errors.password}
+              helperText={errors.password?.message}
             />
-            {!!errors.password && (
-              <p className="text-red-500">{errors.password.message}</p>
-            )}
           </Grid>
           <Grid size={6}>
             <Typography>Confirm Password</Typography>
@@ -114,28 +101,32 @@ export default function AddEditUserView({
               fullWidth
               size="small"
               error={!!errors.confirmPassword}
+              helperText={errors.confirmPassword?.message}
             />
-            {!!errors.confirmPassword && (
-              <p className="text-red-500">{errors.confirmPassword.message}</p>
-            )}
           </Grid>
           <Grid size={12}>
             <Typography>Role</Typography>
-            <Autocomplete
-              disablePortal
-              options={roleOption}
-              renderInput={(params) => (
-                <TextField
-                  {...params}
-                  fullWidth
-                  size="small"
-                  error={!!errors.role}
+
+            <Controller
+              name="role"
+              control={control}
+              render={({ field, fieldState }) => (
+                <Autocomplete
+                  {...field}
+                  options={roleOption}
+                  value={field.value}
+                  onChange={(_, newValue) => field.onChange(newValue)}
+                  renderInput={(params) => (
+                    <TextField
+                      {...params}
+                      size="small"
+                      error={!!fieldState.error}
+                      helperText={fieldState.error?.message}
+                    />
+                  )}
                 />
               )}
             />
-            {!!errors.role && (
-              <p className="text-red-500">{errors.role.message}</p>
-            )}
           </Grid>
           <Grid size={6}>
             <Typography>Gender</Typography>

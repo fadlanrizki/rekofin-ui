@@ -1,16 +1,20 @@
 "use client";
 
 import Logo from "@/components/shared/Logo";
-import { TextField, Button } from "@mui/material";
+import { TextField, Button, Grid } from "@mui/material";
 import Link from "next/link";
 import Image from "next/image";
 import PasswordTextfield from "@/components/shared/Textfield/PasswordTextfield/PasswordTextfield";
-import { ChangeEvent, FormEvent, useState } from "react";
+import { useState } from "react";
 import { registerService } from "@/service/authService";
-import { UserRegisterResponseType } from "@/types/user";
 import axios from "axios";
 import ModalSuccess from "@/components/shared/Modal/ModalSuccess";
 import ModalFailed from "@/components/shared/Modal/ModalFailed";
+import { z } from "zod";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useRouter } from "next/navigation";
+import { ROUTE_PATHS } from "@/utils/constants/routes";
 
 const initialValue = {
   fullName: "",
@@ -20,37 +24,54 @@ const initialValue = {
   confirm_password: "",
 };
 
+const registerForm = z
+  .object({
+    fullName: z.string().min(1, "Required"),
+    username: z.string().min(1, "Required"),
+    email: z.email("Invalid email format"),
+    password: z.string().min(1, "Required"),
+    confirm_password: z.string().min(1, "Required"),
+  })
+  .superRefine((data, ctx) => {
+    if (data.password !== data.confirm_password) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "Password do not match",
+        path: ["confirm_password"],
+      });
+    }
+  });
+
+type RegisterForm = z.infer<typeof registerForm>;
+
 function Register() {
-  const [userData, setUserData] = useState(initialValue);
+  const router = useRouter();
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+    reset,
+  } = useForm<RegisterForm>({
+    defaultValues: initialValue,
+    resolver: zodResolver(registerForm),
+  });
+
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState("");
   const [openModalSuccess, setOpenModalSuccess] = useState(false);
   const [openModalFailed, setOpenModalFailed] = useState(false);
 
-  const handleChange = (
-    event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
-  ) => {
-    const { name, value } = event.target;
-
-    setUserData((prev) => {
-      return {
-        ...prev,
-        [name]: value,
-      };
-    });
-  };
-
-  const handleReset = () => {
-    setUserData(initialValue);
-  };
-
-  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
+  const onSubmit = async (data: RegisterForm) => {
     try {
       setLoading(true);
-      const res: UserRegisterResponseType = await registerService(userData);
+      const res = await registerService(data);
       setMessage(res.message);
       setOpenModalSuccess(true);
+      reset();
+
+      setTimeout(() => {
+        redirectToLogin();
+      }, 3000);
     } catch (error) {
       if (axios.isAxiosError(error)) {
         setMessage(error?.response?.data?.message);
@@ -60,10 +81,12 @@ function Register() {
       setOpenModalFailed(true);
     } finally {
       setLoading(false);
-      handleReset();
     }
   };
 
+  const redirectToLogin = () => {
+    router.push(ROUTE_PATHS.LOGIN);
+  };
   return (
     <div className="flex min-h-screen">
       {/* KIRI: Branding Section */}
@@ -93,65 +116,65 @@ function Register() {
           <h2 className="text-lg font-medium text-gray-800 my-10 text-left">
             Buat Akun Baru
           </h2>
-          <form
-            className="space-y-5 flex flex-col gap-5"
-            onSubmit={handleSubmit}
-          >
-            <TextField
-              fullWidth
-              label="Nama Lengkap"
-              variant="outlined"
-              type="text"
-              placeholder="Nama Lengkap"
-              onChange={handleChange}
-              name="fullName"
-              value={userData.fullName}
-            />
-            <TextField
-              fullWidth
-              label="username"
-              variant="outlined"
-              type="text"
-              placeholder="username"
-              name="username"
-              onChange={handleChange}
-              value={userData.username}
-            />
-            <TextField
-              fullWidth
-              label="Email"
-              variant="outlined"
-              type="email"
-              placeholder="user@example.com"
-              onChange={handleChange}
-              name={"email"}
-              value={userData.email}
-            />
-            <PasswordTextfield
-              label="Password"
-              onChange={handleChange}
-              name="password"
-              value={userData.password}
-            />
-            <PasswordTextfield
-              label="Konfirmasi Password"
-              onChange={handleChange}
-              name="confirm_password"
-              value={userData.confirm_password}
-            />
+          <form onSubmit={handleSubmit(onSubmit)}>
+            <Grid container size={12} direction={"column"} spacing={2}>
+              <TextField
+                {...register("fullName")}
+                fullWidth
+                label="Nama Lengkap"
+                variant="outlined"
+                placeholder="Nama Lengkap"
+                error={!!errors.fullName}
+                helperText={errors.fullName?.message}
+              />
 
-            <Button
-              fullWidth
-              variant="contained"
-              sx={{
-                backgroundColor: "#2ecc71",
-                "&:hover": { backgroundColor: "#27ae60" },
-              }}
-              loading={loading}
-              type="submit"
-            >
-              Daftar Sekarang
-            </Button>
+              <TextField
+                {...register("username")}
+                fullWidth
+                label="username"
+                variant="outlined"
+                type="text"
+                placeholder="username"
+                error={!!errors.username}
+                helperText={errors.username?.message}
+              />
+
+              <TextField
+                {...register("email")}
+                fullWidth
+                label="Email"
+                variant="outlined"
+                type="email"
+                placeholder="user@example.com"
+                error={!!errors.email}
+                helperText={errors.email?.message}
+              />
+              <PasswordTextfield
+                {...register("password")}
+                label="Password"
+                error={!!errors.password}
+                helperText={errors.password?.message}
+              />
+              <PasswordTextfield
+                {...register("confirm_password")}
+                label="Konfirmasi Password"
+                error={!!errors.confirm_password}
+                helperText={errors.confirm_password?.message}
+              />
+
+              <Button
+                fullWidth
+                variant="contained"
+                sx={{
+                  backgroundColor: "#2ecc71",
+                  "&:hover": { backgroundColor: "#27ae60" },
+                }}
+                loading={loading}
+                type="submit"
+              >
+                Daftar Sekarang
+              </Button>
+            </Grid>
           </form>
           <p className="mt-6 text-sm text-center text-gray-600">
             Sudah punya akun?{" "}
