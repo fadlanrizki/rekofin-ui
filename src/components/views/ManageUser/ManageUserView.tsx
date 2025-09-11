@@ -22,7 +22,7 @@ import { FaEdit } from "react-icons/fa";
 import { FaTrashCan } from "react-icons/fa6";
 import AddEditUserView from "./AddEditUserView";
 import ModalCustom from "@/components/shared/Modal/ModalCustom";
-import { ManageUserForm } from "@/types/user";
+import ModalSuccess from "@/components/shared/Modal/ModalSuccess";
 
 const dummyUsers = [
   {
@@ -49,6 +49,8 @@ export default function ManageUserView() {
   const [search, setSearch] = useState("");
   const [filterRole, setFilterRole] = useState("All");
   const [modalUser, setModalUser] = useState(false);
+  const [modalSuccess, setModalSuccess] = useState(false);
+  const [message, setMessage] = useState("");
 
   const onOpenModalUser = () => {
     setModalUser(true);
@@ -56,10 +58,6 @@ export default function ManageUserView() {
   const onCloseModalUser = () => {
     setModalUser(false);
   };
-
-  const handleSubmit = (data: ManageUserForm) => {
-    console.log(JSON.stringify(data));
-  }
 
   const filteredUsers = dummyUsers.filter((user) => {
     const matchRole =
@@ -70,6 +68,12 @@ export default function ManageUserView() {
       user.email.toLowerCase().includes(search.toLowerCase());
     return matchRole && matchSearch;
   });
+
+  const handleSuccess = (message: string) => {
+    setModalSuccess(true);
+    setMessage(message);
+    onCloseModalUser();
+  };
 
   return (
     <div className="p-6 space-y-6">
@@ -146,8 +150,17 @@ export default function ManageUserView() {
       </div>
 
       <ModalCustom title="User" open={modalUser} onClose={onCloseModalUser}>
-        <AddEditUserView onSubmit={handleSubmit} onClose={onCloseModalUser} />
+        <AddEditUserView
+          onClose={onCloseModalUser}
+          onSuccess={(message: string) => handleSuccess(message)}
+        />
       </ModalCustom>
+
+      <ModalSuccess
+        open={modalSuccess}
+        message={message}
+        onClose={() => setModalSuccess(false)}
+      />      
     </div>
   );
 }

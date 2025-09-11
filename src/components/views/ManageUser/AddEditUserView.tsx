@@ -1,4 +1,6 @@
+import ModalFailed from "@/components/shared/Modal/ModalFailed";
 import PasswordTextfield from "@/components/shared/Textfield/PasswordTextfield/PasswordTextfield";
+import { createUser } from "@/service/userService";
 import { ManageUserForm, ManageUserSchema } from "@/types/user";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
@@ -12,14 +14,16 @@ import {
   TextField,
   Typography,
 } from "@mui/material";
-import React from "react";
+import axios from "axios";
+import React, { useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 
 const roleOption = ["User", "Admin"];
 
 type AddEditUserProp = {
-  onSubmit: (data: ManageUserForm) => void;
+  isEdit?: boolean;
   onClose: () => void;
+  onSuccess: (message: string) => void;
 };
 
 const initialValue = {
@@ -29,25 +33,45 @@ const initialValue = {
   password: "",
   confirmPassword: "",
   role: "",
-  status: "",
 };
 
 export default function AddEditUserView({
-  onSubmit,
   onClose,
+  onSuccess,
 }: AddEditUserProp) {
   const {
     register,
     handleSubmit,
-    formState: { errors },
-    watch,
+    formState: { errors, isSubmitting },
     control,
+    reset,
   } = useForm<ManageUserForm>({
     resolver: zodResolver(ManageUserSchema),
     defaultValues: initialValue,
   });
 
-  console.log("watch() > ", watch());
+  const [modalFailed, setModalFailed] = useState(false);
+  const [message, setMessage] = useState("");
+
+  const onSubmit = async (data: ManageUserForm) => {
+    try {
+      const response = await createUser(data);
+
+      reset();
+      onSuccess(response.message);
+      onClose();
+    } catch (error) {
+      let message;
+
+      if (axios.isAxiosError(error)) {
+        message = error?.response?.data?.message;
+      } else if (error instanceof Error) {
+        message = error?.message;
+      }
+      setMessage(message);
+      setModalFailed(true)
+    }
+  };
 
   return (
     <Box className="scroll-auto">
@@ -148,12 +172,23 @@ export default function AddEditUserView({
             <Button variant="outlined" color="error" onClick={onClose}>
               Cancel
             </Button>
-            <Button variant="contained" color="primary" type="submit">
+            <Button
+              variant="contained"
+              color="primary"
+              type="submit"
+              loading={isSubmitting}
+            >
               Save
             </Button>
           </Grid>
         </Grid>
       </form>
+
+      <ModalFailed
+        open={modalFailed}
+        message={message}
+        onClose={() => setModalFailed(false)}
+      />
     </Box>
   );
 }

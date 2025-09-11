@@ -1,33 +1,54 @@
 import axios from "axios";
 
-const baseURL = process.env.NEXT_PUBLIC_API_BASE_URL
+const baseURL = process.env.NEXT_PUBLIC_API_BASE_URL;
 
 const axiosInstance = axios.create({
   baseURL: process.env.NEXT_PUBLIC_API_BASE_URL, // ex: 'https://api.example.com'
   timeout: 10000,
-  headers: {
-    "Content-Type": "application/json",
-  },
 });
+
+const getHeader = () => {
+  const token = localStorage.getItem("token");
+
+  if (!token) {
+    return {
+      "Content-Type": "application/json",
+    };
+  }
+
+  return {
+    "Content-Type": "application/json",
+    "authorization": "Bearer " + token
+  };
+};
 
 export const apiClient = {
   get: async <T>(url: string, params?: object): Promise<T> => {
-    const response = await axiosInstance.get<T>(url, { params });
+    const response = await axiosInstance.get<T>(url, {
+      params,
+      headers: getHeader(),
+    });
     return response.data;
   },
 
   post: async <T>(url: string, data?: object): Promise<T> => {
-    const response = await axiosInstance.post<T>(url, data);
+    const response = await axiosInstance.post<T>(url, data, {
+      headers: getHeader(),
+    });
     return response.data;
   },
 
   put: async <T>(url: string, data?: object): Promise<T> => {
-    const response = await axiosInstance.put<T>(url, data);
+    const response = await axiosInstance.put<T>(url, data, {
+      headers: getHeader(),
+    });
     return response.data;
   },
 
   delete: async <T>(url: string): Promise<T> => {
-    const response = await axiosInstance.delete<T>(url);
+    const response = await axiosInstance.delete<T>(url, {
+      headers: getHeader(),
+    });
     return response.data;
   },
 };
@@ -48,17 +69,14 @@ export const apiService = async (
       data,
     });
 
-    return response.data
-
+    return response.data;
   } catch (error: any) {
-    console.log(error);    
+    console.log(error);
     const { status } = error.response;
 
     switch (status) {
       case 403:
-        
-        break
+        break;
     }
-
   }
 };
