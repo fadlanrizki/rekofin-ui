@@ -5,26 +5,11 @@ export type UserLoginRequestType = {
   password: string;
 };
 
-export type UserLoginResponseType = {
-  data: {
-    token?: string;
-  };
-  message?: string;
-};
-
 export type UserRegisterRequestType = {
   username: string;
   fullName: string;
   email: string;
   password: string;
-};
-
-export type UserRegisterResponseType = {
-  data: {
-    fullName: string;
-    username: string;
-  };
-  message: string;
 };
 
 export const ManageUserSchema = z.object({

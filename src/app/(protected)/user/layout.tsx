@@ -9,6 +9,7 @@ import Logo from "@/components/shared/Logo";
 import Link from "next/link";
 import { JSX, useState } from "react";
 import { ROUTE_PATHS } from "@/utils/constants/routes";
+import { useRouter } from "next/navigation";
 
 type MenuType = {
   name: string;
@@ -50,7 +51,15 @@ const listMenu = [
 ];
 
 const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
+  const router = useRouter()
   const [openSidebar, setOpenSidebar] = useState(true);
+
+  const onLogout = (path: string) => {
+    localStorage.clear();
+
+    router.push(path);
+  }
+
   return (
     <main
       className="h-screen w-full overflow-hidden flex flex-col bg-background-light text-gray-700"
@@ -78,23 +87,38 @@ const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
 
       <div className="flex flex-1 relative md:static">
         <aside
-            className={
-              openSidebar
-                ? "flex w-full md:w-72 flex-col space-y-2 border-r-2 border-gray-200 bg-primary p-2 text-white font-medium absolute z-50 md:static"
-                : "hidden"
+          className={
+            openSidebar
+              ? "flex w-full md:w-72 flex-col space-y-2 border-r-2 border-gray-200 bg-primary p-2 text-white font-medium absolute z-50 md:static"
+              : "hidden"
+          }
+        >
+          {listMenu.map((item: MenuType, index) => {
+            if (item.name === "Keluar") {
+              return (
+                <button
+                  key={index}
+                  onClick={() => onLogout(item.path)}
+                  className="flex justify-center md:justify-start items-center space-x-1 rounded-md px-2 py-3 hover:bg-gray-100 hover:text-primary cursor-pointer"
+                >
+                  <span className="text-2xl">{item.icon}</span>
+                  <span>{item.name}</span>
+                </button>
+              );
+            } else {
+              return (
+                <Link
+                  key={index}
+                  href={item.path}
+                  className="flex justify-center md:justify-start items-center space-x-1 rounded-md px-2 py-3 hover:bg-gray-100 hover:text-primary"
+                >
+                  <span className="text-2xl">{item.icon}</span>
+                  <span>{item.name}</span>
+                </Link>
+              );
             }
-          >
-            {listMenu.map((item: MenuType, index) => (
-              <Link
-                key={index}
-                href={item.path}
-                className="flex justify-center md:justify-start items-center space-x-1 rounded-md px-2 py-3 hover:bg-gray-100 hover:text-primary"
-              >
-                <span className="text-2xl">{item.icon}</span>
-                <span>{item.name}</span>
-              </Link>
-            ))}
-          </aside>
+          })}
+        </aside>
         <div className="w-full px-4 pt-4 pb-6 h-[92vh] overflow-y-auto box-border">
           {children}
         </div>
