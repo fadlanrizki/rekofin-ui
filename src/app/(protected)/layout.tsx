@@ -16,7 +16,7 @@ export default function ProtectedLayout({
   useEffect(() => {
     const token = localStorage.getItem("token");
 
-    if (!token || isTokenValid(token)) {
+    if (!token || !isTokenValid(token)) {
       localStorage.removeItem("token");
       router.replace(ROUTE_PATHS.LOGIN);
     } else {
