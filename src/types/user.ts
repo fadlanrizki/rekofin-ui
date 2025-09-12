@@ -20,3 +20,22 @@ export const ManageUserSchema = z
   });
 
 export type ManageUserForm = z.infer<typeof ManageUserSchema>;
+
+export type FilterUser = {
+  role: "all" | "admin" | "employee";
+};
+
+export type ParamsUser = {
+  search: string;
+  filter: FilterUser;
+  limit: number;
+  page: number;
+};
+
+export type TListUser = {
+  id: number;
+  fullName: string;
+  email: string;
+  role: string;
+  createdAt: string;
+};

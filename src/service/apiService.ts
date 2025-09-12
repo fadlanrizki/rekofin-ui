@@ -3,7 +3,7 @@ import axios from "axios";
 const baseURL = process.env.NEXT_PUBLIC_API_BASE_URL;
 
 const axiosInstance = axios.create({
-  baseURL: process.env.NEXT_PUBLIC_API_BASE_URL, // ex: 'https://api.example.com'
+  baseURL,
   timeout: 10000,
 });
 
@@ -18,17 +18,30 @@ const getHeader = () => {
 
   return {
     "Content-Type": "application/json",
-    "authorization": "Bearer " + token
+    authorization: "Bearer " + token,
   };
 };
 
 export const apiClient = {
   get: async <T>(url: string, params?: object): Promise<T> => {
-    const response = await axiosInstance.get<T>(url, {
-      params,
-      headers: getHeader(),
-    });
-    return response.data;
+    try {
+      const response = await axiosInstance.get<T>(url, {
+        params,
+        headers: getHeader(),
+      });
+
+      return response.data;
+    } catch (error: any) {
+      const { status } = error.response;
+
+      switch (status) {
+        case 403:
+          localStorage.removeItem("token");
+          window.location.reload();
+        default:
+          return error;
+      }
+    }
   },
 
   post: async <T>(url: string, data?: object): Promise<T> => {
