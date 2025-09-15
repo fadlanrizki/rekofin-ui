@@ -8,6 +8,7 @@ export const ManageUserSchema = z
     password: z.string().min(1, "Required"),
     confirmPassword: z.string().min(1, "Required"),
     role: z.string().nonempty("Required"),
+    gender: z.string().optional(),
   })
   .superRefine((data, ctx) => {
     if (data.password !== data.confirmPassword) {

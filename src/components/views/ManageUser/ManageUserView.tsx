@@ -25,10 +25,13 @@ import AddEditUserView from "./AddEditUserView";
 import ModalCustom from "@/components/shared/Modal/ModalCustom";
 import ModalSuccess from "@/components/shared/Modal/ModalSuccess";
 import { ParamsUser, TListUser } from "@/types/user";
-import { getUsers } from "@/service/userService";
+import { userService } from "@/service/userService";
 import Loading from "@/components/shared/Loading";
 // import { useDebounce } from "@/hooks/useDebounce";
 import { IoSearch } from "react-icons/io5";
+import ModalConfirmation from "@/components/shared/Modal/ModalConfirmation";
+import ModalFailed from "@/components/shared/Modal/ModalFailed";
+import TablePagination from "@/components/shared/Pagination/TablePagination";
 
 const defaultParams: ParamsUser = {
   search: "",
@@ -42,32 +45,43 @@ const defaultParams: ParamsUser = {
 export default function ManageUserView() {
   const [modalUser, setModalUser] = useState(false);
   const [modalSuccess, setModalSuccess] = useState(false);
+  const [modalConfirm, setModalConfirm] = useState(false);
+  const [modalFailed, setModalFailed] = useState(false);
   const [message, setMessage] = useState("");
   const [users, setUsers] = useState<TListUser[] | null>(null);
   const [params, setParams] = useState<ParamsUser>(defaultParams);
   const [loading, setLoading] = useState(true);
+  const [selectedId, setSelectedId] = useState("");
+  const [isEdit, setIsEdit] = useState(false);
+  const [totalUser, setTotalUser] = useState(0); // const debounceSearch = useDebounce(params.search, 1500);
 
-  // const debounceSearch = useDebounce(params.search, 1500);
+  const onOpenModalUser = () => setModalUser(true);
+  const onCloseModalUser = () => setModalUser(false);
 
-  const onOpenModalUser = () => {
-    setModalUser(true);
-  };
-  const onCloseModalUser = () => {
-    setModalUser(false);
-  };
+  const onOpenModalConfirm = () => setModalConfirm(true);
+  const onCloseModalConfirm = () => setModalConfirm(false);
+
+  const onOpenModalSuccess = () => setModalSuccess(true);
+  const onCloseModalSuccess = () => setModalSuccess(false);
+
+  const onOpenModalFailed = () => setModalFailed(true);
+  const onCloseModalFailed = () => setModalFailed(false);
 
   const handleSuccess = (message: string) => {
-    setModalSuccess(true);
+    onOpenModalSuccess();
     setMessage(message);
     onCloseModalUser();
+
+    fetchUsers();
   };
 
   const fetchUsers = async () => {
     setLoading(true);
     try {
-      const response = await getUsers(params);
+      const response = await userService.getUsers(params);
 
       setUsers(response.data);
+      setTotalUser(response.total);
     } catch (error: any) {
       console.log(error);
     } finally {
@@ -81,7 +95,7 @@ export default function ManageUserView() {
 
   useEffect(() => {
     fetchUsers();
-  }, [params.filter.role]);
+  }, [params.filter.role, params.page]);
 
   const handleChangeSearch = (value: string) => {
     setParams((prev) => ({
@@ -106,6 +120,44 @@ export default function ManageUserView() {
     if (value.key === "Enter") {
       fetchUsers();
     }
+  };
+
+  const handleDeleteUser = (user: TListUser) => {
+    setSelectedId(user.id.toString());
+    setMessage(`Apakah anda yakin ingin menghapus user "${user.fullName}" ? `);
+    onOpenModalConfirm();
+  };
+
+  const apiDeleteUser = async () => {
+    setLoading(true);
+    try {
+      const response = await userService.deleteUser(selectedId);
+      setMessage(response.message);
+      onOpenModalSuccess();
+    } catch (error: any) {
+      setMessage(error.message);
+      onOpenModalFailed();
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleAddUser = () => {
+    setIsEdit(true);
+    onOpenModalUser();
+  };
+
+  const handleChangePage = (event: any, page: number) => {
+    setParams((prev) => ({
+      ...prev,
+      page,
+    }));
+  };
+
+  const handleEditUser = (id: string) => {
+    setIsEdit(true);
+    setSelectedId(id);
+    onOpenModalUser();
   };
 
   return (
@@ -148,7 +200,7 @@ export default function ManageUserView() {
           </FormControl>
         </Grid>
         <Grid container justifyContent={"flex-end"}>
-          <Button variant="contained" color="primary" onClick={onOpenModalUser}>
+          <Button variant="contained" color="primary" onClick={handleAddUser}>
             Add User
           </Button>
         </Grid>
@@ -195,7 +247,11 @@ export default function ManageUserView() {
                       <IconButton size="small" color="primary">
                         <FaEdit className="text-primary" />
                       </IconButton>
-                      <IconButton size="small" color="error">
+                      <IconButton
+                        size="small"
+                        color="error"
+                        onClick={() => handleDeleteUser(user)}
+                      >
                         <FaTrashCan />
                       </IconButton>
                     </div>
@@ -204,7 +260,9 @@ export default function ManageUserView() {
               ))
             ) : (
               <TableRow>
-                <p className="text-slate-500">Empty Data ...</p>
+                <TableCell colSpan={6} align="center">
+                  <p className="text-slate-500">Empty Data ...</p>
+                </TableCell>
               </TableRow>
             )}
           </TableBody>
@@ -213,20 +271,40 @@ export default function ManageUserView() {
 
       {/* Pagination */}
       <div className="flex justify-end">
-        <Pagination count={3} color="primary" />
+        <TablePagination
+          total={totalUser}
+          limit={params.limit}
+          onChange={handleChangePage}
+        />
       </div>
 
       <ModalCustom title="User" open={modalUser} onClose={onCloseModalUser}>
         <AddEditUserView
           onClose={onCloseModalUser}
           onSuccess={(message: string) => handleSuccess(message)}
+          isEdit={isEdit}
+          selectedId={selectedId}
         />
       </ModalCustom>
 
       <ModalSuccess
         open={modalSuccess}
         message={message}
-        onClose={() => setModalSuccess(false)}
+        onClose={onCloseModalSuccess}
+      />
+
+      <ModalConfirmation
+        open={modalConfirm}
+        onClose={onCloseModalConfirm}
+        message={message}
+        title={"Konfirmasi Hapus"}
+        onSubmit={apiDeleteUser}
+      />
+
+      <ModalFailed
+        open={modalFailed}
+        message={message}
+        onClose={onCloseModalFailed}
       />
     </div>
   );

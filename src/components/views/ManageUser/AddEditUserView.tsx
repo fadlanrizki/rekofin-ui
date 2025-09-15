@@ -1,6 +1,6 @@
 import ModalFailed from "@/components/shared/Modal/ModalFailed";
 import PasswordTextfield from "@/components/shared/Textfield/PasswordTextfield/PasswordTextfield";
-import { createUser } from "@/service/userService";
+import { userService } from "@/service/userService";
 import { ManageUserForm, ManageUserSchema } from "@/types/user";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
@@ -15,13 +15,14 @@ import {
   Typography,
 } from "@mui/material";
 import axios from "axios";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 
 const roleOption = ["User", "Admin"];
 
 type AddEditUserProp = {
-  isEdit?: boolean;
+  isEdit: boolean;
+  selectedId: string;
   onClose: () => void;
   onSuccess: (message: string) => void;
 };
@@ -33,29 +34,51 @@ const initialValue = {
   password: "",
   confirmPassword: "",
   role: "",
+  gender: "",
 };
 
 export default function AddEditUserView({
   onClose,
   onSuccess,
+  isEdit,
+  selectedId,
 }: AddEditUserProp) {
+  const [loading, setLoading] = useState(false);
+  const [modalFailed, setModalFailed] = useState(false);
+  const [message, setMessage] = useState("");
+
   const {
     register,
     handleSubmit,
     formState: { errors, isSubmitting },
     control,
+    setValue,
     reset,
   } = useForm<ManageUserForm>({
     resolver: zodResolver(ManageUserSchema),
     defaultValues: initialValue,
   });
 
-  const [modalFailed, setModalFailed] = useState(false);
-  const [message, setMessage] = useState("");
+  const fetchUserById = async () => {
+    try {
+      setLoading(true);
+      const response = await userService.findUserById(selectedId);
+      const data = response.data;
+
+      setValue("fullName", data.fullName);
+      setValue("username", data.username);
+      setValue("email", data.email);
+      setValue("role", data.role);
+      setValue("gender", data.gender);
+    } catch (error: any) {
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const onSubmit = async (data: ManageUserForm) => {
     try {
-      const response = await createUser(data);
+      const response = await userService.createUser(data);
 
       reset();
       onSuccess(response.message);
@@ -69,7 +92,7 @@ export default function AddEditUserView({
         message = error?.message;
       }
       setMessage(message);
-      setModalFailed(true)
+      setModalFailed(true);
     }
   };
 
@@ -155,6 +178,7 @@ export default function AddEditUserView({
           <Grid size={6}>
             <Typography>Gender</Typography>
             <RadioGroup
+              {...register("gender")}
               aria-labelledby="demo-radio-buttons-group-label"
               name="radio-buttons-group"
               row

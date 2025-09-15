@@ -45,24 +45,61 @@ export const apiClient = {
   },
 
   post: async <T>(url: string, data?: object): Promise<T> => {
-    const response = await axiosInstance.post<T>(url, data, {
-      headers: getHeader(),
-    });
-    return response.data;
+    try {
+      const response = await axiosInstance.post<T>(url, data, {
+        headers: getHeader(),
+      });
+      return response.data;
+    } catch (error: any) {
+      const { status } = error.response;
+
+      switch (status) {
+        case 403:
+          localStorage.removeItem("token");
+          window.location.reload();
+        default:
+          return error;
+      }
+    }
   },
 
   put: async <T>(url: string, data?: object): Promise<T> => {
-    const response = await axiosInstance.put<T>(url, data, {
-      headers: getHeader(),
-    });
-    return response.data;
+    try {
+      const response = await axiosInstance.put<T>(url, data, {
+        headers: getHeader(),
+      });
+      return response.data;
+    } catch (error: any) {
+      const { status } = error.response;
+
+      switch (status) {
+        case 403:
+          localStorage.removeItem("token");
+          window.location.reload();
+        default:
+          return error;
+      }
+    }
   },
 
-  delete: async <T>(url: string): Promise<T> => {
-    const response = await axiosInstance.delete<T>(url, {
-      headers: getHeader(),
-    });
-    return response.data;
+  delete: async <T>(url: string, params?: object): Promise<T> => {
+    try {
+      const response = await axiosInstance.delete<T>(url, {
+        params,
+        headers: getHeader(),
+      });
+      return response.data;
+    } catch (error: any) {
+      const { status } = error.response;
+
+      switch (status) {
+        case 403:
+          localStorage.removeItem("token");
+          window.location.reload();
+        default:
+          return error;
+      }
+    }
   },
 };
 

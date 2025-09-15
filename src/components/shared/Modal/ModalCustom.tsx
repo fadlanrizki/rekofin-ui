@@ -1,9 +1,4 @@
-import {
-  Box,
-  Grid,
-  Modal,
-  Typography,
-} from "@mui/material";
+import { Box, Grid, Modal, Typography } from "@mui/material";
 import React from "react";
 import { RxCross2 } from "react-icons/rx";
 
@@ -14,7 +9,6 @@ const style = {
   transform: "translate(-50%, -50%)",
   minWidth: 500,
   bgcolor: "background.paper",
-  border: "1px solid #000",
   boxShadow: 24,
   p: 4,
 };
@@ -23,7 +17,7 @@ type ModalProps = {
   title?: string;
   open: boolean;
   onClose: () => void;
-  children: React.ReactNode
+  children: React.ReactNode;
 };
 
 export default function ModalCustom({

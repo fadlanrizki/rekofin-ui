@@ -4,7 +4,7 @@ import { TLogin, TRegister } from "@/types/auth";
 
 export const loginService = async (data: TLogin): Promise<any> => {
   return await apiClient.post(API_ROUTE.AUTH.LOGIN, data);
-//   return await apiService(API_ROUTE.AUTH.LOGIN, "POST", data);
+  //   return await apiService(API_ROUTE.AUTH.LOGIN, "POST", data);
 };
 
 export const registerService = async (data: TRegister): Promise<any> => {
