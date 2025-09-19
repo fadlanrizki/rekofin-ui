@@ -9,13 +9,22 @@ interface JwtPayload {
 }
 
 export function decodeToken(token: string) {
-  const decode = jwtDecode<JwtPayload>(token)
-  
-  return decode;
+  try {
+    const decode = jwtDecode<JwtPayload>(token);
+    return decode;
+  } catch (error) {
+    console.log(error);
+    return null;
+  }
 }
 
 export function isTokenValid(token: string): boolean {
   const decoded = decodeToken(token);
   const now = Date.now() / 1000;
-  return decoded.exp > now;
+
+  if (!decoded) {
+    return false;
+  }
+
+  return decoded?.exp > now;
 }

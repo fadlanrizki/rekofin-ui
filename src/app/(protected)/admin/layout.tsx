@@ -5,13 +5,56 @@ import { FaUserCircle } from "react-icons/fa";
 import { TbLogout2 } from "react-icons/tb";
 import Logo from "@/components/shared/Logo";
 import Link from "next/link";
-import { useState } from "react";
+import { JSX, useState } from "react";
 import { MdManageAccounts } from "react-icons/md";
 import { IoTrailSignSharp } from "react-icons/io5";
 import { VscLightbulbSparkle } from "react-icons/vsc";
+import { ROUTE_PATHS } from "@/utils/constants/routes";
+import { useRouter } from "next/navigation";
+
+type MenuType = {
+  name: string;
+  path: string;
+  icon: JSX.Element;
+};
+
+const listMenu = [
+  {
+    name: "Dashboard",
+    path: ROUTE_PATHS.ADMIN.DASHBOARD,
+    icon: <MdOutlineSpaceDashboard size={25} />,
+  },
+  {
+    name: "Kelola User",
+    path: ROUTE_PATHS.ADMIN.MANAGE_USER.LIST,
+    icon: <MdManageAccounts size={25} />,
+  },
+  {
+    name: "Kelola Aturan",
+    path: ROUTE_PATHS.ADMIN.MANAGE_RULE.LIST,
+    icon: <IoTrailSignSharp size={25} />,
+  },
+  {
+    name: "Kelola Rekomendasi",
+    path: ROUTE_PATHS.ADMIN.MANAGE_RECOMMENDATION.LIST,
+    icon: <VscLightbulbSparkle size={25} />,
+  },
+  {
+    name: "Keluar",
+    path: ROUTE_PATHS.LOGIN,
+    icon: <TbLogout2 size={25} />,
+  },
+];
 
 const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
+  const router = useRouter();
   const [openSidebar, setOpenSidebar] = useState(true);
+
+  const onLogout = (path: string) => {
+    localStorage.clear();
+    router.push(path);
+  };
+
   return (
     <main
       className="min-h-screen w-full flex flex-col bg-background-light text-gray-700"
@@ -41,60 +84,35 @@ const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
         <aside
           className={
             openSidebar
-              ? "flex w-82 flex-col justify-between space-y-2 border-r-2 border-gray-200 bg-primary p-2 text-white font-medium"
+              ? "flex w-full md:w-72 flex-col space-y-2 border-r-2 border-gray-200 bg-primary p-2 text-white font-medium absolute z-50 md:static"
               : "hidden"
           }
         >
-          <div>
-            <Link
-              href="/admin/dashboard"
-              className="flex items-center space-x-1 rounded-md px-2 py-3 hover:bg-gray-100 hover:text-primary"
-            >
-              <span className="text-2xl">
-                <MdOutlineSpaceDashboard size={25} />
-              </span>
-              <span>Dashboard</span>
-            </Link>
-
-            <Link
-              href="/admin/manage-user"
-              className="flex items-center space-x-1 rounded-md px-2 py-3 hover:bg-gray-100 hover:text-primary"
-            >
-              <span className="text-2xl">
-                <MdManageAccounts size={25} />
-              </span>
-              <span>Kelola User</span>
-            </Link>
-
-            <Link
-              href="/admin/manage-rule"
-              className="flex items-center space-x-1 rounded-md px-2 py-3 hover:bg-gray-100 hover:text-primary"
-            >
-              <span className="text-2xl">
-                <IoTrailSignSharp size={25} />
-              </span>
-              <span>Kelola Aturan</span>
-            </Link>
-
-            <Link
-              href="/admin/manage-recommendation"
-              className="flex items-center space-x-1 rounded-md px-2 py-3 hover:bg-gray-100 hover:text-primary"
-            >
-              <span className="text-2xl">
-                <VscLightbulbSparkle size={25} />
-              </span>
-              <span>Kelola Rekomendasi</span>
-            </Link>
-            <Link
-              href="/login"
-              className="flex items-center space-x-1 rounded-md px-2 py-3 hover:bg-gray-100 hover:text-primary"
-            >
-              <span className="text-2xl">
-                <TbLogout2 size={25} />
-              </span>
-              <span>Keluar</span>
-            </Link>
-          </div>
+          {listMenu.map((item: MenuType, index) => {
+            if (item.name === "Keluar") {
+              return (
+                <button
+                  key={index}
+                  onClick={() => onLogout(item.path)}
+                  className="flex justify-center md:justify-start items-center space-x-1 rounded-md px-2 py-3 hover:bg-gray-100 hover:text-primary cursor-pointer"
+                >
+                  <span className="text-2xl">{item.icon}</span>
+                  <span>{item.name}</span>
+                </button>
+              );
+            } else {
+              return (
+                <Link
+                  key={index}
+                  href={item.path}
+                  className="flex justify-center md:justify-start items-center space-x-1 rounded-md px-2 py-3 hover:bg-gray-100 hover:text-primary"
+                >
+                  <span className="text-2xl">{item.icon}</span>
+                  <span>{item.name}</span>
+                </Link>
+              );
+            }
+          })}
         </aside>
 
         <div className="w-full p-4">{children}</div>

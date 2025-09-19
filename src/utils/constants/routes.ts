@@ -15,7 +15,13 @@ export const ROUTE_PATHS = {
       LIST: `${adminPrefix}/manage-rule`,
       ADD: `${adminPrefix}/manage-rule/add`
     },
-    MANAGE_USER: `${adminPrefix}/manage-user`,
+    MANAGE_USER: {
+      LIST: `${adminPrefix}/manage-user`,
+      ADD: `${adminPrefix}/manage-user/form/add`,
+      EDIT: `${adminPrefix}/manage-user/form/edit`,
+      VIEW: `${adminPrefix}/manage-user/form/view`,
+      
+    },
     MANAGE_RECOMMENDATION: {
       LIST: `${adminPrefix}/manage-recommendation`,
       ADD: `${adminPrefix}/manage-recommendation/add`,

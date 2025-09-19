@@ -15,14 +15,12 @@ import {
   IconButton,
   InputLabel,
   FormControl,
-  Pagination,
   Grid,
 } from "@mui/material";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { FaEdit } from "react-icons/fa";
 import { FaTrashCan } from "react-icons/fa6";
-import AddEditUserView from "./AddEditUserView";
-import ModalCustom from "@/components/shared/Modal/ModalCustom";
+import { FaInfoCircle } from "react-icons/fa";
 import ModalSuccess from "@/components/shared/Modal/ModalSuccess";
 import { ParamsUser, TListUser } from "@/types/user";
 import { userService } from "@/service/userService";
@@ -32,6 +30,9 @@ import { IoSearch } from "react-icons/io5";
 import ModalConfirmation from "@/components/shared/Modal/ModalConfirmation";
 import ModalFailed from "@/components/shared/Modal/ModalFailed";
 import TablePagination from "@/components/shared/Pagination/TablePagination";
+import { useRouter } from "next/navigation";
+import { ROUTE_PATHS } from "@/utils/constants/routes";
+import { PAGE_ACTION } from "@/utils/constants/page-action";
 
 const defaultParams: ParamsUser = {
   search: "",
@@ -43,7 +44,7 @@ const defaultParams: ParamsUser = {
 };
 
 export default function ManageUserView() {
-  const [modalUser, setModalUser] = useState(false);
+  const router = useRouter();
   const [modalSuccess, setModalSuccess] = useState(false);
   const [modalConfirm, setModalConfirm] = useState(false);
   const [modalFailed, setModalFailed] = useState(false);
@@ -52,11 +53,8 @@ export default function ManageUserView() {
   const [params, setParams] = useState<ParamsUser>(defaultParams);
   const [loading, setLoading] = useState(true);
   const [selectedId, setSelectedId] = useState("");
-  const [isEdit, setIsEdit] = useState(false);
   const [totalUser, setTotalUser] = useState(0); // const debounceSearch = useDebounce(params.search, 1500);
-
-  const onOpenModalUser = () => setModalUser(true);
-  const onCloseModalUser = () => setModalUser(false);
+  const [tempSearch, setTempSearch] = useState("");
 
   const onOpenModalConfirm = () => setModalConfirm(true);
   const onCloseModalConfirm = () => setModalConfirm(false);
@@ -67,15 +65,7 @@ export default function ManageUserView() {
   const onOpenModalFailed = () => setModalFailed(true);
   const onCloseModalFailed = () => setModalFailed(false);
 
-  const handleSuccess = (message: string) => {
-    onOpenModalSuccess();
-    setMessage(message);
-    onCloseModalUser();
-
-    fetchUsers();
-  };
-
-  const fetchUsers = async () => {
+  const fetchUsers = useCallback(async () => {
     setLoading(true);
     try {
       const response = await userService.getUsers(params);
@@ -87,21 +77,14 @@ export default function ManageUserView() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [params]);
 
   useEffect(() => {
     fetchUsers();
-  }, []);
-
-  useEffect(() => {
-    fetchUsers();
-  }, [params.filter.role, params.page]);
+  }, [fetchUsers]);
 
   const handleChangeSearch = (value: string) => {
-    setParams((prev) => ({
-      ...prev,
-      search: value,
-    }));
+    setTempSearch(value);
   };
 
   const handleChangeRole = (value: string) => {
@@ -118,7 +101,10 @@ export default function ManageUserView() {
 
   const onEnterSearch = (value: any) => {
     if (value.key === "Enter") {
-      fetchUsers();
+      setParams((prev) => ({
+        ...prev,
+        search: tempSearch,
+      }));
     }
   };
 
@@ -143,8 +129,7 @@ export default function ManageUserView() {
   };
 
   const handleAddUser = () => {
-    setIsEdit(true);
-    onOpenModalUser();
+    router.push(ROUTE_PATHS.ADMIN.MANAGE_USER.ADD);
   };
 
   const handleChangePage = (event: any, page: number) => {
@@ -154,10 +139,19 @@ export default function ManageUserView() {
     }));
   };
 
-  const handleEditUser = (id: string) => {
-    setIsEdit(true);
-    setSelectedId(id);
-    onOpenModalUser();
+  const handleActions = (action: string, user: any) => {
+    const { id } = user;
+    switch (action) {
+      case "view":
+        router.push(`${ROUTE_PATHS.ADMIN.MANAGE_USER.VIEW}/${id}`);
+        break;
+      case "edit":
+        router.push(`${ROUTE_PATHS.ADMIN.MANAGE_USER.EDIT}/${id}`);
+        break;
+      case "delete":
+        handleDeleteUser(user);
+        break;
+    }
   };
 
   return (
@@ -244,13 +238,24 @@ export default function ManageUserView() {
                   <TableCell>{user.createdAt}</TableCell>
                   <TableCell>
                     <div className="flex gap-2">
-                      <IconButton size="small" color="primary">
-                        <FaEdit className="text-primary" />
+                      <IconButton
+                        size="small"
+                        onClick={() => handleActions(PAGE_ACTION.VIEW, user)}
+                      >
+                        <FaInfoCircle className="text-primary" />
+                      </IconButton>
+                      <IconButton
+                        size="small"
+                        onClick={() => handleActions(PAGE_ACTION.EDIT, user)}
+                      >
+                        <FaEdit className="text-accent" />
                       </IconButton>
                       <IconButton
                         size="small"
                         color="error"
-                        onClick={() => handleDeleteUser(user)}
+                        onClick={() =>
+                          handleActions(PAGE_ACTION.DELETE, user)
+                        }
                       >
                         <FaTrashCan />
                       </IconButton>
@@ -277,15 +282,6 @@ export default function ManageUserView() {
           onChange={handleChangePage}
         />
       </div>
-
-      <ModalCustom title="User" open={modalUser} onClose={onCloseModalUser}>
-        <AddEditUserView
-          onClose={onCloseModalUser}
-          onSuccess={(message: string) => handleSuccess(message)}
-          isEdit={isEdit}
-          selectedId={selectedId}
-        />
-      </ModalCustom>
 
       <ModalSuccess
         open={modalSuccess}

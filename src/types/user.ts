@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-export const ManageUserSchema = z
+export const AddManageUserSchema = z
   .object({
     fullName: z.string().min(1, "Required"),
     username: z.string().min(1, "Required"),
@@ -20,7 +20,26 @@ export const ManageUserSchema = z
     }
   });
 
-export type ManageUserForm = z.infer<typeof ManageUserSchema>;
+export const EditManageUserSchema = z
+  .object({
+    fullName: z.string().min(1, "Required"),
+    username: z.string().min(1, "Required"),
+    email: z.string().min(1, "Required"),
+    password: z.string().optional(),
+    confirmPassword: z.string().optional(),
+    role: z.string().nonempty("Required"),
+    gender: z.string().optional(),
+  })
+  .superRefine((data, ctx) => {
+    if (data.password !== data.confirmPassword) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "Password do not match",
+        path: ["confirmPassword"],
+      });
+    }
+  });
+
 
 export type FilterUser = {
   role: "all" | "admin" | "employee";
