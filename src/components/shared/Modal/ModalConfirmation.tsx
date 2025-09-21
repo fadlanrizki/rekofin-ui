@@ -22,7 +22,7 @@ const ModalConfirmation = ({
       <Grid container direction={"column"} spacing={4}>
         <p>{message}</p>
         <Grid container justifyContent={"flex-end"} spacing={2}>
-          <Button variant="outlined" color="secondary" onClick={onClose}>
+          <Button variant="outlined" color="error" onClick={onClose}>
             Cancel
           </Button>
           <Button variant="contained" color="primary" onClick={onSubmit}>

@@ -33,6 +33,7 @@ import TablePagination from "@/components/shared/Pagination/TablePagination";
 import { useRouter } from "next/navigation";
 import { ROUTE_PATHS } from "@/utils/constants/routes";
 import { PAGE_ACTION } from "@/utils/constants/page-action";
+import { formatDateView } from "@/utils/date";
 
 const defaultParams: ParamsUser = {
   search: "",
@@ -235,7 +236,7 @@ export default function ManageUserView() {
                   <TableCell>{user.fullName}</TableCell>
                   <TableCell>{user.email}</TableCell>
                   <TableCell>{user.role}</TableCell>
-                  <TableCell>{user.createdAt}</TableCell>
+                  <TableCell>{formatDateView(user.createdAt)}</TableCell>
                   <TableCell>
                     <div className="flex gap-2">
                       <IconButton
@@ -253,9 +254,7 @@ export default function ManageUserView() {
                       <IconButton
                         size="small"
                         color="error"
-                        onClick={() =>
-                          handleActions(PAGE_ACTION.DELETE, user)
-                        }
+                        onClick={() => handleActions(PAGE_ACTION.DELETE, user)}
                       >
                         <FaTrashCan />
                       </IconButton>

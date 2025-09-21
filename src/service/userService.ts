@@ -1,8 +1,8 @@
 import { API_ROUTE } from "@/utils/constants/api-routes";
 import { apiClient } from "./apiService";
-import { ManageUserForm, ParamsUser } from "@/types/user";
+import { ParamsUser } from "@/types/user";
 
-const createUser = async (data: ManageUserForm): Promise<any> => {
+const createUser = async (data: any): Promise<any> => {
   return await apiClient.post(API_ROUTE.USER, data);
 };
 
@@ -20,9 +20,14 @@ const findUserById = async (id: string): Promise<any> => {
   return await apiClient.get(url);
 };
 
+const updateUser = async (data: any): Promise<any> => {
+  return await apiClient.patch(API_ROUTE.USER, data);
+};
+
 export const userService = {
   createUser,
   getUsers,
   deleteUser,
   findUserById,
+  updateUser,
 };

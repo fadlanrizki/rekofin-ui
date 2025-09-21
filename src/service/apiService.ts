@@ -1,3 +1,4 @@
+import { patch } from "@mui/material";
 import axios from "axios";
 
 const baseURL = process.env.NEXT_PUBLIC_API_BASE_URL;
@@ -39,7 +40,8 @@ export const apiClient = {
           localStorage.removeItem("token");
           window.location.reload();
         default:
-          return error;
+          const message = error.response.data.message || error.message;
+          throw new Error(message);
       }
     }
   },
@@ -49,6 +51,7 @@ export const apiClient = {
       const response = await axiosInstance.post<T>(url, data, {
         headers: getHeader(),
       });
+
       return response.data;
     } catch (error: any) {
       const { status } = error.response;
@@ -58,7 +61,8 @@ export const apiClient = {
           localStorage.removeItem("token");
           window.location.reload();
         default:
-          return error;
+          const message = error.response.data.message || error.message;
+          throw new Error(message);
       }
     }
   },
@@ -77,7 +81,28 @@ export const apiClient = {
           localStorage.removeItem("token");
           window.location.reload();
         default:
-          return error;
+          const message = error.response.data.message || error.message;
+          throw new Error(message);
+      }
+    }
+  },
+
+  patch: async <T>(url: string, data?: object): Promise<T> => {
+    try {
+      const response = await axiosInstance.put<T>(url, data, {
+        headers: getHeader(),
+      });
+      return response.data;
+    } catch (error: any) {
+      const { status } = error.response;
+
+      switch (status) {
+        case 403:
+          localStorage.removeItem("token");
+          window.location.reload();
+        default:
+          const message = error.response.data.message || error.message;
+          throw new Error(message);
       }
     }
   },
@@ -97,36 +122,9 @@ export const apiClient = {
           localStorage.removeItem("token");
           window.location.reload();
         default:
-          return error;
+          const message = error.response.data.message || error.message;
+          throw new Error(message);
       }
     }
   },
-};
-
-export const apiService = async (
-  endpoint: string,
-  method: "GET" | "POST" | "PUT" | "DELETE" | "PATCH",
-  data?: any,
-  headers?: any
-) => {
-  const url = `${baseURL}/endpoint`;
-
-  try {
-    const response = await axios({
-      url,
-      method,
-      headers,
-      data,
-    });
-
-    return response.data;
-  } catch (error: any) {
-    console.log(error);
-    const { status } = error.response;
-
-    switch (status) {
-      case 403:
-        break;
-    }
-  }
 };

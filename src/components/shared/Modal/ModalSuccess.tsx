@@ -10,7 +10,7 @@ type ModalFailedPropsType = {
 export default function ModalSuccess({
   open,
   onClose,
-  message
+  message,
 }: ModalFailedPropsType) {
   return (
     <Dialog
@@ -26,7 +26,9 @@ export default function ModalSuccess({
             loop={false}
             style={{ width: "200px" }}
           />
-          <p className="font-semibold text-lg text-gray-600 text-center">{message}</p>
+          <p className="font-semibold text-lg text-gray-600 text-center">
+            {message || "Proses Berhasil"}
+          </p>
         </div>
       </div>
     </Dialog>

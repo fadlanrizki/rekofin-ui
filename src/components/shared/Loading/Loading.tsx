@@ -1,6 +1,6 @@
 import Lottie from "lottie-react";
 import loadingAnimation from "../../../../public/animation/loading.json";
-const Loading = ({ size }: { size?: string }) => {
+const Loading = ({ size }: { size?: "sm" | "md" | "lg" }) => {
   const getSize = () => {
     if (!size) {
       return {
@@ -9,20 +9,16 @@ const Loading = ({ size }: { size?: string }) => {
       };
     }
 
-    switch (size) {
-      case "sm":
-        return {
-          height: "50px",
-        };
-      case "md":
-        return {
-          heigth: "100px",
-        };
-      case "lg":
-        return {
-          heigth: "150px",
-        };
+    let height = "0px";
+
+    if (size === "sm") {
+      height = "50px";
+    } else if (size === "md") {
+      height = "100px";
+    } else if (size === "lg") {
+      height = "150px";
     }
+    return { height };
   };
 
   return (
