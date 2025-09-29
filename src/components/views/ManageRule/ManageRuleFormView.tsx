@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useState } from "react";
 import {
   TextField,
   MenuItem,
@@ -17,13 +17,13 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "next/navigation";
 import { ROUTE_PATHS } from "@/utils/constants/routes";
-
+import { RuleService } from "@/service/ruleService";
 
 const formManageRule = z.object({
-  name: z.string().min(1, "Required"),
-  description: z.string().min(1, "Required"),
-  conditions: z.string().min(1, "Required"),
-  categoryResult: z.string().min(1, "Required"),
+  name: z.string().optional(),
+  description: z.string().optional(),
+  conditions: z.string().optional(),
+  categoryResult: z.string().optional(),
   active: z.boolean(),
 });
 
@@ -33,27 +33,42 @@ export default function ManageRuleFormView() {
   const router = useRouter();
   const {
     register,
-    handleSubmit,
     formState: { errors },
   } = useForm<FormManageRule>({
     resolver: zodResolver(formManageRule),
   });
 
-  const onSubmit = (data: FormManageRule) => {
-    console.log(data);
+  const [loading, setLoading] = useState(false);
 
-    // TODO Hit API
+  // const onSubmit = (data: FormManageRule) => { 
+  const onSubmit = (data: any) => { 
+    apiCreateRule(data);
   };
 
   const handleCancel = () => {
-    router.push(ROUTE_PATHS.ADMIN.MANAGE_RULE.LIST)
-  }
+    router.push(ROUTE_PATHS.ADMIN.MANAGE_RULE.LIST);
+  };
+
+  const apiCreateRule = async (data: any) => {
+    console.log(JSON.stringify(data));
+
+    setLoading(true);
+    try {
+      const response = await RuleService.create(data);
+      console.log(response);
+      console.log("try");
+    } catch (error) {
+      console.log(error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
-    <Grid container size={12}>
+    <Grid container flexDirection={"column"} spacing={4} size={12}>
       <Paper className="p-6 rounded-2xl shadow-md w-full mx-auto">
         <Grid container direction={"column"} spacing={2} rowGap={"2"}>
-          <Typography variant="h6">Add New Rule</Typography>
+          <Typography variant="h6">General</Typography>
 
           <div>
             <TextField
@@ -85,22 +100,6 @@ export default function ManageRuleFormView() {
 
           <div>
             <TextField
-              {...register("conditions")}
-              label="Conditions (JSON)"
-              fullWidth
-              size="small"
-              multiline
-              rows={4}
-              placeholder='Contoh: { "monthlyIncome": { "gt": 5000000 }, "riskProfile": "Aggressive" }'
-              error={!!errors.conditions}
-            />
-            {!!errors.conditions?.message && (
-              <p className="text-red-500">{errors.conditions.message}</p>
-            )}
-          </div>
-
-          <div>
-            <TextField
               {...register("categoryResult")}
               select
               label="Category Result"
@@ -123,22 +122,63 @@ export default function ManageRuleFormView() {
               label="Active"
             />
           </div>
+        </Grid>
+      </Paper>
+      <Paper className="p-6 rounded-2xl shadow-md w-full mx-auto">
+        <Grid container justifyContent={"space-between"} alignItems={"center"} className="mb-4">
+          <Typography variant="h6">Rule Condition</Typography>
+          <Button variant="contained" color="primary" onClick={() => {}}>
+            Add Condition
+          </Button>
+        </Grid>
+        <Grid container direction={"column"} spacing={2}>
+          <Grid container direction={"row"} spacing={2}>
+            <Grid size={4}>
+              <TextField select label="Field" fullWidth size="small">
+                <MenuItem value="income">Pendapatan</MenuItem>
+                <MenuItem value="savings">Tabungan</MenuItem>
+                <MenuItem value="emergency_fund">Dana Darurat</MenuItem>
+                <MenuItem value="debt">Hutang</MenuItem>
+                <MenuItem value="monthly_expenses">Pengeluaran Bulanan</MenuItem>
+              </TextField>
+            </Grid>
+            <Grid size={4}>
+              <TextField select label="Operator" fullWidth size="small">
+                <MenuItem value="gt">{">"}</MenuItem>
+                <MenuItem value="lt">{"<"}</MenuItem>
+                <MenuItem value="gte">{">="}</MenuItem>
+                <MenuItem value="lte">{"<="}</MenuItem>
+                <MenuItem value="eq">{"="}</MenuItem>
+                <MenuItem value="neq">{"!="}</MenuItem>
+              </TextField>
+            </Grid>
+            <Grid size={4}>
+              <TextField label="value" type="number" fullWidth size="small" />
+            </Grid>
+          </Grid>
+        </Grid>
+      </Paper>
 
-          <div className="flex justify-end gap-2">
-            <Button variant="outlined" color="secondary" onClick={handleCancel}>
+      <Grid container size={12} justifyContent={"end"}>
+        <div className="flex justify-end gap-2">
+            <Button
+              loading={loading}
+              variant="outlined"
+              color="error"
+              onClick={handleCancel}
+            >
               Cancel
             </Button>
 
             <Button
               variant="contained"
               color="primary"
-              onClick={handleSubmit(onSubmit)}
+              onClick={() => onSubmit({})}
             >
               Save Rule
             </Button>
           </div>
-        </Grid>
-      </Paper>
+      </Grid>
     </Grid>
   );
 }

@@ -62,7 +62,6 @@ export default function ManageUserFormView({ mode, id }: ManageUserFormProps) {
     formState: { errors, isSubmitting },
     control,
     setValue,
-    reset,
   } = useForm<ManageUserForm>({
     resolver: zodResolver(schema),
     defaultValues: initialValue,

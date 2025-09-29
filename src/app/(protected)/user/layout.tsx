@@ -54,6 +54,7 @@ const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
   const router = useRouter()
   const [openSidebar, setOpenSidebar] = useState(true);
 
+
   const onLogout = (path: string) => {
     localStorage.clear();
 
