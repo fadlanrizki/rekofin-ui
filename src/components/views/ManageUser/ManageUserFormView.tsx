@@ -1,7 +1,7 @@
 "use client";
 import ModalFailed from "@/components/shared/Modal/ModalFailed";
 import PasswordTextfield from "@/components/shared/Textfield/PasswordTextfield/PasswordTextfield";
-import { userService } from "@/service/userService";
+import { UserService } from "@/service/userService";
 import { AddManageUserSchema, EditManageUserSchema } from "@/types/user";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
@@ -81,7 +81,7 @@ export default function ManageUserFormView({ mode, id }: ManageUserFormProps) {
     const fetchUserData = async () => {
       setLoading(true);
       try {
-        const response = await userService.findUserById(id || "");
+        const response = await UserService.findUserById(id || "");
         const data = response.data;
 
         setValue("fullName", data.fullName);
@@ -103,7 +103,7 @@ export default function ManageUserFormView({ mode, id }: ManageUserFormProps) {
 
   const onSubmit = async (data: ManageUserForm) => {
     try {
-      const response = await userService.createUser(data);
+      const response = await UserService.createUser(data);
 
       // reset();
       handleModalSuccess(true, response.message);

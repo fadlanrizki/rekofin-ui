@@ -24,7 +24,7 @@ const updateUser = async (data: any): Promise<any> => {
   return await apiClient.patch(API_ROUTE.USER, data);
 };
 
-export const userService = {
+export const UserService = {
   createUser,
   getUsers,
   deleteUser,

@@ -10,20 +10,44 @@ import {
   Paper,
   Grid,
   Typography,
+  IconButton,
 } from "@mui/material";
 
 import { z } from "zod";
-import { useForm } from "react-hook-form";
+import { Controller, useFieldArray, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "next/navigation";
 import { ROUTE_PATHS } from "@/utils/constants/routes";
 import { RuleService } from "@/service/ruleService";
+import { FaTrashCan } from "react-icons/fa6";
+
+const defaultValues = {
+  name: "",
+  description: "",
+  conditions: [
+    {
+      field: "",
+      operator: "",
+      value: "",
+    },
+  ],
+  categoryResult: "",
+  active: false,
+};
 
 const formManageRule = z.object({
-  name: z.string().optional(),
+  name: z.string().min(1, "Nama Rule wajib di isi"),
   description: z.string().optional(),
-  conditions: z.string().optional(),
-  categoryResult: z.string().optional(),
+  conditions: z
+    .array(
+      z.object({
+        field: z.string().min(1, "Field Harus di isi"),
+        operator: z.string().min(1, "Operator harus di isi"),
+        value: z.string().min(1, "Nilai Harus di isi"),
+      })
+    )
+    .nonempty("Harus mempunyai minimal 1 kondisi"),
+  categoryResult: z.string().min(1, "Category Result harus di isi"),
   active: z.boolean(),
 });
 
@@ -34,14 +58,22 @@ export default function ManageRuleFormView() {
   const {
     register,
     formState: { errors },
+    control,
+    handleSubmit,
+    watch,
   } = useForm<FormManageRule>({
     resolver: zodResolver(formManageRule),
+    defaultValues,
+  });
+
+  const { fields, append, remove } = useFieldArray({
+    control,
+    name: "conditions",
   });
 
   const [loading, setLoading] = useState(false);
-
-  // const onSubmit = (data: FormManageRule) => { 
-  const onSubmit = (data: any) => { 
+  
+  const onSubmit = (data: FormManageRule) => {
     apiCreateRule(data);
   };
 
@@ -64,6 +96,17 @@ export default function ManageRuleFormView() {
     }
   };
 
+  const handleAddCondition = () => {
+    append({
+      field: "",
+      operator: "",
+      value: "",
+    });
+  };
+
+  console.log("errors > ", errors);
+  console.log("watch > ", watch());
+
   return (
     <Grid container flexDirection={"column"} spacing={4} size={12}>
       <Paper className="p-6 rounded-2xl shadow-md w-full mx-auto">
@@ -77,10 +120,32 @@ export default function ManageRuleFormView() {
               fullWidth
               size="small"
               error={!!errors.name}
+              helperText={errors.name?.message}
             />
-            {!!errors.name?.message && (
-              <p className="text-red-500">{errors.name.message}</p>
-            )}
+          </div>
+
+          <div>
+            <Controller
+              name={"categoryResult"}
+              control={control}
+              render={({ field, fieldState }) => {
+                return (
+                  <TextField
+                    {...field}
+                    select
+                    label="Category Result"
+                    fullWidth
+                    size="small"
+                    error={!!fieldState.error}
+                    helperText={fieldState.error?.message}
+                  >
+                    <MenuItem value="MENABUNG">Menabung</MenuItem>
+                    <MenuItem value="DANA_DARURAT">Dana Darurat</MenuItem>
+                    <MenuItem value="INVESTASI">Investasi</MenuItem>
+                  </TextField>
+                );
+              }}
+            />
           </div>
 
           <div>
@@ -99,24 +164,6 @@ export default function ManageRuleFormView() {
           </div>
 
           <div>
-            <TextField
-              {...register("categoryResult")}
-              select
-              label="Category Result"
-              fullWidth
-              size="small"
-              error={!!errors.categoryResult}
-            >
-              <MenuItem value="MENABUNG">Menabung</MenuItem>
-              <MenuItem value="DANA_DARURAT">Dana Darurat</MenuItem>
-              <MenuItem value="INVESTASI">Investasi</MenuItem>
-            </TextField>
-            {!!errors.categoryResult?.message && (
-              <p className="text-red-500">{errors.categoryResult.message}</p>
-            )}
-          </div>
-
-          <div>
             <FormControlLabel
               control={<Switch {...register("active")} />}
               label="Active"
@@ -125,59 +172,139 @@ export default function ManageRuleFormView() {
         </Grid>
       </Paper>
       <Paper className="p-6 rounded-2xl shadow-md w-full mx-auto">
-        <Grid container justifyContent={"space-between"} alignItems={"center"} className="mb-4">
+        <Grid
+          container
+          justifyContent={"space-between"}
+          alignItems={"center"}
+          className="mb-4"
+        >
           <Typography variant="h6">Rule Condition</Typography>
-          <Button variant="contained" color="primary" onClick={() => {}}>
+          <Button
+            variant="contained"
+            color="primary"
+            onClick={handleAddCondition}
+          >
             Add Condition
           </Button>
         </Grid>
         <Grid container direction={"column"} spacing={2}>
-          <Grid container direction={"row"} spacing={2}>
-            <Grid size={4}>
-              <TextField select label="Field" fullWidth size="small">
-                <MenuItem value="income">Pendapatan</MenuItem>
-                <MenuItem value="savings">Tabungan</MenuItem>
-                <MenuItem value="emergency_fund">Dana Darurat</MenuItem>
-                <MenuItem value="debt">Hutang</MenuItem>
-                <MenuItem value="monthly_expenses">Pengeluaran Bulanan</MenuItem>
-              </TextField>
-            </Grid>
-            <Grid size={4}>
-              <TextField select label="Operator" fullWidth size="small">
-                <MenuItem value="gt">{">"}</MenuItem>
-                <MenuItem value="lt">{"<"}</MenuItem>
-                <MenuItem value="gte">{">="}</MenuItem>
-                <MenuItem value="lte">{"<="}</MenuItem>
-                <MenuItem value="eq">{"="}</MenuItem>
-                <MenuItem value="neq">{"!="}</MenuItem>
-              </TextField>
-            </Grid>
-            <Grid size={4}>
-              <TextField label="value" type="number" fullWidth size="small" />
-            </Grid>
-          </Grid>
+          {fields.map((field: any, index: number) => {
+            return (
+              <Grid
+                key={field.id}
+                container
+                direction={"row"}
+                spacing={2}
+                alignItems={"center"}
+              >
+                <Grid size={1} container justifyContent={"center"}>
+                  <IconButton
+                    size="small"
+                    color="error"
+                    onClick={() => remove(index)}
+                  >
+                    <FaTrashCan />
+                  </IconButton>
+                </Grid>
+                <Grid size={4}>
+                  <Controller
+                    name={`conditions.${index}.field`}
+                    control={control}
+                    render={({ field, fieldState }) => {
+                      return (
+                        <TextField
+                          {...field}
+                          select
+                          label="Field"
+                          name="field"
+                          fullWidth
+                          size="small"
+                          error={!!fieldState.error}
+                        >
+                          <MenuItem value="income">Pendapatan</MenuItem>
+                          <MenuItem value="savings">Tabungan</MenuItem>
+                          <MenuItem value="emergency_fund">
+                            Dana Darurat
+                          </MenuItem>
+                          <MenuItem value="debt">Hutang</MenuItem>
+                          <MenuItem value="monthly_expenses">
+                            Pengeluaran Bulanan
+                          </MenuItem>
+                        </TextField>
+                      );
+                    }}
+                  />
+                </Grid>
+                <Grid size={3}>
+                  <Controller
+                    name={`conditions.${index}.operator`}
+                    control={control}
+                    render={({ field, fieldState }) => {
+                      return (
+                        <TextField
+                          {...field}
+                          select
+                          label="Operator"
+                          fullWidth
+                          size="small"
+                          name="operator"
+                          error={!!fieldState.error}
+                        >
+                          <MenuItem value="gt">{">"}</MenuItem>
+                          <MenuItem value="lt">{"<"}</MenuItem>
+                          <MenuItem value="gte">{">="}</MenuItem>
+                          <MenuItem value="lte">{"<="}</MenuItem>
+                          <MenuItem value="eq">{"="}</MenuItem>
+                          <MenuItem value="neq">{"!="}</MenuItem>
+                        </TextField>
+                      );
+                    }}
+                  />
+                </Grid>
+                <Grid size={4}>
+                  <Controller
+                    name={`conditions.${index}.value`}
+                    control={control}
+                    render={({ field, fieldState }) => {
+                      return (
+                        <TextField
+                          {...field}
+                          name="value"
+                          label="value"
+                          type="number"
+                          fullWidth
+                          size="small"
+                          error={!!fieldState.error}
+                        />
+                      );
+                    }}
+                  />
+                </Grid>
+              </Grid>
+            );
+          })}
         </Grid>
       </Paper>
 
       <Grid container size={12} justifyContent={"end"}>
         <div className="flex justify-end gap-2">
-            <Button
-              loading={loading}
-              variant="outlined"
-              color="error"
-              onClick={handleCancel}
-            >
-              Cancel
-            </Button>
+          <Button
+            loading={loading}
+            variant="outlined"
+            color="error"
+            onClick={handleCancel}
+          >
+            Cancel
+          </Button>
 
-            <Button
-              variant="contained"
-              color="primary"
-              onClick={() => onSubmit({})}
-            >
-              Save Rule
-            </Button>
-          </div>
+          <Button
+            variant="contained"
+            color="primary"
+            onClick={handleSubmit(onSubmit)}
+          >
+            Save Rule
+          </Button>
+        </div>
       </Grid>
     </Grid>
   );

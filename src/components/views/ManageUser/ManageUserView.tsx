@@ -23,7 +23,7 @@ import { FaTrashCan } from "react-icons/fa6";
 import { FaInfoCircle } from "react-icons/fa";
 import ModalSuccess from "@/components/shared/Modal/ModalSuccess";
 import { ParamsUser, TListUser } from "@/types/user";
-import { userService } from "@/service/userService";
+import { UserService } from "@/service/userService";
 import Loading from "@/components/shared/Loading";
 // import { useDebounce } from "@/hooks/useDebounce";
 import { IoSearch } from "react-icons/io5";
@@ -69,7 +69,7 @@ export default function ManageUserView() {
   const fetchUsers = useCallback(async () => {
     setLoading(true);
     try {
-      const response = await userService.getUsers(params);
+      const response = await UserService.getUsers(params);
 
       setUsers(response.data);
       setTotalUser(response.total);
@@ -118,7 +118,7 @@ export default function ManageUserView() {
   const apiDeleteUser = async () => {
     setLoading(true);
     try {
-      const response = await userService.deleteUser(selectedId);
+      const response = await UserService.deleteUser(selectedId);
       setMessage(response.message);
       onOpenModalSuccess();
     } catch (error: any) {
