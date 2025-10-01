@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   TextField,
   MenuItem,
@@ -12,7 +12,6 @@ import {
   Typography,
   IconButton,
 } from "@mui/material";
-
 import { z } from "zod";
 import { Controller, useFieldArray, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -20,6 +19,10 @@ import { useRouter } from "next/navigation";
 import { ROUTE_PATHS } from "@/utils/constants/routes";
 import { RuleService } from "@/service/ruleService";
 import { FaTrashCan } from "react-icons/fa6";
+import { useModal } from "@/hooks/useModal";
+import ModalNotification from "@/components/shared/Modal/ModalNotification";
+import { PAGE_ACTION } from "@/utils/constants/page-action";
+import { getErrorMessage, getResponseMessage } from "@/utils/message";
 
 const defaultValues = {
   name: "",
@@ -53,14 +56,23 @@ const formManageRule = z.object({
 
 type FormManageRule = z.infer<typeof formManageRule>;
 
-export default function ManageRuleFormView() {
+export default function ManageRuleFormView({
+  mode,
+  id,
+}: {
+  mode: string;
+  id?: string;
+}) {
   const router = useRouter();
+  const isEdit = mode === PAGE_ACTION.EDIT;
+  const isView = mode === PAGE_ACTION.VIEW;
+
   const {
     register,
     formState: { errors },
     control,
     handleSubmit,
-    watch,
+    setValue,
   } = useForm<FormManageRule>({
     resolver: zodResolver(formManageRule),
     defaultValues,
@@ -71,8 +83,37 @@ export default function ManageRuleFormView() {
     name: "conditions",
   });
 
+  const { modal, showSuccess, showFailed, closeModal } = useModal();
+
   const [loading, setLoading] = useState(false);
-  
+
+  useEffect(() => {
+    const fetchRule = async () => {
+      if (id !== undefined) {
+        setLoading(true);
+        try {
+          const response = await RuleService.findById(id);
+          const data = response.data;
+
+          setValue("name", data.name);
+          setValue("description", data.description);
+          setValue("categoryResult", data.categoryResult);
+          setValue("active", data.active);
+          setValue("conditions", data.conditions);
+        } catch (error) {
+          const message = getErrorMessage(error);
+          showFailed(message);
+        } finally {
+          setLoading(false);
+        }
+      }
+    };
+
+    if (isView || isEdit) {
+      fetchRule();
+    }
+  }, []);
+
   const onSubmit = (data: FormManageRule) => {
     apiCreateRule(data);
   };
@@ -82,15 +123,22 @@ export default function ManageRuleFormView() {
   };
 
   const apiCreateRule = async (data: any) => {
-    console.log(JSON.stringify(data));
-
     setLoading(true);
     try {
-      const response = await RuleService.create(data);
-      console.log(response);
-      console.log("try");
+      const response = isEdit
+        ? await RuleService.update(data)
+        : await RuleService.create(data);
+
+      const message = getResponseMessage(response);
+      showSuccess(message);
+
+      setTimeout(() => {
+        closeModal();
+        router.push(ROUTE_PATHS.ADMIN.MANAGE_RULE.LIST);
+      }, 2000);
     } catch (error) {
-      console.log(error);
+      const message = getErrorMessage(error);
+      showFailed(message);
     } finally {
       setLoading(false);
     }
@@ -103,9 +151,6 @@ export default function ManageRuleFormView() {
       value: "",
     });
   };
-
-  console.log("errors > ", errors);
-  console.log("watch > ", watch());
 
   return (
     <Grid container flexDirection={"column"} spacing={4} size={12}>
@@ -139,9 +184,9 @@ export default function ManageRuleFormView() {
                     error={!!fieldState.error}
                     helperText={fieldState.error?.message}
                   >
-                    <MenuItem value="MENABUNG">Menabung</MenuItem>
-                    <MenuItem value="DANA_DARURAT">Dana Darurat</MenuItem>
-                    <MenuItem value="INVESTASI">Investasi</MenuItem>
+                    <MenuItem value="menabung">Menabung</MenuItem>
+                    <MenuItem value="dana_darurat">Dana Darurat</MenuItem>
+                    <MenuItem value="investasi">Investasi</MenuItem>
                   </TextField>
                 );
               }}
@@ -157,10 +202,8 @@ export default function ManageRuleFormView() {
               multiline
               rows={3}
               error={!!errors.description}
+              helperText={errors.description?.message}
             />
-            {!!errors.description?.message && (
-              <p className="text-red-500">{errors.description.message}</p>
-            )}
           </div>
 
           <div>
@@ -306,6 +349,13 @@ export default function ManageRuleFormView() {
           </Button>
         </div>
       </Grid>
+      <ModalNotification
+        open={modal.open}
+        message={modal.message}
+        onClose={closeModal}
+        type={modal.type}
+        onConfirm={() => {}}
+      />
     </Grid>
   );
 }

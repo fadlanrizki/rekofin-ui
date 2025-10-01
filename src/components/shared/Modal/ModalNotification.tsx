@@ -83,10 +83,7 @@ export default function ModalNotification({
         size={12}
         alignItems={"center"}
       >
-        <Button variant="outlined" color="error" onClick={onClose}>
-          Cancel
-        </Button>
-        <Button variant="contained" color="primary" onClick={onConfirm}>
+        <Button variant="contained" color="primary" onClick={onClose}>
           Ok
         </Button>
       </Grid>;
@@ -101,9 +98,12 @@ export default function ModalNotification({
       aria-describedby="modal-modal-description"
     >
       <div className="w-full flex items-center justify-center">
-        <div className="w-[300px] flex flex-col items-center bg-white p-5 py-7 rounded-lg">
+        <div className="flex flex-col items-center bg-white p-5 py-7 rounded-lg">
           {getAnimation()}
-          {getMessage()}
+
+          <div className="w-full max-h-[200px] p-4 box-border overflow-auto">
+            {getMessage()}
+          </div>
           {getActionButton()}
         </div>
       </div>
