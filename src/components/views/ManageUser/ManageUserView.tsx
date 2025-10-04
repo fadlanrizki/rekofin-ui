@@ -16,6 +16,9 @@ import {
   InputLabel,
   FormControl,
   Grid,
+  styled,
+  tableCellClasses,
+  Box,
 } from "@mui/material";
 import { useCallback, useEffect, useState } from "react";
 import { FaEdit } from "react-icons/fa";
@@ -34,6 +37,9 @@ import { useRouter } from "next/navigation";
 import { ROUTE_PATHS } from "@/utils/constants/routes";
 import { PAGE_ACTION } from "@/utils/constants/page-action";
 import { formatDateView } from "@/utils/date";
+import ModalNotification from "@/components/shared/Modal/ModalNotification";
+import { useModal } from "@/hooks/useModal";
+import { getErrorMessage, getResponseMessage } from "@/utils/message";
 
 const defaultParams: ParamsUser = {
   search: "",
@@ -44,27 +50,38 @@ const defaultParams: ParamsUser = {
   page: 1,
 };
 
+const StyledTableCell = styled(TableCell)(({ theme }) => ({
+  [`&.${tableCellClasses.head}`]: {
+    backgroundColor: "#003366",
+    fontWeight: "bold",
+    color: theme.palette.common.white,
+  },
+  [`&.${tableCellClasses.body}`]: {
+    fontSize: 14,
+    color: "#7f8c8d",
+  },
+}));
+
+const StyledTableRow = styled(TableRow)(({ theme }) => ({
+  "&:nth-of-type(odd)": {
+    backgroundColor: theme.palette.action.hover,
+  },
+  // hide last border
+  "&:last-child td, &:last-child th": {
+    border: 0,
+  },
+}));
+
 export default function ManageUserView() {
   const router = useRouter();
-  const [modalSuccess, setModalSuccess] = useState(false);
-  const [modalConfirm, setModalConfirm] = useState(false);
-  const [modalFailed, setModalFailed] = useState(false);
-  const [message, setMessage] = useState("");
+  const { modal, showSuccess, showFailed, showConfirm, closeModal } =
+    useModal();
   const [users, setUsers] = useState<TListUser[] | null>(null);
   const [params, setParams] = useState<ParamsUser>(defaultParams);
   const [loading, setLoading] = useState(true);
   const [selectedId, setSelectedId] = useState("");
   const [totalUser, setTotalUser] = useState(0); // const debounceSearch = useDebounce(params.search, 1500);
   const [tempSearch, setTempSearch] = useState("");
-
-  const onOpenModalConfirm = () => setModalConfirm(true);
-  const onCloseModalConfirm = () => setModalConfirm(false);
-
-  const onOpenModalSuccess = () => setModalSuccess(true);
-  const onCloseModalSuccess = () => setModalSuccess(false);
-
-  const onOpenModalFailed = () => setModalFailed(true);
-  const onCloseModalFailed = () => setModalFailed(false);
 
   const fetchUsers = useCallback(async () => {
     setLoading(true);
@@ -111,19 +128,19 @@ export default function ManageUserView() {
 
   const handleDeleteUser = (user: TListUser) => {
     setSelectedId(user.id.toString());
-    setMessage(`Apakah anda yakin ingin menghapus user "${user.fullName}" ? `);
-    onOpenModalConfirm();
+    showConfirm(`Apakah anda yakin ingin menghapus user "${user.fullName}" ? `);
   };
 
   const apiDeleteUser = async () => {
+    let message = "";
     setLoading(true);
     try {
       const response = await UserService.deleteUser(selectedId);
-      setMessage(response.message);
-      onOpenModalSuccess();
+      message = getResponseMessage(response);
+      showSuccess(message);
     } catch (error: any) {
-      setMessage(error.message);
-      onOpenModalFailed();
+      message = getErrorMessage(error);
+      showFailed(message);
     } finally {
       setLoading(false);
     }
@@ -159,147 +176,146 @@ export default function ManageUserView() {
     <div className="p-6 space-y-6">
       <h1 className="text-2xl font-semibold">Manage Users</h1>
 
-      <Grid
-        container
-        size={12}
-        justifyContent={"space-between"}
-        spacing={2}
-        wrap="nowrap"
-      >
-        <Grid container size={6} spacing={2} wrap="nowrap">
-          <TextField
-            size="small"
-            label="Search..."
-            value={params.search}
-            onKeyDown={onEnterSearch}
-            onChange={(e) => handleChangeSearch(e.target.value)}
-            slotProps={{
-              input: {
-                endAdornment: <IoSearch />,
-              },
-            }}
+      <Box className="bg-white border-2 border-[#eaeaea] rounded-2xl flex flex-col gap-4 p-4 shadow-xs">
+        <Grid
+          container
+          size={12}
+          justifyContent={"space-between"}
+          spacing={2}
+          wrap="nowrap"
+        >
+          <Grid container size={6} spacing={2} wrap="nowrap">
+            <TextField
+              size="small"
+              label="Search..."
+              value={params.search}
+              onKeyDown={onEnterSearch}
+              onChange={(e) => handleChangeSearch(e.target.value)}
+              slotProps={{
+                input: {
+                  endAdornment: <IoSearch />,
+                },
+              }}
+            />
+
+            <FormControl size="small" className="min-w-[160px]">
+              <InputLabel>Role</InputLabel>
+              <Select
+                value={params.filter.role}
+                label="Role"
+                onChange={(e) => handleChangeRole(e.target.value)}
+                className="w-[200px]"
+              >
+                <MenuItem value="all">All</MenuItem>
+                <MenuItem value="admin">Admin</MenuItem>
+                <MenuItem value="user">User</MenuItem>
+              </Select>
+            </FormControl>
+          </Grid>
+          <Grid container justifyContent={"flex-end"}>
+            <Button variant="contained" color="primary" onClick={handleAddUser}>
+              Add User
+            </Button>
+          </Grid>
+        </Grid>
+
+        {/* Table */}
+        <TableContainer
+          component={Paper}
+          className="rounded-lg shadow-md"
+          sx={{ height: "600px" }}
+        >
+          <Table stickyHeader>
+            <TableHead>
+              <StyledTableRow className="bg-gray-100">
+                <StyledTableCell>No</StyledTableCell>
+                <StyledTableCell>Full Name</StyledTableCell>
+                <StyledTableCell>Email</StyledTableCell>
+                <StyledTableCell>Role</StyledTableCell>
+                <StyledTableCell>Created At</StyledTableCell>
+                <StyledTableCell>Actions</StyledTableCell>
+              </StyledTableRow>
+            </TableHead>
+            <TableBody>
+              {loading ? (
+                <StyledTableRow>
+                  <StyledTableCell colSpan={6} align="center">
+                    <Grid
+                      container
+                      direction={"row"}
+                      justifyContent={"center"}
+                      alignItems={"center"}
+                    >
+                      <Loading size="sm" />{" "}
+                      <span className="text-slate-500">Loading data ...</span>
+                    </Grid>
+                  </StyledTableCell>
+                </StyledTableRow>
+              ) : users ? (
+                users.map((user, index) => (
+                  <StyledTableRow key={user.id}>
+                    <StyledTableCell>{index + 1}</StyledTableCell>
+                    <StyledTableCell>{user.fullName}</StyledTableCell>
+                    <StyledTableCell>{user.email}</StyledTableCell>
+                    <StyledTableCell>{user.role}</StyledTableCell>
+                    <StyledTableCell>
+                      {formatDateView(user.createdAt)}
+                    </StyledTableCell>
+                    <StyledTableCell>
+                      <div className="flex gap-2">
+                        <IconButton
+                          size="small"
+                          onClick={() => handleActions(PAGE_ACTION.VIEW, user)}
+                        >
+                          <FaInfoCircle className="text-primary" />
+                        </IconButton>
+                        <IconButton
+                          size="small"
+                          onClick={() => handleActions(PAGE_ACTION.EDIT, user)}
+                        >
+                          <FaEdit className="text-accent" />
+                        </IconButton>
+                        <IconButton
+                          size="small"
+                          color="error"
+                          onClick={() =>
+                            handleActions(PAGE_ACTION.DELETE, user)
+                          }
+                        >
+                          <FaTrashCan />
+                        </IconButton>
+                      </div>
+                    </StyledTableCell>
+                  </StyledTableRow>
+                ))
+              ) : (
+                <StyledTableRow>
+                  <StyledTableCell colSpan={6} align="center">
+                    <p className="text-slate-500">Empty Data ...</p>
+                  </StyledTableCell>
+                </StyledTableRow>
+              )}
+            </TableBody>
+          </Table>
+        </TableContainer>
+
+        {/* Pagination */}
+        <div className="flex justify-end">
+          <TablePagination
+            total={totalUser}
+            limit={params.limit}
+            onChange={handleChangePage}
+            list={users}
           />
+        </div>
+      </Box>
 
-          <FormControl size="small" className="min-w-[160px]">
-            <InputLabel>Role</InputLabel>
-            <Select
-              value={params.filter.role}
-              label="Role"
-              onChange={(e) => handleChangeRole(e.target.value)}
-              className="w-[200px]"
-            >
-              <MenuItem value="all">All</MenuItem>
-              <MenuItem value="admin">Admin</MenuItem>
-              <MenuItem value="user">User</MenuItem>
-            </Select>
-          </FormControl>
-        </Grid>
-        <Grid container justifyContent={"flex-end"}>
-          <Button variant="contained" color="primary" onClick={handleAddUser}>
-            Add User
-          </Button>
-        </Grid>
-      </Grid>
-
-      {/* Table */}
-      <TableContainer component={Paper} className="rounded-lg shadow-md">
-        <Table>
-          <TableHead>
-            <TableRow className="bg-gray-100">
-              <TableCell>No</TableCell>
-              <TableCell>Full Name</TableCell>
-              <TableCell>Email</TableCell>
-              <TableCell>Role</TableCell>
-              <TableCell>Created At</TableCell>
-              <TableCell>Actions</TableCell>
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {loading ? (
-              <TableRow>
-                <TableCell colSpan={6} align="center">
-                  <Grid
-                    container
-                    direction={"row"}
-                    justifyContent={"center"}
-                    alignItems={"center"}
-                  >
-                    <Loading size="sm" />{" "}
-                    <span className="text-slate-500">Loading data ...</span>
-                  </Grid>
-                </TableCell>
-              </TableRow>
-            ) : users ? (
-              users.map((user, index) => (
-                <TableRow key={user.id}>
-                  <TableCell>{index + 1}</TableCell>
-                  <TableCell>{user.fullName}</TableCell>
-                  <TableCell>{user.email}</TableCell>
-                  <TableCell>{user.role}</TableCell>
-                  <TableCell>{formatDateView(user.createdAt)}</TableCell>
-                  <TableCell>
-                    <div className="flex gap-2">
-                      <IconButton
-                        size="small"
-                        onClick={() => handleActions(PAGE_ACTION.VIEW, user)}
-                      >
-                        <FaInfoCircle className="text-primary" />
-                      </IconButton>
-                      <IconButton
-                        size="small"
-                        onClick={() => handleActions(PAGE_ACTION.EDIT, user)}
-                      >
-                        <FaEdit className="text-accent" />
-                      </IconButton>
-                      <IconButton
-                        size="small"
-                        color="error"
-                        onClick={() => handleActions(PAGE_ACTION.DELETE, user)}
-                      >
-                        <FaTrashCan />
-                      </IconButton>
-                    </div>
-                  </TableCell>
-                </TableRow>
-              ))
-            ) : (
-              <TableRow>
-                <TableCell colSpan={6} align="center">
-                  <p className="text-slate-500">Empty Data ...</p>
-                </TableCell>
-              </TableRow>
-            )}
-          </TableBody>
-        </Table>
-      </TableContainer>
-
-      {/* Pagination */}
-      <div className="flex justify-end">
-        <TablePagination
-          total={totalUser}
-          limit={params.limit}
-          onChange={handleChangePage}
-        />
-      </div>
-
-      <ModalSuccess
-        open={modalSuccess}
-        message={message}
-        onClose={onCloseModalSuccess}
-      />
-
-      <ModalConfirmation
-        open={modalConfirm}
-        onClose={onCloseModalConfirm}
-        message={message}
-        title={"Konfirmasi Hapus"}
-        onSubmit={apiDeleteUser}
-      />
-
-      <ModalFailed
-        open={modalFailed}
-        message={message}
-        onClose={onCloseModalFailed}
+      <ModalNotification
+        open={modal.open}
+        message={modal.message}
+        onClose={closeModal}
+        type={modal.type}
+        onConfirm={apiDeleteUser}
       />
     </div>
   );
