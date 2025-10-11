@@ -33,12 +33,13 @@ import { IoSearch } from "react-icons/io5";
 import { RecommendationService } from "@/service/recommendationService";
 import { getErrorMessage } from "@/utils/message";
 import TablePagination from "@/components/shared/Pagination/TablePagination";
+import { formatDateView } from "@/utils/date";
 
 const defaultParams = {
   search: "",
   filter: {
     category: "all",
-    source: "all",
+    sourceType: "all",
   },
   limit: 10,
   page: 1,
@@ -94,11 +95,7 @@ export default function ManageRecommendationView() {
 
   useEffect(() => {
     fetchRecommendation();
-  }, []);
-
-  useEffect(() => {
-    fetchRecommendation();
-  }, [params.search]);
+  }, [params]);
 
   const handleAdd = () => {
     router.push(ROUTE_PATHS.ADMIN.MANAGE_RECOMMENDATION.ADD);
@@ -142,7 +139,7 @@ export default function ManageRecommendationView() {
         ...prev,
         filter: {
           ...prev.filter,
-          source: value,
+          sourceType: value,
         },
       };
     });
@@ -188,7 +185,7 @@ export default function ManageRecommendationView() {
             <FormControl size="small" className="min-w-[160px]">
               <InputLabel>Source</InputLabel>
               <Select
-                value={params.filter.source}
+                value={params.filter.sourceType}
                 label="Source"
                 onChange={(e) => handleChangeSource(e.target.value)}
                 className="w-[200px]"
@@ -244,8 +241,10 @@ export default function ManageRecommendationView() {
                     <StyledTableCell>{index + 1}</StyledTableCell>
                     <StyledTableCell>{rec.title}</StyledTableCell>
                     <StyledTableCell>{rec.category}</StyledTableCell>
-                    <StyledTableCell>{rec.source}</StyledTableCell>
-                    <StyledTableCell>{rec.createdAt}</StyledTableCell>
+                    <StyledTableCell>{rec.sourceType}</StyledTableCell>
+                    <StyledTableCell>
+                      {formatDateView(rec.createdAt)}
+                    </StyledTableCell>
                     <StyledTableCell>
                       <div className="flex gap-2">
                         <IconButton size="small" color="primary">
