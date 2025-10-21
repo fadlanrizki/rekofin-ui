@@ -88,7 +88,7 @@ export const apiClient = {
 
   patch: async <T>(url: string, data?: object): Promise<T> => {
     try {
-      const response = await axiosInstance.put<T>(url, data, {
+      const response = await axiosInstance.patch<T>(url, data, {
         headers: getHeader(),
       });
       return response.data;

@@ -14,13 +14,14 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "next/navigation";
 import { ROUTE_PATHS } from "@/utils/constants/routes";
 import { useModal } from "@/hooks/useModal";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { PAGE_ACTION } from "@/utils/constants/page-action";
 import { RecommendationService } from "@/service/recommendationService";
 import { getErrorMessage, getResponseMessage } from "@/utils/message";
 import ModalNotification from "@/components/shared/Modal/ModalNotification";
+import { EditManageUserForm } from "@/types/user";
 
-const recommendationForm = z.object({
+const BaseRecommendationSchema = z.object({
   title: z.string().min(1, "Required"),
   category: z.string().min(1, "Required"),
   sourceType: z.string().min(1, "Required"),
@@ -29,8 +30,9 @@ const recommendationForm = z.object({
   author: z.string().min(1, "Required"),
 });
 
-type RecommendationForm = z.infer<typeof recommendationForm>;
-
+const EditRecommendationSchema = BaseRecommendationSchema.partial().extend({
+  id: z.number(),
+});
 const defaultValues = {
   title: "",
   category: "",
@@ -50,23 +52,54 @@ export default function ManageRecommendationFormView({
   const router = useRouter();
 
   const isEdit = mode === PAGE_ACTION.EDIT;
-  const isView = mode === PAGE_ACTION.VIEW;
 
-  const { modal, showSuccess, showFailed, closeModal } = useModal();
+  const { modal, showSuccess, showFailed, closeModal, showConfirm } =
+    useModal();
   const [loading, setLoading] = useState(false);
+  const [payload, setPayload] = useState<RecommendationForm>(defaultValues);
+
+  const schema = isEdit ? EditRecommendationSchema : BaseRecommendationSchema;
+  type RecommendationForm = z.infer<typeof schema>;
 
   const {
     register,
     handleSubmit,
     formState: { errors },
     control,
+    setValue,
   } = useForm<RecommendationForm>({
-    resolver: zodResolver(recommendationForm),
+    resolver: zodResolver(schema),
     defaultValues,
   });
 
   const onSubmit = (data: RecommendationForm) => {
-    apiSaveRecommendation(data);
+    setPayload(data);
+    showConfirm("Apakah anda yakin ingin melanjutkan proses ? ");
+  };
+
+  useEffect(() => {
+    if (isEdit && id !== undefined) {
+      fetchRecommendationById(id);
+    }
+  }, []);
+
+  const fetchRecommendationById = async (id: string) => {
+    setLoading(true);
+    try {
+      const { data } = await RecommendationService.findById(id);
+      setValue("title", data.title);
+      setValue("category", data.category);
+      setValue("sourceName", data.sourceName);
+      setValue("author", data.author);
+      setValue("sourceType", data.sourceType);
+      setValue("content", data.content);
+      setValue("id", data.id);
+    } catch (error) {
+      const message = getErrorMessage(error);
+      showFailed(message);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const apiSaveRecommendation = async (data: RecommendationForm) => {
@@ -93,6 +126,10 @@ export default function ManageRecommendationFormView({
 
   const handleCancel = () => {
     router.push(ROUTE_PATHS.ADMIN.MANAGE_RECOMMENDATION.LIST);
+  };
+
+  const handleConfirm = () => {
+    apiSaveRecommendation(payload);
   };
 
   return (
@@ -241,7 +278,7 @@ export default function ManageRecommendationFormView({
         message={modal.message}
         onClose={closeModal}
         type={modal.type}
-        onConfirm={() => {}}
+        onConfirm={handleConfirm}
       />
     </Card>
   );

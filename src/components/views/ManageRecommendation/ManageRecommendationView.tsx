@@ -34,6 +34,7 @@ import { RecommendationService } from "@/service/recommendationService";
 import { getErrorMessage } from "@/utils/message";
 import TablePagination from "@/components/shared/Pagination/TablePagination";
 import { formatDateView } from "@/utils/date";
+import { PAGE_ACTION } from "@/utils/constants/page-action";
 
 const defaultParams = {
   search: "",
@@ -45,11 +46,11 @@ const defaultParams = {
   page: 1,
 };
 
-const StyledTableCell = styled(TableCell)(({ theme }) => ({
+const StyledTableCell = styled(TableCell)(() => ({
   [`&.${tableCellClasses.head}`]: {
-    backgroundColor: "#003366",
+    backgroundColor: "#fff",
     fontWeight: "bold",
-    color: theme.palette.common.white,
+    color: "#000",
   },
   [`&.${tableCellClasses.body}`]: {
     fontSize: 14,
@@ -76,6 +77,7 @@ export default function ManageRecommendationView() {
   const [params, setParams] = useState<any>(defaultParams);
   const [recommendations, setRecommendations] = useState<any[]>([]);
   const [total, setTotal] = useState(0);
+  const [selectedId, setSelectedId] = useState("");
 
   const [tempSearch, setTempSearch] = useState("");
 
@@ -143,6 +145,22 @@ export default function ManageRecommendationView() {
         },
       };
     });
+  };
+
+  const handleActions = (action: string, rule: any) => {
+    const { id } = rule;
+    switch (action) {
+      case "view":
+        router.push(`${ROUTE_PATHS.ADMIN.MANAGE_RECOMMENDATION.VIEW}/${id}`);
+        break;
+      case "edit":
+        router.push(`${ROUTE_PATHS.ADMIN.MANAGE_RECOMMENDATION.EDIT}/${id}`);
+        break;
+      case "delete":
+        setSelectedId(id);
+        showConfirm("Apakah anda yakin ingin menghapus rule ?");
+        break;
+    }
   };
 
   return (
@@ -247,10 +265,18 @@ export default function ManageRecommendationView() {
                     </StyledTableCell>
                     <StyledTableCell>
                       <div className="flex gap-2">
-                        <IconButton size="small" color="primary">
+                        <IconButton
+                          size="small"
+                          color="primary"
+                          onClick={() => handleActions(PAGE_ACTION.EDIT, rec)}
+                        >
                           <FaEdit className="text-primary" />
                         </IconButton>
-                        <IconButton size="small" color="error">
+                        <IconButton
+                          size="small"
+                          color="error"
+                          onClick={() => handleActions(PAGE_ACTION.DELETE, rec)}
+                        >
                           <FaTrashCan />
                         </IconButton>
                       </div>
