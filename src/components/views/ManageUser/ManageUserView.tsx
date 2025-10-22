@@ -24,14 +24,10 @@ import { useCallback, useEffect, useState } from "react";
 import { FaEdit } from "react-icons/fa";
 import { FaTrashCan } from "react-icons/fa6";
 import { FaInfoCircle } from "react-icons/fa";
-import ModalSuccess from "@/components/shared/Modal/ModalSuccess";
 import { ParamsUser, TListUser } from "@/types/user";
 import { UserService } from "@/service/userService";
 import Loading from "@/components/shared/Loading";
-// import { useDebounce } from "@/hooks/useDebounce";
 import { IoSearch } from "react-icons/io5";
-import ModalConfirmation from "@/components/shared/Modal/ModalConfirmation";
-import ModalFailed from "@/components/shared/Modal/ModalFailed";
 import TablePagination from "@/components/shared/Pagination/TablePagination";
 import { useRouter } from "next/navigation";
 import { ROUTE_PATHS } from "@/utils/constants/routes";
@@ -52,9 +48,9 @@ const defaultParams: ParamsUser = {
 
 const StyledTableCell = styled(TableCell)(({ theme }) => ({
   [`&.${tableCellClasses.head}`]: {
-    backgroundColor: "#003366",
+    backgroundColor: "#fff",
     fontWeight: "bold",
-    color: theme.palette.common.white,
+    color: "#000",
   },
   [`&.${tableCellClasses.body}`]: {
     fontSize: 14,

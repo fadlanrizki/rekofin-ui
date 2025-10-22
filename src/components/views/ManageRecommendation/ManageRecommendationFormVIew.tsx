@@ -19,7 +19,6 @@ import { PAGE_ACTION } from "@/utils/constants/page-action";
 import { RecommendationService } from "@/service/recommendationService";
 import { getErrorMessage, getResponseMessage } from "@/utils/message";
 import ModalNotification from "@/components/shared/Modal/ModalNotification";
-import { EditManageUserForm } from "@/types/user";
 
 const BaseRecommendationSchema = z.object({
   title: z.string().min(1, "Required"),

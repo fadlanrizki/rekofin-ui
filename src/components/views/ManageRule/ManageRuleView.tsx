@@ -45,11 +45,11 @@ const defaultParams = {
   page: 1,
 };
 
-const StyledTableCell = styled(TableCell)(({ theme }) => ({
+const StyledTableCell = styled(TableCell)(() => ({
   [`&.${tableCellClasses.head}`]: {
-    backgroundColor: "#003366",
+    backgroundColor: "#fff",
     fontWeight: "bold",
-    color: theme.palette.common.white,
+    color: "#000",
   },
   [`&.${tableCellClasses.body}`]: {
     fontSize: 14,

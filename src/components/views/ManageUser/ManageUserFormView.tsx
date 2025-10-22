@@ -1,8 +1,7 @@
 "use client";
-import ModalFailed from "@/components/shared/Modal/ModalFailed";
 import PasswordTextfield from "@/components/shared/Textfield/PasswordTextfield/PasswordTextfield";
 import { UserService } from "@/service/userService";
-import { AddManageUserSchema, EditManageUserSchema } from "@/types/user";
+import { BaseManageUserSchema, EditManageUserSchema } from "@/types/user";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
   Autocomplete,
@@ -15,15 +14,16 @@ import {
   TextField,
   Typography,
 } from "@mui/material";
-import axios from "axios";
 import React, { useEffect, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { useRouter } from "next/navigation";
 import { ROUTE_PATHS } from "@/utils/constants/routes";
 import { PAGE_ACTION } from "@/utils/constants/page-action";
 import { z } from "zod";
-import ModalSuccess from "@/components/shared/Modal/ModalSuccess";
 import Loading from "@/components/shared/Loading";
+import { getErrorMessage, getResponseMessage } from "@/utils/message";
+import ModalNotification from "@/components/shared/Modal/ModalNotification";
+import { useModal } from "@/hooks/useModal";
 
 const roleOption = ["User", "Admin"];
 
@@ -33,6 +33,7 @@ type ManageUserFormProps = {
 };
 
 const initialValue = {
+  id: "",
   fullName: "",
   username: "",
   email: "",
@@ -43,54 +44,46 @@ const initialValue = {
 };
 
 export default function ManageUserFormView({ mode, id }: ManageUserFormProps) {
-  const schema =
-    mode === PAGE_ACTION.EDIT ? EditManageUserSchema : AddManageUserSchema;
-
+  const isEdit = mode === PAGE_ACTION.EDIT;
   const isView = mode === PAGE_ACTION.VIEW;
+
+  const { modal, showSuccess, showFailed, closeModal, showConfirm } =
+    useModal();
+
+  const schema = isEdit ? EditManageUserSchema : BaseManageUserSchema;
 
   type ManageUserForm = z.infer<typeof schema>;
 
   const router = useRouter();
   const [loading, setLoading] = useState(false);
-  const [modalFailed, setModalFailed] = useState(false);
-  const [modalSuccess, setModalSuccess] = useState(false);
-  const [message, setMessage] = useState("");
-
+  const [payload, setPayload] = useState<ManageUserForm>(initialValue);
   const {
     register,
     handleSubmit,
     formState: { errors, isSubmitting },
     control,
     setValue,
+    watch,
   } = useForm<ManageUserForm>({
     resolver: zodResolver(schema),
     defaultValues: initialValue,
   });
 
-  const handleModalSuccess = (isOpen: boolean, message: string) => {
-    setModalSuccess(isOpen);
-    setMessage(message);
-  };
-
-  const handleModalFailed = (isOpen: boolean, message: string) => {
-    setModalFailed(isOpen);
-    setMessage(message);
-  };
-
   useEffect(() => {
     const fetchUserData = async () => {
       setLoading(true);
       try {
-        const response = await UserService.findUserById(id || "");
-        const data = response.data;
+        const { data } = await UserService.findUserById(id || "");
 
         setValue("fullName", data.fullName);
         setValue("username", data.username);
         setValue("email", data.email);
         setValue("role", data.role);
         setValue("gender", data.gender);
-      } catch (error: any) {
-        handleModalFailed(true, error.message);
+        setValue("id", data.id);
+      } catch (error) {
+        const message = getErrorMessage(error);
+        showFailed(message);
       } finally {
         setLoading(false);
       }
@@ -102,22 +95,28 @@ export default function ManageUserFormView({ mode, id }: ManageUserFormProps) {
   }, []);
 
   const onSubmit = async (data: ManageUserForm) => {
+    setPayload(data);
+    showConfirm("Apakah anda yakin ingin melanjutkan proses ?");
+  };
+
+  const saveUser = async (data: ManageUserForm) => {
+    setLoading(true);
     try {
-      const response = await UserService.createUser(data);
+      const response = isEdit
+        ? await UserService.updateUser(data)
+        : await UserService.createUser(data);
 
-      // reset();
-      handleModalSuccess(true, response.message);
+      const message = getResponseMessage(response);
+      showSuccess(message);
+      setTimeout(() => {
+        closeModal();
+        router.push(ROUTE_PATHS.ADMIN.MANAGE_USER.LIST);
+      }, 2000);
     } catch (error) {
-      console.log("catch");
-
-      let message;
-
-      if (axios.isAxiosError(error)) {
-        message = error?.response?.data?.message;
-      } else if (error instanceof Error) {
-        message = error?.message;
-      }
-      handleModalFailed(true, message);
+      const message = getErrorMessage(error);
+      showFailed(message);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -135,6 +134,12 @@ export default function ManageUserFormView({ mode, id }: ManageUserFormProps) {
         return "Edit User";
     }
   };
+
+  const handleConfirm = () => {
+    saveUser(payload);
+  };
+
+  console.log("watch > ", watch());
 
   return (
     <Paper className="p-6 rounded-2xl w-full mx-auto h-full">
@@ -239,25 +244,35 @@ export default function ManageUserFormView({ mode, id }: ManageUserFormProps) {
             </Grid>
             <Grid size={6}>
               <Typography>Gender</Typography>
-              <RadioGroup
-                {...register("gender")}
-                aria-labelledby="demo-radio-buttons-group-label"
-                name="radio-buttons-group"
-                row
-              >
-                <FormControlLabel
-                  value="pria"
-                  control={<Radio />}
-                  label="Pria"
-                  disabled={isView}
-                />
-                <FormControlLabel
-                  value="wanita"
-                  control={<Radio />}
-                  label="Wanita"
-                  disabled={isView}
-                />
-              </RadioGroup>
+              <Controller
+                name="gender"
+                control={control}
+                render={({ field }) => {
+                  return (
+                    <>
+                      <RadioGroup
+                        {...field}
+                        aria-labelledby="demo-radio-buttons-group-label"
+                        name="radio-buttons-group"
+                        row
+                      >
+                        <FormControlLabel
+                          value="pria"
+                          control={<Radio />}
+                          label="Pria"
+                          disabled={isView}
+                        />
+                        <FormControlLabel
+                          value="wanita"
+                          control={<Radio />}
+                          label="Wanita"
+                          disabled={isView}
+                        />
+                      </RadioGroup>
+                    </>
+                  );
+                }}
+              />
             </Grid>
 
             <Grid container size={12} justifyContent={"flex-end"}>
@@ -278,16 +293,12 @@ export default function ManageUserFormView({ mode, id }: ManageUserFormProps) {
           </Grid>
         </form>
       )}
-
-      <ModalFailed
-        open={modalFailed}
-        message={message}
-        onClose={() => handleModalFailed(false, "")}
-      />
-      <ModalSuccess
-        open={modalSuccess}
-        message={message}
-        onClose={() => handleModalSuccess(false, "")}
+      <ModalNotification
+        open={modal.open}
+        message={modal.message}
+        onClose={closeModal}
+        type={modal.type}
+        onConfirm={handleConfirm}
       />
     </Paper>
   );

@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-export const AddManageUserSchema = z
+export const BaseManageUserSchema = z
   .object({
     fullName: z.string().min(1, "Required"),
     username: z.string().min(1, "Required"),
@@ -8,7 +8,7 @@ export const AddManageUserSchema = z
     password: z.string().min(1, "Required"),
     confirmPassword: z.string().min(1, "Required"),
     role: z.string().nonempty("Required"),
-    gender: z.string().optional(),
+    gender: z.string().optional().nullable(),
   })
   .superRefine((data, ctx) => {
     if (data.password !== data.confirmPassword) {
@@ -20,17 +20,11 @@ export const AddManageUserSchema = z
     }
   });
 
-export type AddManageUserForm = z.infer<typeof AddManageUserSchema>;
-
-export const EditManageUserSchema = z
-  .object({
-    fullName: z.string().optional(),
-    username: z.string().optional(),
-    email: z.email("Invalid Email").optional(),
-    password: z.string().optional(),
-    confirmPassword: z.string().optional(),
-    role: z.string().optional(),
-    gender: z.string().optional(),
+export const EditManageUserSchema = BaseManageUserSchema.partial()
+  .extend({
+    id: z.number(),
+    password: z.string(),
+    confirmPassword: z.string(),
   })
   .superRefine((data, ctx) => {
     if (data.password !== data.confirmPassword) {
@@ -41,9 +35,6 @@ export const EditManageUserSchema = z
       });
     }
   });
-
-export type EditManageUserForm = z.infer<typeof EditManageUserSchema>;
-
 export type FilterUser = {
   role: "all" | "admin" | "employee";
 };

@@ -38,7 +38,8 @@ const defaultValues = {
   active: false,
 };
 
-const formManageRule = z.object({
+const BaseManageRuleSchema = z.object({
+  id: z.number().optional(),
   name: z.string().min(1, "Nama Rule wajib di isi"),
   description: z.string().optional(),
   conditions: z
@@ -54,8 +55,6 @@ const formManageRule = z.object({
   active: z.boolean(),
 });
 
-type FormManageRule = z.infer<typeof formManageRule>;
-
 export default function ManageRuleFormView({
   mode,
   id,
@@ -67,6 +66,8 @@ export default function ManageRuleFormView({
   const isEdit = mode === PAGE_ACTION.EDIT;
   const isView = mode === PAGE_ACTION.VIEW;
 
+  type FormManageRule = z.infer<typeof BaseManageRuleSchema>;
+
   const {
     register,
     formState: { errors },
@@ -74,7 +75,7 @@ export default function ManageRuleFormView({
     handleSubmit,
     setValue,
   } = useForm<FormManageRule>({
-    resolver: zodResolver(formManageRule),
+    resolver: zodResolver(BaseManageRuleSchema),
     defaultValues,
   });
 
@@ -83,9 +84,11 @@ export default function ManageRuleFormView({
     name: "conditions",
   });
 
-  const { modal, showSuccess, showFailed, closeModal } = useModal();
+  const { modal, showSuccess, showFailed, closeModal, showConfirm } =
+    useModal();
 
   const [loading, setLoading] = useState(false);
+  const [payload, setPayload] = useState<FormManageRule>();
 
   useEffect(() => {
     const fetchRule = async () => {
@@ -100,6 +103,7 @@ export default function ManageRuleFormView({
           setValue("categoryResult", data.categoryResult);
           setValue("active", data.active);
           setValue("conditions", data.conditions);
+          setValue("id", data.id);
         } catch (error) {
           const message = getErrorMessage(error);
           showFailed(message);
@@ -115,14 +119,19 @@ export default function ManageRuleFormView({
   }, []);
 
   const onSubmit = (data: FormManageRule) => {
-    apiCreateRule(data);
+    setPayload(data);
+    showConfirm("Apakah anda yakin ingin melanjutkan proses ?");
   };
 
   const handleCancel = () => {
     router.push(ROUTE_PATHS.ADMIN.MANAGE_RULE.LIST);
   };
 
-  const apiCreateRule = async (data: any) => {
+  const handleConfirm = () => {
+    apiSaveRule(payload);
+  };
+
+  const apiSaveRule = async (data: any) => {
     setLoading(true);
     try {
       const response = isEdit
@@ -354,7 +363,7 @@ export default function ManageRuleFormView({
         message={modal.message}
         onClose={closeModal}
         type={modal.type}
-        onConfirm={() => {}}
+        onConfirm={handleConfirm}
       />
     </Grid>
   );

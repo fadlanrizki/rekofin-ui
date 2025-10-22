@@ -29,5 +29,5 @@ export const RuleService = {
   getList,
   deleteData,
   findById,
-  update
+  update,
 };
