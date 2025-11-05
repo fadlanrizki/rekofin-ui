@@ -15,7 +15,7 @@ import {
 import { z } from "zod";
 import { Controller, useFieldArray, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useRouter } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import { ROUTE_PATHS } from "@/utils/constants/routes";
 import { RuleService } from "@/service/ruleService";
 import { FaTrashCan } from "react-icons/fa6";
@@ -55,14 +55,15 @@ const BaseManageRuleSchema = z.object({
   active: z.boolean(),
 });
 
-export default function ManageRuleFormView({
-  mode,
-  id,
-}: {
-  mode: string;
-  id?: string;
-}) {
+export default function ManageRuleFormView() {
   const router = useRouter();
+  const params = useParams();
+
+  const paramsId = params?.id;
+
+  const id = Array.isArray(paramsId) ? paramsId[0] : paramsId;
+  const mode = params.mode;
+
   const isEdit = mode === PAGE_ACTION.EDIT;
   const isView = mode === PAGE_ACTION.VIEW;
 

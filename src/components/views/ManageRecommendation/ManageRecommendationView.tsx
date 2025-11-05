@@ -15,7 +15,6 @@ import {
   IconButton,
   InputLabel,
   FormControl,
-  Pagination,
   styled,
   tableCellClasses,
   Grid,
@@ -31,7 +30,7 @@ import ModalNotification from "@/components/shared/Modal/ModalNotification";
 import Loading from "@/components/shared/Loading";
 import { IoSearch } from "react-icons/io5";
 import { RecommendationService } from "@/service/recommendationService";
-import { getErrorMessage } from "@/utils/message";
+import { getErrorMessage, getResponseMessage } from "@/utils/message";
 import TablePagination from "@/components/shared/Pagination/TablePagination";
 import { formatDateView } from "@/utils/date";
 import { PAGE_ACTION } from "@/utils/constants/page-action";
@@ -163,6 +162,23 @@ export default function ManageRecommendationView() {
     }
   };
 
+  const apiDeleteRecommendation = async () => {
+    setLoading(true);
+
+    try {
+      const response = await RecommendationService.deleteData(selectedId);
+      const message = getResponseMessage(response);
+
+      await fetchRecommendation();
+      showSuccess(message);
+    } catch (error) {
+      const message = getErrorMessage(error);
+      showFailed(message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <div className="p-6 space-y-6">
       {/* Header */}
@@ -215,7 +231,7 @@ export default function ManageRecommendationView() {
               </Select>
             </FormControl>
           </Grid>
-          <Button variant="contained" color="primary" onClick={handleAdd}>
+          <Button variant="contained" color="primary" onClick={handleAdd} className="max-h-[40px]">
             Add Recommendation
           </Button>
         </Grid>
@@ -310,7 +326,7 @@ export default function ManageRecommendationView() {
         message={modal.message}
         onClose={closeModal}
         type={modal.type}
-        onConfirm={() => {}}
+        onConfirm={() => apiDeleteRecommendation()}
       />
     </div>
   );

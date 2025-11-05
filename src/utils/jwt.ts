@@ -3,19 +3,15 @@ import { jwtDecode } from "jwt-decode";
 interface JwtPayload {
   exp: number;
   iat: number;
+  id: number;
   username: string;
   fullName: string;
   role: string;
 }
 
 export function decodeToken(token: string) {
-  try {
-    const decode = jwtDecode<JwtPayload>(token);
-    return decode;
-  } catch (error) {
-    console.log(error);
-    return null;
-  }
+  const decode = jwtDecode<JwtPayload>(token);
+  return decode;
 }
 
 export function isTokenValid(token: string): boolean {

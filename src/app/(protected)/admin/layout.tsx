@@ -60,7 +60,7 @@ const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
       className="min-h-screen w-full flex flex-col bg-background-light text-gray-700"
       x-data="layout"
     >
-      <header className="flex w-full items-center justify-between border-b-2 border-gray-200 bg-white py-3 px-10">
+      <header className="flex w-full items-center justify-between border-b-2 border-gray-200 bg-white px-10 h-[10vh]">
         <div className="flex items-center gap-5">
           <button
             type="button"
@@ -115,7 +115,9 @@ const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
           })}
         </aside>
 
-        <div className="w-full p-4">{children}</div>
+        <div className="w-full h-[90vh] overflow-auto">
+          <div className="w-full p-4 ">{children}</div>
+        </div>
       </div>
     </main>
   );

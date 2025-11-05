@@ -16,7 +16,7 @@ import {
 } from "@mui/material";
 import React, { useEffect, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
-import { useRouter } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import { ROUTE_PATHS } from "@/utils/constants/routes";
 import { PAGE_ACTION } from "@/utils/constants/page-action";
 import { z } from "zod";
@@ -26,11 +26,6 @@ import ModalNotification from "@/components/shared/Modal/ModalNotification";
 import { useModal } from "@/hooks/useModal";
 
 const roleOption = ["User", "Admin"];
-
-type ManageUserFormProps = {
-  mode: string;
-  id?: string;
-};
 
 const initialValue = {
   id: "",
@@ -43,7 +38,15 @@ const initialValue = {
   gender: "",
 };
 
-export default function ManageUserFormView({ mode, id }: ManageUserFormProps) {
+export default function ManageUserFormView() {
+  const router = useRouter();
+  const params = useParams();
+
+  const paramsId = params?.id;
+
+  const id = Array.isArray(paramsId) ? paramsId[0] : paramsId;
+  const mode = params.mode;
+
   const isEdit = mode === PAGE_ACTION.EDIT;
   const isView = mode === PAGE_ACTION.VIEW;
 
@@ -54,7 +57,6 @@ export default function ManageUserFormView({ mode, id }: ManageUserFormProps) {
 
   type ManageUserForm = z.infer<typeof schema>;
 
-  const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [payload, setPayload] = useState<ManageUserForm>(initialValue);
   const {

@@ -42,11 +42,16 @@ const Login = () => {
     try {
       setLoading(true);
       const res = await loginService(data);
+      console.log(res);
+      
 
       const token = res?.data?.token || "";
-      localStorage.setItem("token", token);
-
       const decodedToken = decodeToken(token);
+
+      localStorage.setItem("token", token);
+      localStorage.setItem("id", decodedToken.id.toString());
+      localStorage.setItem("username", decodedToken.username);
+      localStorage.setItem("fullName", decodedToken.fullName);
 
       if (decodedToken?.role === "user") {
         router.push(ROUTE_PATHS.USER.DASHBOARD);
