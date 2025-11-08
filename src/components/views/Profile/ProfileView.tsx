@@ -1,20 +1,30 @@
 "use client";
 
-import PasswordTextfield from "@/components/shared/Textfield/PasswordTextfield/PasswordTextfield";
+// import PasswordTextfield from "@/components/shared/Textfield/PasswordTextfield/PasswordTextfield";
 import {
   Avatar,
   Box,
   Button,
   Card,
   CardContent,
-  Container,
+  // Container,
+  // Divider,
   Grid,
-  TextField,
+  Stack,
+  Tab,
+  Tabs,
+  // TextField,
   Typography,
 } from "@mui/material";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useEffect, useState } from "react";
+import { UserService } from "@/service/userService";
+import { getErrorMessage } from "@/utils/message";
+import { useModal } from "@/hooks/useModal";
+import ModalNotification from "@/components/shared/Modal/ModalNotification";
+import { FaEdit } from "react-icons/fa";
 
 const profileForm = z.object({
   fullName: z.string().optional(),
@@ -28,26 +38,64 @@ const profileForm = z.object({
 type ProfileForm = z.infer<typeof profileForm>;
 
 export default function ProfileView() {
-  const { register, handleSubmit } = useForm<ProfileForm>({
+  const {
+    // register,
+    //  handleSubmit,
+    setValue,
+  } = useForm<ProfileForm>({
     resolver: zodResolver(profileForm),
   });
+  const {
+    modal,
+    closeModal,
+    //  showConfirm,
+    showFailed,
+    //  showSuccess
+  } = useModal();
+  const [
+    loading,
+    setLoading,
+  ] = useState(false);
+  const [tab, setTab] = useState(0);
 
-  const onSubmit = (data: ProfileForm) => {
-    console.log(data);
+  const fetchUserProfile = async () => {
+    setLoading(true);
+    console.log(loading);
     
-  }
+    try {
+      const id = localStorage.getItem("id") || "-";
+      const { data } = await UserService.findUserById(id);
+      setValue("fullName", data.fullName);
+      setValue("email", data.email);
+      setValue("occupation", data.occupation);
+    } catch (error) {
+      const message = getErrorMessage(error);
+      showFailed(message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchUserProfile();
+  }, []);
+
+  const handleChangeTab = (e: any, newValue: any) => {
+    console.log(e);
+
+    setTab(newValue);
+  };
 
   return (
-    <Container maxWidth="lg">
+    <Grid size={{ xs: 12 }}>
       {/* Title */}
-      <Typography variant="h4" gutterBottom>
+      <Typography variant="h5" gutterBottom>
         Profile
       </Typography>
 
       <Grid container spacing={4}>
-        {/* Left Column - Profile Info */}
         <Grid size={{ xs: 12, md: 4 }}>
-          <Card className="h-full">
+          <Card>
             <CardContent
               sx={{
                 display: "flex",
@@ -61,9 +109,6 @@ export default function ProfileView() {
               />
               <Typography variant="h6">John Doe</Typography>
               <Typography color="text.secondary">john@example.com</Typography>
-              <Typography variant="body2" sx={{ mt: 1 }} color="text.secondary">
-                Employee
-              </Typography>
               <Typography
                 variant="caption"
                 sx={{ mt: 2 }}
@@ -79,73 +124,104 @@ export default function ProfileView() {
         <Grid size={{ xs: 12, md: 8 }}>
           <Card className="h-full">
             <CardContent>
-              <Grid container spacing={2}>
-                <Grid size={{ xs: 12 }}>
-                  <TextField
-                    {...register("fullName")}
-                    label="Full Name"
-                    fullWidth
-                    variant="outlined"
-                  />
-                </Grid>
-                <Grid size={{ xs: 12 }}>
-                  <TextField
-                    {...register("occupation")}
-                    label="Occupation"
-                    fullWidth
-                    variant="outlined"
-                  />
-                </Grid>
-                <Grid size={{ xs: 12 }}>
-                  <TextField
-                    {...register("email")}
-                    label="Email"
-                    fullWidth
-                    variant="outlined"
-                    InputProps={{ readOnly: true }}
-                  />
-                </Grid>
-              </Grid>
+              <Box
+                sx={{
+                  borderBottom: 1,
+                  borderColor: "divider",
+                  marginBottom: 3,
+                }}
+              >
+                <Tabs
+                  value={tab}
+                  onChange={handleChangeTab}
+                  aria-label="basic tabs example"
+                >
+                  <Tab label="General" />
+                  <Tab label="Change Password" />
+                </Tabs>
+              </Box>
+              <Stack direction={"column"} spacing={2}>
+                <Stack direction={"row"} justifyContent={"space-between"}>
+                  <Box>
+                    <Typography variant="subtitle1" fontWeight={"medium"}>
+                      Fullname
+                    </Typography>
+                    <Typography variant="subtitle2" fontWeight={"normal"}>
+                      Fadlan Rizki
+                    </Typography>
+                  </Box>
+                  <Button
+                    sx={{
+                      width: "130px",
+                      height: "40px",
+                    }}
+                    variant="contained"
+                    startIcon={<FaEdit />}
+                  >
+                    Edit
+                  </Button>
+                </Stack>
+
+                <Box>
+                  <Typography variant="subtitle1" fontWeight={"medium"}>
+                    Username
+                  </Typography>
+                  <Typography variant="subtitle2" fontWeight={"normal"}>
+                    Fadlan
+                  </Typography>
+                </Box>
+
+                <Box>
+                  <Typography variant="subtitle1" fontWeight={"medium"}>
+                    Email
+                  </Typography>
+                  <Typography variant="subtitle2" fontWeight={"normal"}>
+                    fadlan@gmail.com
+                  </Typography>
+                </Box>
+
+                <Box>
+                  <Typography variant="subtitle1" fontWeight={"medium"}>
+                    Gender
+                  </Typography>
+                  <Typography variant="subtitle2" fontWeight={"normal"}>
+                    Laki-laki
+                  </Typography>
+                </Box>
+
+                <Box>
+                  <Typography variant="subtitle1" fontWeight={"medium"}>
+                    Pekerjaan / Jabatan
+                  </Typography>
+                  <Typography variant="subtitle2" fontWeight={"normal"}>
+                    Programmer
+                  </Typography>
+                </Box>
+
+                <Box>
+                  <Typography variant="subtitle1" fontWeight={"medium"}>
+                    Profil Risiko
+                  </Typography>
+                  <Typography variant="subtitle2" fontWeight={"normal"}>
+                    Moderat
+                  </Typography>
+                </Box>
+
+                <Box>
+                  <Typography variant="subtitle1" fontWeight={"medium"}>
+                    Prinsip Finansial
+                  </Typography>
+                  <Typography variant="subtitle2" fontWeight={"normal"}>
+                    Syariah
+                  </Typography>
+                </Box>
+              </Stack>
             </CardContent>
           </Card>
         </Grid>
       </Grid>
 
-      {/* Optional: Change Password Section */}
       <Grid container rowSpacing={4}>
-        <Grid size={12}>
-          <Box mt={6} maxWidth="full" mx="auto">
-            <Card>
-              <CardContent>
-                <Typography variant="h6" gutterBottom>
-                  Change Password
-                </Typography>
-                <Grid container spacing={2}>
-                  <Grid size={{ xs: 12 }}>
-                    <PasswordTextfield
-                      {...register("password")}
-                      label="Current Password"
-                    />
-                  </Grid>
-                  <Grid size={{ xs: 12, sm: 6 }}>
-                    <PasswordTextfield
-                      {...register("newPassword")}
-                      type="password"
-                      label="New Password"
-                    />
-                  </Grid>
-                  <Grid size={{ xs: 12, sm: 6 }}>
-                    <PasswordTextfield
-                      {...register("confirmPassword")}
-                      type="password"
-                      label="Confirm New Password"
-                    />
-                  </Grid>
-                </Grid>
-              </CardContent>
-            </Card>
-          </Box>
-        </Grid>
         <Grid size={12}>
           <Box>
             <Grid
@@ -153,13 +229,26 @@ export default function ProfileView() {
               size={{ xs: 12, sm: 12 }}
               justifyContent={"flex-end"}
             >
-              <Button onClick={() => {handleSubmit(onSubmit)}} variant="contained" color="primary">
+              {/* <Button
+                onClick={() => {
+                  handleSubmit(onSubmit);
+                }}
+                variant="contained"
+                color="primary"
+              >
                 Update Profile
-              </Button>
+              </Button> */}
             </Grid>
           </Box>
         </Grid>
       </Grid>
-    </Container>
+      <ModalNotification
+        open={modal.open}
+        message={modal.message}
+        onClose={closeModal}
+        type={modal.type}
+        // onConfirm={apiDeleteRule}
+      />
+    </Grid>
   );
 }
