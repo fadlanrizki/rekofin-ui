@@ -1,19 +1,13 @@
 "use client";
 
-// import PasswordTextfield from "@/components/shared/Textfield/PasswordTextfield/PasswordTextfield";
 import {
   Avatar,
   Box,
-  Button,
   Card,
   CardContent,
-  // Container,
-  // Divider,
   Grid,
-  Stack,
   Tab,
   Tabs,
-  // TextField,
   Typography,
 } from "@mui/material";
 import { useForm } from "react-hook-form";
@@ -24,7 +18,8 @@ import { UserService } from "@/service/userService";
 import { getErrorMessage } from "@/utils/message";
 import { useModal } from "@/hooks/useModal";
 import ModalNotification from "@/components/shared/Modal/ModalNotification";
-import { FaEdit } from "react-icons/fa";
+import GeneralProfleView from "./General/GeneralProfleView";
+import ChangePasswordView from "./ChangePassword/ChangePasswordView";
 
 const profileForm = z.object({
   fullName: z.string().optional(),
@@ -52,16 +47,13 @@ export default function ProfileView() {
     showFailed,
     //  showSuccess
   } = useModal();
-  const [
-    loading,
-    setLoading,
-  ] = useState(false);
+  const [loading, setLoading] = useState(false);
   const [tab, setTab] = useState(0);
 
   const fetchUserProfile = async () => {
     setLoading(true);
     console.log(loading);
-    
+
     try {
       const id = localStorage.getItem("id") || "-";
       const { data } = await UserService.findUserById(id);
@@ -82,8 +74,20 @@ export default function ProfileView() {
 
   const handleChangeTab = (e: any, newValue: any) => {
     console.log(e);
+    console.log(newValue);
 
     setTab(newValue);
+  };
+
+  const tabContent = () => {
+    switch (tab) {
+      case 0:
+        return <GeneralProfleView />;
+      case 1:
+        return <ChangePasswordView />;
+      default:
+        return "";
+    }
   };
 
   return (
@@ -140,108 +144,13 @@ export default function ProfileView() {
                   <Tab label="Change Password" />
                 </Tabs>
               </Box>
-              <Stack direction={"column"} spacing={2}>
-                <Stack direction={"row"} justifyContent={"space-between"}>
-                  <Box>
-                    <Typography variant="subtitle1" fontWeight={"medium"}>
-                      Fullname
-                    </Typography>
-                    <Typography variant="subtitle2" fontWeight={"normal"}>
-                      Fadlan Rizki
-                    </Typography>
-                  </Box>
-                  <Button
-                    sx={{
-                      width: "130px",
-                      height: "40px",
-                    }}
-                    variant="contained"
-                    startIcon={<FaEdit />}
-                  >
-                    Edit
-                  </Button>
-                </Stack>
 
-                <Box>
-                  <Typography variant="subtitle1" fontWeight={"medium"}>
-                    Username
-                  </Typography>
-                  <Typography variant="subtitle2" fontWeight={"normal"}>
-                    Fadlan
-                  </Typography>
-                </Box>
-
-                <Box>
-                  <Typography variant="subtitle1" fontWeight={"medium"}>
-                    Email
-                  </Typography>
-                  <Typography variant="subtitle2" fontWeight={"normal"}>
-                    fadlan@gmail.com
-                  </Typography>
-                </Box>
-
-                <Box>
-                  <Typography variant="subtitle1" fontWeight={"medium"}>
-                    Gender
-                  </Typography>
-                  <Typography variant="subtitle2" fontWeight={"normal"}>
-                    Laki-laki
-                  </Typography>
-                </Box>
-
-                <Box>
-                  <Typography variant="subtitle1" fontWeight={"medium"}>
-                    Pekerjaan / Jabatan
-                  </Typography>
-                  <Typography variant="subtitle2" fontWeight={"normal"}>
-                    Programmer
-                  </Typography>
-                </Box>
-
-                <Box>
-                  <Typography variant="subtitle1" fontWeight={"medium"}>
-                    Profil Risiko
-                  </Typography>
-                  <Typography variant="subtitle2" fontWeight={"normal"}>
-                    Moderat
-                  </Typography>
-                </Box>
-
-                <Box>
-                  <Typography variant="subtitle1" fontWeight={"medium"}>
-                    Prinsip Finansial
-                  </Typography>
-                  <Typography variant="subtitle2" fontWeight={"normal"}>
-                    Syariah
-                  </Typography>
-                </Box>
-              </Stack>
+              {tabContent()}
             </CardContent>
           </Card>
         </Grid>
       </Grid>
 
-      <Grid container rowSpacing={4}>
-        <Grid size={12}>
-          <Box>
-            <Grid
-              container
-              size={{ xs: 12, sm: 12 }}
-              justifyContent={"flex-end"}
-            >
-              {/* <Button
-                onClick={() => {
-                  handleSubmit(onSubmit);
-                }}
-                variant="contained"
-                color="primary"
-              >
-                Update Profile
-              </Button> */}
-            </Grid>
-          </Box>
-        </Grid>
-      </Grid>
       <ModalNotification
         open={modal.open}
         message={modal.message}
