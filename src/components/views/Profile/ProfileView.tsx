@@ -10,9 +10,6 @@ import {
   Tabs,
   Typography,
 } from "@mui/material";
-import { useForm } from "react-hook-form";
-import * as z from "zod";
-import { zodResolver } from "@hookform/resolvers/zod";
 import { useEffect, useState } from "react";
 import { UserService } from "@/service/userService";
 import { getErrorMessage } from "@/utils/message";
@@ -21,34 +18,20 @@ import ModalNotification from "@/components/shared/Modal/ModalNotification";
 import GeneralProfleView from "./General/GeneralProfleView";
 import ChangePasswordView from "./ChangePassword/ChangePasswordView";
 
-const profileForm = z.object({
-  fullName: z.string().optional(),
-  occupation: z.string().optional(),
-  email: z.string().optional(),
-  password: z.string().optional(),
-  newPassword: z.string().optional(),
-  confirmPassword: z.string(),
-});
-
-type ProfileForm = z.infer<typeof profileForm>;
+type UserProfile = {
+ email: string
+ fullName: string
+ username: string
+ gender?: string | null
+ occupation: string
+ createdAt: string
+}
 
 export default function ProfileView() {
-  const {
-    // register,
-    //  handleSubmit,
-    setValue,
-  } = useForm<ProfileForm>({
-    resolver: zodResolver(profileForm),
-  });
-  const {
-    modal,
-    closeModal,
-    //  showConfirm,
-    showFailed,
-    //  showSuccess
-  } = useModal();
+  const { modal, showFailed, closeModal } = useModal();
   const [loading, setLoading] = useState(false);
   const [tab, setTab] = useState(0);
+  const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
 
   const fetchUserProfile = async () => {
     setLoading(true);
@@ -57,9 +40,9 @@ export default function ProfileView() {
     try {
       const id = localStorage.getItem("id") || "-";
       const { data } = await UserService.findUserById(id);
-      setValue("fullName", data.fullName);
-      setValue("email", data.email);
-      setValue("occupation", data.occupation);
+      setUserProfile(data);
+    
+      
     } catch (error) {
       const message = getErrorMessage(error);
       showFailed(message);
@@ -82,7 +65,7 @@ export default function ProfileView() {
   const tabContent = () => {
     switch (tab) {
       case 0:
-        return <GeneralProfleView />;
+        return <GeneralProfleView data={userProfile} />;
       case 1:
         return <ChangePasswordView />;
       default:

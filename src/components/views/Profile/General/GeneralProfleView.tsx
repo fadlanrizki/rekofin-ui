@@ -1,7 +1,11 @@
 import { Box, Button, Stack, Typography } from "@mui/material";
 import { FaEdit } from "react-icons/fa";
 
-export default function GeneralProfleView() {
+type GeneralProfileProps = {
+  data: any;
+};
+
+export default function GeneralProfleView({ data }: GeneralProfileProps) {
   return (
     <Stack direction={"column"} spacing={2}>
       <Stack direction={"row"} justifyContent={"space-between"}>
@@ -10,7 +14,7 @@ export default function GeneralProfleView() {
             Fullname
           </Typography>
           <Typography variant="subtitle2" fontWeight={"normal"}>
-            Fadlan Rizki
+            {data?.fullName}
           </Typography>
         </Box>
         <Button
@@ -30,7 +34,7 @@ export default function GeneralProfleView() {
           Username
         </Typography>
         <Typography variant="subtitle2" fontWeight={"normal"}>
-          Fadlan
+          {data?.username}
         </Typography>
       </Box>
 
@@ -39,7 +43,7 @@ export default function GeneralProfleView() {
           Email
         </Typography>
         <Typography variant="subtitle2" fontWeight={"normal"}>
-          fadlan@gmail.com
+          {data?.email}
         </Typography>
       </Box>
 
@@ -48,7 +52,7 @@ export default function GeneralProfleView() {
           Gender
         </Typography>
         <Typography variant="subtitle2" fontWeight={"normal"}>
-          Laki-laki
+          {data?.email || "-"}
         </Typography>
       </Box>
 
@@ -57,7 +61,7 @@ export default function GeneralProfleView() {
           Pekerjaan / Jabatan
         </Typography>
         <Typography variant="subtitle2" fontWeight={"normal"}>
-          Programmer
+          {data?.occupation}
         </Typography>
       </Box>
 
