@@ -6,13 +6,22 @@ import {
   Card,
   CardContent,
   Pagination,
+  TextField,
+  Autocomplete,
+  FormControl,
+  InputLabel,
+  Select,
+  MenuItem,
+  SelectChangeEvent,
 } from "@mui/material";
 import Image from "next/image";
 import { FaLightbulb } from "react-icons/fa6";
-import RecommendationFilter from "./RecommendationFIlter";
+import { useEffect, useState } from "react";
+import { FaBook } from "react-icons/fa";
+import { FaUserCheck } from "react-icons/fa";
+import { MdCastForEducation } from "react-icons/md";
 
-
-const recommendations = [
+const recommendationsDummy = [
   {
     title: "Siapkan 3x pengeluaran bulanan",
     description: "Sediakan dana darurat minimal 3x pengeluaran bulanan.",
@@ -21,7 +30,7 @@ const recommendations = [
   {
     title: "Gunakan e-wallet terpisah",
     description: "Pisahkan akun dompet digital untuk keperluan harian.",
-    source: "education",
+    source: "educational",
   },
   {
     title: "Quote dari Dedy Budiman",
@@ -31,7 +40,7 @@ const recommendations = [
   {
     title: "Gunakan e-wallet terpisah",
     description: "Pisahkan akun dompet digital untuk keperluan harian.",
-    source: "education",
+    source: "educational",
   },
   {
     title: "Quote dari Dedy Budiman",
@@ -43,7 +52,36 @@ const recommendations = [
 
 export default function RecommendationSection() {
   // const [isCompleteData, setIsCompleteData] = useState(false);
+  const [recommendations, setRecommendations] = useState(recommendationsDummy);
+  const [source, setSource] = useState("all");
   const isComplete = true;
+
+  useEffect(() => {
+    fetchRecommendation();
+  });
+
+  const fetchRecommendation = async () => {
+    try {
+    } catch (error) {
+      console.log(error);
+    } finally {
+    }
+  };
+
+  const handleChangeSource = (event: SelectChangeEvent) => {
+    setSource(event.target.value as string);
+  };
+
+  const getCardIconBySource = (sourceType: string) => {
+    switch (sourceType) {
+      case "book":
+        return <FaBook color="#fff" size={18} width={"18px"} />;
+      case "educational":
+        return <MdCastForEducation color="#fff" size={18} width={"18px"} />;
+      case "influencer":
+        return <FaUserCheck color="#fff" size={18} width={"18px"} />;
+    }
+  };
 
   return isComplete ? (
     <div className="flex flex-col gap-3">
@@ -52,20 +90,58 @@ export default function RecommendationSection() {
         className="bg-white shadow-[0px_2px_8px_0px_rgba(99,_99,_99,_0.2)] rounded-md"
       >
         <Typography variant="h5" gutterBottom className="text-primary">
-          Rekomendasi Strategi: Dana Darurat
+          Rekomendasi Strategi: <span className="font-bold">Dana Darurat</span>
         </Typography>
 
         <Box mb={3}>
-          <RecommendationFilter onChange={() => {}} />
+          <div className="flex flex-wrap gap-2 mt-4">
+            <TextField label={"search"} size="small" />
+
+            <FormControl
+              size="small"
+              sx={{
+                width: "250px",
+              }}
+            >
+              <InputLabel id="select_source_label">Source</InputLabel>
+              <Select
+                labelId="select_source_label"
+                id="select_source_label"
+                value={source}
+                label="Source"
+                onChange={handleChangeSource}
+              >
+                <MenuItem value={"all"}>All</MenuItem>
+                <MenuItem value={"book"}>Book</MenuItem>
+                <MenuItem value={"educational"}>Educational</MenuItem>
+                <MenuItem value={"influencer"}>Financial Influencer</MenuItem>
+              </Select>
+            </FormControl>
+          </div>
         </Box>
 
         <Grid container spacing={3}>
           {recommendations.map((item, index) => (
             <Grid size={{ xs: 12, md: 6, lg: 4 }} key={index}>
-              <Card variant="outlined">
+              <div className="max-w-sm p-6 bg-white rounded-2xl shadow-md ring-1 ring-gray-200 flex items-center gap-4">
+                <div className="w-12 px-3 h-12 bg-primary rounded-xl flex items-center justify-center">
+                  {getCardIconBySource(item.source)}
+                </div>
+                <div className="w-full">
+                  <h2 className="text-lg font-semibold text-gray-800">
+                    {item.title}
+                  </h2>
+                  <p className="text-gray-600 mt-1 line-clamp-1">
+                    {item.description}
+                  </p>
+                  <p className="text-right mt-2 text-primary font-medium">Detail</p>
+                </div>
+              </div>
+              {/* <div className="border px-4 py-2">Recommendation Card</div> */}
+              {/* <Card variant="outlined">
                 <CardContent>
                   <Typography variant="h6">{item.title}</Typography>
-                  <Typography variant="body2" mt={1}>
+                  <Typography variant="body2" mt={1} noWrap>
                     {item.description}
                   </Typography>
                   <Typography
@@ -77,7 +153,7 @@ export default function RecommendationSection() {
                     Sumber: {item.source}
                   </Typography>
                 </CardContent>
-              </Card>
+              </Card> */}
             </Grid>
           ))}
         </Grid>
@@ -98,7 +174,10 @@ export default function RecommendationSection() {
         </div>
 
         <div>
-          <p className="text-[0.8rem]">Anda dapat memperbarui Rekomendasi dengan melakukan update data pada menu Input Keuangan</p>
+          <p className="text-[0.8rem]">
+            Anda dapat memperbarui Rekomendasi dengan melakukan update data pada
+            menu Input Keuangan
+          </p>
         </div>
       </Box>
     </div>
