@@ -3,16 +3,14 @@ import {
   Box,
   Typography,
   Grid,
-  Card,
-  CardContent,
   Pagination,
   TextField,
-  Autocomplete,
   FormControl,
   InputLabel,
   Select,
   MenuItem,
   SelectChangeEvent,
+  Button,
 } from "@mui/material";
 import Image from "next/image";
 import { FaLightbulb } from "react-icons/fa6";
@@ -20,6 +18,7 @@ import { useEffect, useState } from "react";
 import { FaBook } from "react-icons/fa";
 import { FaUserCheck } from "react-icons/fa";
 import { MdCastForEducation } from "react-icons/md";
+import { RecommendationService } from "@/service/recommendationService";
 
 const recommendationsDummy = [
   {
@@ -51,16 +50,18 @@ const recommendationsDummy = [
 ];
 
 export default function RecommendationSection() {
-  // const [isCompleteData, setIsCompleteData] = useState(false);
-  const [recommendations, setRecommendations] = useState(recommendationsDummy);
+  const [recommendations, setRecommendations] = useState([]);
   const [source, setSource] = useState("all");
-  const isComplete = true;
+  const isComplete = false;
 
-  useEffect(() => {
-    fetchRecommendation();
-  });
+  // useEffect(() => {
+  //   fetchRecommendation();
+  // });
 
   const fetchRecommendation = async () => {
+    const id = localStorage.getItem("id") || "";
+    await RecommendationService.getUserRecommendationResult(id)
+
     try {
     } catch (error) {
       console.log(error);
@@ -125,35 +126,18 @@ export default function RecommendationSection() {
             <Grid size={{ xs: 12, md: 6, lg: 4 }} key={index}>
               <div className="max-w-sm p-6 bg-white rounded-2xl shadow-md ring-1 ring-gray-200 flex items-center gap-4">
                 <div className="w-12 px-3 h-12 bg-primary rounded-xl flex items-center justify-center">
-                  {getCardIconBySource(item.source)}
+                  {/* {getCardIconBySource(item.source)} */}
                 </div>
                 <div className="w-full">
                   <h2 className="text-lg font-semibold text-gray-800">
-                    {item.title}
+                    {/* {item.title} */}
                   </h2>
                   <p className="text-gray-600 mt-1 line-clamp-1">
-                    {item.description}
+                    {/* {item.description} */}
                   </p>
-                  <p className="text-right mt-2 text-primary font-medium">Detail</p>
+                  <p className="text-right mt-2 cursor-pointer text-primary font-medium">Detail</p>
                 </div>
               </div>
-              {/* <div className="border px-4 py-2">Recommendation Card</div> */}
-              {/* <Card variant="outlined">
-                <CardContent>
-                  <Typography variant="h6">{item.title}</Typography>
-                  <Typography variant="body2" mt={1} noWrap>
-                    {item.description}
-                  </Typography>
-                  <Typography
-                    variant="caption"
-                    color="text.secondary"
-                    mt={2}
-                    display="block"
-                  >
-                    Sumber: {item.source}
-                  </Typography>
-                </CardContent>
-              </Card> */}
             </Grid>
           ))}
         </Grid>
@@ -195,6 +179,7 @@ export default function RecommendationSection() {
           <strong> Input Keuangan </strong>Terlebih Dahulu
         </h1>
       </div>
+      <Button onClick={fetchRecommendation}>Test API</Button>
     </div>
   );
 }

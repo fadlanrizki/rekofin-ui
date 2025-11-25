@@ -24,10 +24,15 @@ const update = async (data: any): Promise<any> => {
   return await apiClient.patch(API_ROUTE.RECOMMENDATION, data);
 };
 
+const getUserRecommendationResult = async (id: any): Promise<any> => {
+  return await apiClient.get(`${API_ROUTE.RECOMMENDATION}user/${id}`);
+};
+
 export const RecommendationService = {
   create,
   getList,
   deleteData,
   findById,
   update,
+  getUserRecommendationResult
 };
