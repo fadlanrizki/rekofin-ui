@@ -3,25 +3,84 @@
 import {
   Avatar,
   Box,
-  Button,
   Card,
   CardContent,
-  Container,
   Grid,
-  TextField,
+  Tab,
+  Tabs,
   Typography,
 } from "@mui/material";
+import { useEffect, useState } from "react";
+import { UserService } from "@/service/userService";
+import { getErrorMessage } from "@/utils/message";
+import { useModal } from "@/hooks/useModal";
+import ModalNotification from "@/components/shared/Modal/ModalNotification";
+import GeneralProfleView from "./General/GeneralProfleView";
+import ChangePasswordView from "./ChangePassword/ChangePasswordView";
+
+type UserProfile = {
+ email: string
+ fullName: string
+ username: string
+ gender?: string | null
+ occupation: string
+ createdAt: string
+}
 
 export default function ProfileView() {
+  const { modal, showFailed, closeModal } = useModal();
+  const [loading, setLoading] = useState(false);
+  const [tab, setTab] = useState(0);
+  const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
+
+  const fetchUserProfile = async () => {
+    setLoading(true);
+    console.log(loading);
+
+    try {
+      const id = localStorage.getItem("id") || "-";
+      const { data } = await UserService.findUserById(id);
+      setUserProfile(data);
+    
+      
+    } catch (error) {
+      const message = getErrorMessage(error);
+      showFailed(message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchUserProfile();
+  }, []);
+
+  const handleChangeTab = (e: any, newValue: any) => {
+    console.log(e);
+    console.log(newValue);
+
+    setTab(newValue);
+  };
+
+  const tabContent = () => {
+    switch (tab) {
+      case 0:
+        return <GeneralProfleView data={userProfile} />;
+      case 1:
+        return <ChangePasswordView />;
+      default:
+        return "";
+    }
+  };
+
   return (
-    <Container maxWidth="lg" sx={{ py: 5 }}>
+    <Grid size={{ xs: 12 }}>
       {/* Title */}
-      <Typography variant="h4" gutterBottom>
+      <Typography variant="h5" gutterBottom>
         Profile
       </Typography>
 
       <Grid container spacing={4}>
-        {/* Left Column - Profile Info */}
         <Grid size={{ xs: 12, md: 4 }}>
           <Card>
             <CardContent
@@ -37,9 +96,6 @@ export default function ProfileView() {
               />
               <Typography variant="h6">John Doe</Typography>
               <Typography color="text.secondary">john@example.com</Typography>
-              <Typography variant="body2" sx={{ mt: 1 }} color="text.secondary">
-                Employee
-              </Typography>
               <Typography
                 variant="caption"
                 sx={{ mt: 2 }}
@@ -53,91 +109,38 @@ export default function ProfileView() {
 
         {/* Right Column - Profile Form */}
         <Grid size={{ xs: 12, md: 8 }}>
-          <Card>
+          <Card className="h-full">
             <CardContent>
-              <Grid container spacing={2}>
-                <Grid size={{ xs: 12 }}>
-                  <TextField
-                    label="Full Name"
-                    fullWidth
-                    variant="outlined"
-                    defaultValue="John Doe"
-                  />
-                </Grid>
-                <Grid size={{ xs: 12 }}>
-                  <TextField
-                    label="Occupation"
-                    fullWidth
-                    variant="outlined"
-                    defaultValue="Software Engineer"
-                  />
-                </Grid>
-                <Grid size={{ xs: 12 }}>
-                  <TextField
-                    label="Email"
-                    fullWidth
-                    variant="outlined"
-                    value="john@example.com"
-                    InputProps={{ readOnly: true }}
-                  />
-                </Grid>
-              </Grid>
-
-              <Box display="flex" justifyContent="flex-end" gap={2} mt={4}>
-                <Button variant="outlined" color="secondary">
-                  Cancel
-                </Button>
-                <Button variant="contained" color="primary">
-                  Save Changes
-                </Button>
+              <Box
+                sx={{
+                  borderBottom: 1,
+                  borderColor: "divider",
+                  marginBottom: 3,
+                }}
+              >
+                <Tabs
+                  value={tab}
+                  onChange={handleChangeTab}
+                  aria-label="basic tabs example"
+                >
+                  <Tab label="General" />
+                  <Tab label="Change Password" />
+                </Tabs>
               </Box>
+
+              {tabContent()}
             </CardContent>
           </Card>
         </Grid>
       </Grid>
 
-      {/* Optional: Change Password Section */}
-      <Box mt={6} maxWidth="full" mx="auto">
-        <Card>
-          <CardContent>
-            <Typography variant="h6" gutterBottom>
-              Change Password
-            </Typography>
-            <Grid container spacing={2}>
-              <Grid size={{ xs: 12 }}>
-                <TextField
-                  type="password"
-                  label="Current Password"
-                  fullWidth
-                  variant="outlined"
-                />
-              </Grid>
-              <Grid size={{ xs: 12, sm: 6 }}>
-                <TextField
-                  type="password"
-                  label="New Password"
-                  fullWidth
-                  variant="outlined"
-                />
-              </Grid>
-              <Grid size={{ xs: 12, sm: 6 }}>
-                <TextField
-                  type="password"
-                  label="Confirm New Password"
-                  fullWidth
-                  variant="outlined"
-                />
-              </Grid>
-            </Grid>
-
-            <Box display="flex" justifyContent="flex-end" mt={3}>
-              <Button variant="contained" color="success">
-                Update Password
-              </Button>
-            </Box>
-          </CardContent>
-        </Card>
-      </Box>
-    </Container>
+      <ModalNotification
+        open={modal.open}
+        message={modal.message}
+        onClose={closeModal}
+        type={modal.type}
+        // onConfirm={apiDeleteRule}
+      />
+    </Grid>
   );
 }

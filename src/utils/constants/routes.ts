@@ -11,9 +11,25 @@ export const ROUTE_PATHS = {
   },
   ADMIN: {
     DASHBOARD: `${adminPrefix}/dashboard`,
-    MANAGE_RULE: `${adminPrefix}/manage-rule`,
-    MANAGE_USER: `${adminPrefix}/manage-user`,
-    MANAGE_RECOMMENDATION: `${adminPrefix}/manage-recommendation`
+    MANAGE_RULE: {
+      LIST: `${adminPrefix}/manage-rule`,
+      ADD: `${adminPrefix}/manage-rule/form/add`,
+      EDIT: `${adminPrefix}/manage-rule/form/edit`,
+      VIEW: `${adminPrefix}/manage-rule/form/view`,
+    },
+    MANAGE_USER: {
+      LIST: `${adminPrefix}/manage-user`,
+      ADD: `${adminPrefix}/manage-user/form/add`,
+      EDIT: `${adminPrefix}/manage-user/form/edit`,
+      VIEW: `${adminPrefix}/manage-user/form/view`,
+      
+    },
+    MANAGE_RECOMMENDATION: {
+      LIST: `${adminPrefix}/manage-recommendation`,
+      ADD: `${adminPrefix}/manage-recommendation/form/add`,
+      EDIT: `${adminPrefix}/manage-recommendation/form/edit`,
+      VIEW: `${adminPrefix}/manage-recommendation/form/view`,
+    }
   },
   LOGIN: "/login",
   REGISTER: "/register",

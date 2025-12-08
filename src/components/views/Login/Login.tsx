@@ -1,53 +1,59 @@
 "use client";
+
 import Logo from "@/components/shared/Logo";
 import PasswordTextfield from "@/components/shared/Textfield/PasswordTextfield/PasswordTextfield";
-import { loginService } from "@/service/authService";
 import { Button, TextField } from "@mui/material";
 import Image from "next/image";
 import Link from "next/link";
-import { ChangeEvent, FormEvent, useState } from "react";
+import { useEffect, useState } from "react";
 
 import { useRouter } from "next/navigation";
 import { ROUTE_PATHS } from "@/utils/constants/routes";
-import { UserLoginRequestType } from "@/types/user";
 import ModalFailed from "@/components/shared/Modal/ModalFailed";
 import axios from "axios";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { decodeToken, isTokenValid } from "@/utils/jwt";
+import { loginSchema, TLogin } from "@/types/auth";
+import { loginService } from "@/service/authService";
 
 const initialValue = {
-  username: "",
+  credential: "",
   password: "",
 };
 
 const Login = () => {
   const router = useRouter();
-  const [formData, setFormData] = useState<UserLoginRequestType>(initialValue);
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<TLogin>({
+    defaultValues: initialValue,
+    resolver: zodResolver(loginSchema),
+  });
 
   const [error, setError] = useState<string>("");
   const [openModalFailed, setOpenModalFailed] = useState(false);
 
   const [loading, setLoading] = useState(false);
 
-  const handleChange = (
-    e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
-  ) => {
-    const name = e?.target.name;
-    const value = e.target.value;
-
-    setFormData((prev: UserLoginRequestType) => {
-      return {
-        ...prev,
-        [name]: value,
-      };
-    });
-  };
-
-  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
+  const onSubmit = async (data: TLogin) => {
     try {
       setLoading(true);
-      const res = await loginService(formData);
+      const res = await loginService(data);
+      console.log(res);
+      
 
-      if (res?.data?.role === "user") {
+      const token = res?.data?.token || "";
+      const decodedToken = decodeToken(token);
+
+      localStorage.setItem("token", token);
+      localStorage.setItem("id", decodedToken.id.toString());
+      localStorage.setItem("username", decodedToken.username);
+      localStorage.setItem("fullName", decodedToken.fullName);
+
+      if (decodedToken?.role === "user") {
         router.push(ROUTE_PATHS.USER.DASHBOARD);
       } else {
         router.push(ROUTE_PATHS.ADMIN.DASHBOARD);
@@ -63,6 +69,29 @@ const Login = () => {
       setLoading(false);
     }
   };
+
+  const checkIsLoggedIn = () => {
+    const token = localStorage.getItem("token");
+
+    if (!token) {
+      return;
+    }
+
+    if (isTokenValid(token)) {
+      const decode = decodeToken(token);
+      const role = decode?.role;
+
+      if (role === "admin") {
+        router.push(ROUTE_PATHS.ADMIN.DASHBOARD);
+      } else {
+        router.push(ROUTE_PATHS.USER.DASHBOARD);
+      }
+    }
+  };
+
+  useEffect(() => {
+    checkIsLoggedIn();
+  }, []);
 
   return (
     <>
@@ -102,22 +131,22 @@ const Login = () => {
             </h2>
             <form
               className="space-y-5 flex flex-col gap-5"
-              onSubmit={handleSubmit}
+              onSubmit={handleSubmit(onSubmit)}
             >
               <TextField
+                {...register("credential")}
                 fullWidth
                 label="Username / Email"
                 variant="outlined"
-                type="text"
-                placeholder="user@example.com"
-                name="username"
-                onChange={handleChange}
-                value={formData.username}
+                error={!!errors.credential}
+                helperText={errors.credential?.message}
               />
               <PasswordTextfield
+                {...register("password")}
                 name="password"
-                onChange={handleChange}
-                value={formData.password}
+                label={"Password"}
+                error={!!errors.password}
+                helperText={errors.password?.message}
               />
 
               <Button
