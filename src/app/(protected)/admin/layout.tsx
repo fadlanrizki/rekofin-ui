@@ -1,6 +1,6 @@
 "use client";
 import { GiHamburgerMenu } from "react-icons/gi";
-import { MdOutlineSpaceDashboard } from "react-icons/md";
+import { MdOutlineSpaceDashboard, MdFactCheck } from "react-icons/md";
 import { FaUserCircle } from "react-icons/fa";
 import { TbLogout2 } from "react-icons/tb";
 import Logo from "@/components/shared/Logo";
@@ -11,6 +11,7 @@ import { IoTrailSignSharp } from "react-icons/io5";
 import { VscLightbulbSparkle } from "react-icons/vsc";
 import { ROUTE_PATHS } from "@/utils/constants/routes";
 import { useRouter } from "next/navigation";
+import { FaFileCircleCheck } from "react-icons/fa6";
 
 type MenuType = {
   name: string;
@@ -30,14 +31,24 @@ const listMenu = [
     icon: <MdManageAccounts size={25} />,
   },
   {
-    name: "Kelola Aturan",
-    path: ROUTE_PATHS.ADMIN.MANAGE_RULE.LIST,
-    icon: <IoTrailSignSharp size={25} />,
+    name: "Kelola Fakta",
+    path: ROUTE_PATHS.ADMIN.MANAGE_RECOMMENDATION.LIST,
+    icon: <MdFactCheck size={25} />,
+  },
+  {
+    name: "Kelola Kesimpulan",
+    path: ROUTE_PATHS.ADMIN.MANAGE_RECOMMENDATION.LIST,
+    icon: <FaFileCircleCheck size={25} />,
   },
   {
     name: "Kelola Rekomendasi",
     path: ROUTE_PATHS.ADMIN.MANAGE_RECOMMENDATION.LIST,
     icon: <VscLightbulbSparkle size={25} />,
+  },
+  {
+    name: "Kelola Aturan",
+    path: ROUTE_PATHS.ADMIN.MANAGE_RULE.LIST,
+    icon: <IoTrailSignSharp size={25} />,
   },
   {
     name: "Keluar",
