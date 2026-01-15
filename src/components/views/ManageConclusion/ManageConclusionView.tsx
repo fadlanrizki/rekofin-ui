@@ -3,8 +3,6 @@
 import {
   Button,
   TextField,
-  Select,
-  MenuItem,
   Table,
   TableHead,
   TableRow,
@@ -13,15 +11,13 @@ import {
   TableContainer,
   Paper,
   IconButton,
-  InputLabel,
-  FormControl,
   styled,
   tableCellClasses,
   Grid,
   Box,
 } from "@mui/material";
 import { useState, useEffect } from "react";
-import { FaEdit } from "react-icons/fa";
+import { FaEdit, FaPlus } from "react-icons/fa";
 import { FaTrashCan } from "react-icons/fa6";
 import { useRouter } from "next/navigation";
 import { ROUTE_PATHS } from "@/utils/constants/routes";
@@ -29,27 +25,23 @@ import { useModal } from "@/hooks/useModal";
 import ModalNotification from "@/components/shared/Modal/ModalNotification";
 import Loading from "@/components/shared/Loading";
 import { IoSearch } from "react-icons/io5";
-import { RecommendationService } from "@/service/recommendationService";
 import { getErrorMessage, getResponseMessage } from "@/utils/message";
 import TablePagination from "@/components/shared/Pagination/TablePagination";
 import { formatDateView } from "@/utils/date";
 import { PAGE_ACTION } from "@/utils/constants/page-action";
+import { ConclusionService } from "@/service/conclusionService";
 
 const defaultParams = {
   search: "",
-  filter: {
-    category: "all",
-    sourceType: "all",
-  },
   limit: 10,
   page: 1,
 };
 
-const StyledTableCell = styled(TableCell)(() => ({
+const StyledTableCell = styled(TableCell)(({ theme }) => ({
   [`&.${tableCellClasses.head}`]: {
-    backgroundColor: "#fff",
+    backgroundColor: theme.palette.primary.main,
     fontWeight: "bold",
-    color: "#000",
+    color: "#fff",
   },
   [`&.${tableCellClasses.body}`]: {
     fontSize: 14,
@@ -57,9 +49,9 @@ const StyledTableCell = styled(TableCell)(() => ({
   },
 }));
 
-const StyledTableRow = styled(TableRow)(({ theme }) => ({
-  "&:nth-of-type(odd)": {
-    backgroundColor: theme.palette.action.hover,
+const StyledTableRow = styled(TableRow)(() => ({
+  "&:nth-of-type(even)": {
+    backgroundColor: "#f2f6fa",
   },
   // hide last border
   "&:last-child td, &:last-child th": {
@@ -74,7 +66,7 @@ export default function ManageConclusionView() {
 
   const [loading, setLoading] = useState(false);
   const [params, setParams] = useState<any>(defaultParams);
-  const [recommendations, setRecommendations] = useState<any[]>([]);
+  const [conclusions, setConclusions] = useState<any[]>([]);
   const [total, setTotal] = useState(0);
   const [selectedId, setSelectedId] = useState("");
 
@@ -83,8 +75,8 @@ export default function ManageConclusionView() {
   const fetchRecommendation = async () => {
     setLoading(true);
     try {
-      const response = await RecommendationService.getList(params);
-      setRecommendations(response.data);
+      const response = await ConclusionService.getList(params);
+      setConclusions(response.data);
       setTotal(response.total);
     } catch (error) {
       const message = getErrorMessage(error);
@@ -99,7 +91,7 @@ export default function ManageConclusionView() {
   }, [params]);
 
   const handleAdd = () => {
-    router.push(ROUTE_PATHS.ADMIN.MANAGE_FACT.ADD);
+    router.push(ROUTE_PATHS.ADMIN.MANAGE_CONCLUSION.ADD);
   };
 
   const onEnterSearch = (value: any) => {
@@ -122,42 +114,18 @@ export default function ManageConclusionView() {
     }));
   };
 
-  const handleChangeCategory = (value: string) => {
-    setParams((prev: any) => {
-      return {
-        ...prev,
-        filter: {
-          ...prev.filter,
-          category: value,
-        },
-      };
-    });
-  };
-
-  const handleChangeSource = (value: string) => {
-    setParams((prev: any) => {
-      return {
-        ...prev,
-        filter: {
-          ...prev.filter,
-          sourceType: value,
-        },
-      };
-    });
-  };
-
   const handleActions = (action: string, rule: any) => {
     const { id } = rule;
     switch (action) {
       case "view":
-        router.push(`${ROUTE_PATHS.ADMIN.MANAGE_FACT.VIEW}/${id}`);
+        router.push(`${ROUTE_PATHS.ADMIN.MANAGE_CONCLUSION.VIEW}/${id}`);
         break;
       case "edit":
-        router.push(`${ROUTE_PATHS.ADMIN.MANAGE_FACT.EDIT}/${id}`);
+        router.push(`${ROUTE_PATHS.ADMIN.MANAGE_CONCLUSION.EDIT}/${id}`);
         break;
       case "delete":
         setSelectedId(id);
-        showConfirm("Apakah anda yakin ingin menghapus fact ?");
+        showConfirm("Apakah anda yakin ingin menghapus data kesimpulan ?");
         break;
     }
   };
@@ -166,7 +134,7 @@ export default function ManageConclusionView() {
     setLoading(true);
 
     try {
-      const response = await RecommendationService.deleteData(selectedId);
+      const response = await ConclusionService.deleteData(selectedId);
       const message = getResponseMessage(response);
 
       await fetchRecommendation();
@@ -183,7 +151,7 @@ export default function ManageConclusionView() {
     <div className="p-6 space-y-6">
       {/* Header */}
 
-      <h1 className="text-2xl font-semibold">Kelola Fakta</h1>
+      <h1 className="text-2xl font-semibold">Kelola Kesimpulan</h1>
 
       <Box className="bg-white border-2 border-[#eaeaea] rounded-2xl flex flex-col gap-4 p-4 shadow-xs">
         <Grid container size={12} justifyContent={"space-between"}>
@@ -200,39 +168,15 @@ export default function ManageConclusionView() {
                 },
               }}
             />
-
-            <FormControl size="small" className="min-w-[160px]">
-              <InputLabel>Kategori</InputLabel>
-              <Select
-                value={params.filter.category}
-                label="Category"
-                onChange={(e) => handleChangeCategory(e.target.value)}
-                className="w-[200px]"
-              >
-                <MenuItem value="all">All</MenuItem>
-                <MenuItem value="dana_darurat">Dana Darurat</MenuItem>
-                <MenuItem value="menabung">Menabung</MenuItem>
-                <MenuItem value="investasi">Investasi</MenuItem>
-              </Select>
-            </FormControl>
-
-            <FormControl size="small" className="min-w-[160px]">
-              <InputLabel>Source</InputLabel>
-              <Select
-                value={params.filter.sourceType}
-                label="Source"
-                onChange={(e) => handleChangeSource(e.target.value)}
-                className="w-[200px]"
-              >
-                <MenuItem value="all">All</MenuItem>
-                <MenuItem value="book">Buku</MenuItem>
-                <MenuItem value="educational">Edukasi</MenuItem>
-                <MenuItem value="influencer">Influencer</MenuItem>
-              </Select>
-            </FormControl>
           </Grid>
-          <Button variant="contained" color="primary" onClick={handleAdd} className="max-h-[40px]">
-            Add Recommendation
+          <Button
+            startIcon={<FaPlus />}
+            variant="contained"
+            color="primary"
+            onClick={handleAdd}
+            className="max-h-[40px]"
+          >
+            Kesimpulan
           </Button>
         </Grid>
 
@@ -246,11 +190,11 @@ export default function ManageConclusionView() {
             <TableHead>
               <StyledTableRow className="bg-gray-100">
                 <StyledTableCell>No</StyledTableCell>
-                <StyledTableCell>Title</StyledTableCell>
-                <StyledTableCell>Category</StyledTableCell>
-                <StyledTableCell>Source</StyledTableCell>
-                <StyledTableCell>Created At</StyledTableCell>
-                <StyledTableCell>Actions</StyledTableCell>
+                <StyledTableCell>Kode Kesimpulan</StyledTableCell>
+                <StyledTableCell>Kategori</StyledTableCell>
+                <StyledTableCell>Deskripsi</StyledTableCell>
+                <StyledTableCell>Dibuat pada</StyledTableCell>
+                <StyledTableCell>Aksi</StyledTableCell>
               </StyledTableRow>
             </TableHead>
             <TableBody>
@@ -268,30 +212,29 @@ export default function ManageConclusionView() {
                     </Grid>
                   </StyledTableCell>
                 </StyledTableRow>
-              ) : Array.isArray(recommendations) &&
-                recommendations.length > 0 ? (
-                recommendations.map((rec, index) => (
-                  <StyledTableRow key={rec.id}>
+              ) : Array.isArray(conclusions) && conclusions.length > 0 ? (
+                conclusions.map((con, index) => (
+                  <StyledTableRow key={con.id}>
                     <StyledTableCell>{index + 1}</StyledTableCell>
-                    <StyledTableCell>{rec.title}</StyledTableCell>
-                    <StyledTableCell>{rec.category}</StyledTableCell>
-                    <StyledTableCell>{rec.sourceType}</StyledTableCell>
+                    <StyledTableCell>{con.code}</StyledTableCell>
+                    <StyledTableCell>{con.category}</StyledTableCell>
+                    <StyledTableCell>{con.description}</StyledTableCell>
                     <StyledTableCell>
-                      {formatDateView(rec.createdAt)}
+                      {formatDateView(con.createdAt)}
                     </StyledTableCell>
                     <StyledTableCell>
                       <div className="flex gap-2">
                         <IconButton
                           size="small"
                           color="primary"
-                          onClick={() => handleActions(PAGE_ACTION.EDIT, rec)}
+                          onClick={() => handleActions(PAGE_ACTION.EDIT, con)}
                         >
                           <FaEdit className="text-primary" />
                         </IconButton>
                         <IconButton
                           size="small"
                           color="error"
-                          onClick={() => handleActions(PAGE_ACTION.DELETE, rec)}
+                          onClick={() => handleActions(PAGE_ACTION.DELETE, con)}
                         >
                           <FaTrashCan />
                         </IconButton>
@@ -316,7 +259,7 @@ export default function ManageConclusionView() {
             total={total}
             limit={params.limit}
             onChange={handleChangePage}
-            list={recommendations}
+            list={conclusions}
           />
         </div>
       </Box>

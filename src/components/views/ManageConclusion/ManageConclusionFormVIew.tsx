@@ -2,43 +2,36 @@
 import {
   TextField,
   Button,
-  MenuItem,
   Card,
   CardContent,
   Typography,
   Grid,
 } from "@mui/material";
 import { z } from "zod";
-import { useForm, Controller } from "react-hook-form";
+import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "next/navigation";
 import { ROUTE_PATHS } from "@/utils/constants/routes";
 import { useModal } from "@/hooks/useModal";
 import { useEffect, useState } from "react";
 import { PAGE_ACTION } from "@/utils/constants/page-action";
-import { RecommendationService } from "@/service/recommendationService";
+import { ConclusionService } from "@/service/conclusionService";
 import { getErrorMessage, getResponseMessage } from "@/utils/message";
 import ModalNotification from "@/components/shared/Modal/ModalNotification";
 
-const BaseRecommendationSchema = z.object({
-  title: z.string().min(1, "Required"),
+const BaseConclusionSchema = z.object({
+  code: z.string().min(1, "Required"),
   category: z.string().min(1, "Required"),
-  sourceType: z.string().min(1, "Required"),
-  sourceName: z.string().min(1, "Required"),
-  content: z.string().min(1, "Required"),
-  author: z.string().min(1, "Required"),
+  description: z.string().min(1, "Required"),
 });
 
-const EditRecommendationSchema = BaseRecommendationSchema.partial().extend({
+const EditConclusionSchema = BaseConclusionSchema.partial().extend({
   id: z.number(),
 });
 const defaultValues = {
-  title: "",
+  code: "",
   category: "",
-  sourceType: "",
-  sourceName: "",
-  content: "",
-  author: "",
+  description: ""
 };
 
 export default function ManageConclusionFormView({
@@ -55,43 +48,39 @@ export default function ManageConclusionFormView({
   const { modal, showSuccess, showFailed, closeModal, showConfirm } =
     useModal();
   const [loading, setLoading] = useState(false);
-  const [payload, setPayload] = useState<RecommendationForm>(defaultValues);
+  const [payload, setPayload] = useState<ConclusionForm>(defaultValues);
 
-  const schema = isEdit ? EditRecommendationSchema : BaseRecommendationSchema;
-  type RecommendationForm = z.infer<typeof schema>;
+  const schema = isEdit ? EditConclusionSchema : BaseConclusionSchema;
+  type ConclusionForm = z.infer<typeof schema>;
 
   const {
     register,
     handleSubmit,
     formState: { errors },
-    control,
     setValue,
-  } = useForm<RecommendationForm>({
+  } = useForm<ConclusionForm>({
     resolver: zodResolver(schema),
     defaultValues,
   });
 
-  const onSubmit = (data: RecommendationForm) => {
+  const onSubmit = (data: ConclusionForm) => {
     setPayload(data);
     showConfirm("Apakah anda yakin ingin melanjutkan proses ? ");
   };
 
   useEffect(() => {
     if (isEdit && id !== undefined) {
-      fetchRecommendationById(id);
+      fetchConclusionById(id);
     }
   }, []);
 
-  const fetchRecommendationById = async (id: string) => {
+  const fetchConclusionById = async (id: string) => {
     setLoading(true);
     try {
-      const { data } = await RecommendationService.findById(id);
-      setValue("title", data.title);
+      const { data } = await ConclusionService.findById(id);
+      setValue("code", data.code);
       setValue("category", data.category);
-      setValue("sourceName", data.sourceName);
-      setValue("author", data.author);
-      setValue("sourceType", data.sourceType);
-      setValue("content", data.content);
+      setValue("description", data.description);
       setValue("id", data.id);
     } catch (error) {
       const message = getErrorMessage(error);
@@ -101,19 +90,19 @@ export default function ManageConclusionFormView({
     }
   };
 
-  const apiSaveRecommendation = async (data: RecommendationForm) => {
+  const apiSaveRecommendation = async (data: ConclusionForm) => {
     setLoading(true);
 
     try {
       const response = isEdit
-        ? await RecommendationService.update(data)
-        : await RecommendationService.create(data);
+        ? await ConclusionService.update(data)
+        : await ConclusionService.create(data);
       const message = getResponseMessage(response);
 
       showSuccess(message);
       setTimeout(() => {
         closeModal();
-        router.push(ROUTE_PATHS.ADMIN.MANAGE_RECOMMENDATION.LIST);
+        router.push(ROUTE_PATHS.ADMIN.MANAGE_CONCLUSION.LIST);
       }, 2000);
     } catch (error) {
       const message = getErrorMessage(error);
@@ -124,7 +113,7 @@ export default function ManageConclusionFormView({
   };
 
   const handleCancel = () => {
-    router.push(ROUTE_PATHS.ADMIN.MANAGE_RECOMMENDATION.LIST);
+    router.push(ROUTE_PATHS.ADMIN.MANAGE_CONCLUSION.LIST);
   };
 
   const handleConfirm = () => {
@@ -134,7 +123,7 @@ export default function ManageConclusionFormView({
   return (
     <Card className="shadow-lg rounded-2xl">
       <CardContent className="w-full">
-        <Typography variant="h6">Add Recommendation</Typography>
+        <Typography variant="h6">Tambah Kesimpulan</Typography>
         <form onSubmit={handleSubmit(onSubmit)}>
           <Grid
             container
@@ -144,106 +133,39 @@ export default function ManageConclusionFormView({
             className="mt-4"
           >
             <div>
-              <Typography>Title</Typography>
+              <Typography>Kode Kesimpulan</Typography>
               <TextField
-                {...register("title")}
+                {...register("code")}
                 fullWidth
                 size="small"
-                error={!!errors.title}
-                helperText={errors.title?.message}
-                placeholder="Title"
+                error={!!errors.code}
+                helperText={errors.code?.message}
+                placeholder="Kode Kesimpulan"
               />
             </div>
             <div>
-              <Typography>Category</Typography>
-              <Controller
-                name="category"
-                control={control}
-                render={({ field, fieldState }) => {
-                  return (
-                    <TextField
-                      {...field}
-                      select
-                      fullWidth
-                      size="small"
-                      error={!!fieldState.error}
-                      placeholder="Select Category"
-                      helperText={fieldState.error?.message}
-                    >
-                      <MenuItem value="">--- Select Category ---</MenuItem>
-                      <MenuItem value="menabung">Menabung</MenuItem>
-                      <MenuItem value="dana_darurat">Dana Darurat</MenuItem>
-                      <MenuItem value="investasi">Investasi</MenuItem>
-                    </TextField>
-                  );
-                }}
-              />
-            </div>
-
-            {/* Source */}
-            <Grid container size={12} spacing={2}>
-              <Grid size={6}>
-                <Typography>Source Type</Typography>
-
-                <Controller
-                  name="sourceType"
-                  control={control}
-                  render={({ field, fieldState }) => {
-                    return (
-                      <TextField
-                        {...field}
-                        select
-                        fullWidth
-                        size="small"
-                        error={!!fieldState.error}
-                        placeholder="Select Type"
-                        helperText={fieldState.error?.message}
-                      >
-                        <MenuItem value="">--- Select Type ---</MenuItem>
-                        <MenuItem value="book">Buku</MenuItem>
-                        <MenuItem value="educational">Edukasi</MenuItem>
-                        <MenuItem value="influencer">Influencer</MenuItem>
-                      </TextField>
-                    );
-                  }}
-                />
-              </Grid>
-              <Grid size={6}>
-                <Typography>Source Name</Typography>
-                <TextField
-                  {...register("sourceName")}
-                  fullWidth
-                  size="small"
-                  error={!!errors.sourceName}
-                  placeholder="Source Name"
-                  helperText={errors.sourceName?.message}
-                />
-              </Grid>
-            </Grid>
-
-            <div>
-              <Typography>Author</Typography>
+              <Typography>Kategori</Typography>
               <TextField
-                {...register("author")}
+                {...register("category")}
                 fullWidth
                 size="small"
-                error={!!errors.author}
-                placeholder="Author"
-                helperText={errors.author?.message}
+                error={!!errors.category}
+                helperText={errors.category?.message}
+                placeholder="Kategori"
               />
             </div>
 
             <div>
-              <Typography>Content</Typography>
+              <Typography>Deskripsi</Typography>
               <TextField
-                {...register("content")}
+                {...register("description")}
+                multiline
+                minRows={4}
                 fullWidth
-                multiline={true}
-                rows={5}
                 size="small"
-                error={!!errors.content}
-                placeholder="Content"
-                helperText={errors.content?.message}
+                error={!!errors.description}
+                placeholder="Deskripsi"
+                helperText={errors.description?.message}
               />
             </div>
 
@@ -256,15 +178,16 @@ export default function ManageConclusionFormView({
                   onClick={handleCancel}
                   className="!mt-6"
                 >
-                  Cancel
+                  Batal
                 </Button>
                 <Button
                   variant="contained"
                   color="primary"
                   type="submit"
                   className="!mt-6"
+                  loading={loading}
                 >
-                  Save Recommendation
+                  Simpan
                 </Button>
               </Grid>
             </div>
