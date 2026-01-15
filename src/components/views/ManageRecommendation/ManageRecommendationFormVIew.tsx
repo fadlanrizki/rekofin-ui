@@ -49,11 +49,9 @@ export default function ManageRecommendationFormView({
   id?: string;
 }) {
   const router = useRouter();
-
   const isEdit = mode === PAGE_ACTION.EDIT;
 
-  const { modal, showSuccess, showFailed, closeModal, showConfirm } =
-    useModal();
+  const { modal, showSuccess, showFailed, closeModal, showConfirm } = useModal();
   const [loading, setLoading] = useState(false);
   const [payload, setPayload] = useState<RecommendationForm>(defaultValues);
 

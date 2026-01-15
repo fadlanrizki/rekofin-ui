@@ -76,6 +76,7 @@ export default function ManageFactFormView({
     setLoading(true);
     try {
       const { data } = await FactService.findById(id);
+      setValue("id", data.id);
       setValue("code", data.code);
       setValue("description", data.description);
       setValue("question", data.question);
@@ -117,6 +118,9 @@ export default function ManageFactFormView({
     apiSaveFact(payload);
   };
 
+  console.log("errors >",errors);
+  
+
   return (
     <Card className="shadow-lg rounded-2xl">
       <CardContent className="w-full">
@@ -141,17 +145,6 @@ export default function ManageFactFormView({
               />
             </div>
             <div>
-              <Typography>Deskripsi</Typography>
-              <TextField
-                {...register("description")}
-                fullWidth
-                size="small"
-                error={!!errors.description}
-                helperText={errors.description?.message}
-                placeholder="Deskripsi"
-              />
-            </div>
-            <div>
               <Typography>Pertanyaan konsultasi</Typography>
               <TextField
                 {...register("question")}
@@ -160,6 +153,19 @@ export default function ManageFactFormView({
                 error={!!errors.question}
                 helperText={errors.question?.message}
                 placeholder="Pertanyaan konsultasi"
+              />
+            </div>
+            <div>
+              <Typography>Deskripsi</Typography>
+              <TextField
+                {...register("description")}
+                fullWidth
+                multiline={true}
+                rows={5}
+                size="small"
+                error={!!errors.description}
+                helperText={errors.description?.message}
+                placeholder="Deskripsi"
               />
             </div>
 

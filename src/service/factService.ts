@@ -21,7 +21,7 @@ const findById = async (id: string): Promise<any> => {
 };
 
 const update = async (data: any): Promise<any> => {
-  return await apiClient.patch(API_ROUTE.FACT, data);
+  return await apiClient.put(API_ROUTE.FACT, data);
 };
 
 export const FactService = {

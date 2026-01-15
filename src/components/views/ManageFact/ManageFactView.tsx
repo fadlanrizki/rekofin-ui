@@ -25,12 +25,12 @@ import { useModal } from "@/hooks/useModal";
 import ModalNotification from "@/components/shared/Modal/ModalNotification";
 import Loading from "@/components/shared/Loading";
 import { IoSearch } from "react-icons/io5";
-import { RecommendationService } from "@/service/recommendationService";
 import { getErrorMessage, getResponseMessage } from "@/utils/message";
 import TablePagination from "@/components/shared/Pagination/TablePagination";
 import { formatDateView } from "@/utils/date";
 import { PAGE_ACTION } from "@/utils/constants/page-action";
 import { FactService } from "@/service/factService";
+import { FaPlus } from "react-icons/fa";
 
 const defaultParams = {
   search: "",
@@ -125,16 +125,16 @@ export default function ManageFactView() {
         break;
       case "delete":
         setSelectedId(id);
-        showConfirm("Apakah anda yakin ingin menghapus fact ?");
+        showConfirm("Apakah anda yakin ingin menghapus data fakta ?");
         break;
     }
   };
 
-  const apiDeleteRecommendation = async () => {
+  const apiDeleteFact = async () => {
     setLoading(true);
 
     try {
-      const response = await RecommendationService.deleteData(selectedId);
+      const response = await FactService.deleteData(selectedId);
       const message = getResponseMessage(response);
 
       await fetchFacts();
@@ -156,19 +156,25 @@ export default function ManageFactView() {
       <Box className="bg-white border-2 border-[#eaeaea] rounded-2xl flex flex-col gap-4 p-4 shadow-xs">
         <Grid container size={12} justifyContent={"space-between"}>
           <TextField
-              size="small"
-              label="Cari..."
-              value={tempSearch}
-              onKeyDown={onEnterSearch}
-              onChange={(e) => handleChangeSearch(e.target.value)}
-              slotProps={{
-                input: {
-                  endAdornment: <IoSearch />,
-                },
-              }}
-            />
-          <Button variant="contained" color="primary" onClick={handleAdd} className="max-h-[40px]">
-            Tambah Fakta
+            size="small"
+            label="Cari..."
+            value={tempSearch}
+            onKeyDown={onEnterSearch}
+            onChange={(e) => handleChangeSearch(e.target.value)}
+            slotProps={{
+              input: {
+                endAdornment: <IoSearch />,
+              },
+            }}
+          />
+          <Button
+            startIcon={<FaPlus />}
+            variant="contained"
+            color="primary"
+            onClick={handleAdd}
+            className="max-h-[40px]"
+          >
+            Fakta
           </Button>
         </Grid>
 
@@ -203,8 +209,7 @@ export default function ManageFactView() {
                     </Grid>
                   </StyledTableCell>
                 </StyledTableRow>
-              ) : Array.isArray(facts) &&
-                facts.length > 0 ? (
+              ) : Array.isArray(facts) && facts.length > 0 ? (
                 facts.map((fact, index) => (
                   <StyledTableRow key={fact.id}>
                     <StyledTableCell>{index + 1}.</StyledTableCell>
@@ -225,7 +230,9 @@ export default function ManageFactView() {
                         <IconButton
                           size="small"
                           color="error"
-                          onClick={() => handleActions(PAGE_ACTION.DELETE, fact)}
+                          onClick={() =>
+                            handleActions(PAGE_ACTION.DELETE, fact)
+                          }
                         >
                           <FaTrashCan />
                         </IconButton>
@@ -260,7 +267,7 @@ export default function ManageFactView() {
         message={modal.message}
         onClose={closeModal}
         type={modal.type}
-        onConfirm={() => apiDeleteRecommendation()}
+        onConfirm={() => apiDeleteFact()}
       />
     </div>
   );
