@@ -123,7 +123,7 @@ export default function ManageConclusionFormView({
   return (
     <Card className="shadow-lg rounded-2xl">
       <CardContent className="w-full">
-        <Typography variant="h6">Tambah Kesimpulan</Typography>
+        <Typography variant="h6">{isEdit ? "Edit" : "Tambah"} Kesimpulan</Typography>
         <form onSubmit={handleSubmit(onSubmit)}>
           <Grid
             container

@@ -11,21 +11,17 @@ const getList = async (params: ParamsUser): Promise<any> => {
 };
 
 const deleteData = async (id: string): Promise<any> => {
-  const url = `${API_ROUTE.RECOMMENDATION}${id}`;
+  const url = `${API_ROUTE.RECOMMENDATION}/${id}`;
   return await apiClient.delete(url);
 };
 
 const findById = async (id: string): Promise<any> => {
-  const url = `${API_ROUTE.RECOMMENDATION}${id}`;
+  const url = `${API_ROUTE.RECOMMENDATION}/${id}`;
   return await apiClient.get(url);
 };
 
 const update = async (data: any): Promise<any> => {
-  return await apiClient.patch(API_ROUTE.RECOMMENDATION, data);
-};
-
-const getUserRecommendationResult = async (id: any): Promise<any> => {
-  return await apiClient.get(`${API_ROUTE.RECOMMENDATION}user/${id}`);
+  return await apiClient.put(API_ROUTE.RECOMMENDATION, data);
 };
 
 export const RecommendationService = {
@@ -33,6 +29,5 @@ export const RecommendationService = {
   getList,
   deleteData,
   findById,
-  update,
-  getUserRecommendationResult
+  update
 };
