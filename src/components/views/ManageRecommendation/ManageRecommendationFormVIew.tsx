@@ -19,14 +19,13 @@ import { PAGE_ACTION } from "@/utils/constants/page-action";
 import { RecommendationService } from "@/service/recommendationService";
 import { getErrorMessage, getResponseMessage } from "@/utils/message";
 import ModalNotification from "@/components/shared/Modal/ModalNotification";
+import { ConclusionService } from "@/service/conclusionService";
 
 const BaseRecommendationSchema = z.object({
   title: z.string().min(1, "Required"),
-  category: z.string().min(1, "Required"),
-  sourceType: z.string().min(1, "Required"),
-  sourceName: z.string().min(1, "Required"),
+  source: z.string().min(1, "Required"),
   content: z.string().min(1, "Required"),
-  author: z.string().min(1, "Required"),
+  conclusionId: z.number(),
 });
 
 const EditRecommendationSchema = BaseRecommendationSchema.partial().extend({
@@ -34,11 +33,9 @@ const EditRecommendationSchema = BaseRecommendationSchema.partial().extend({
 });
 const defaultValues = {
   title: "",
-  category: "",
-  sourceType: "",
-  sourceName: "",
+  source: "",
   content: "",
-  author: "",
+  conclusionId: 0,
 };
 
 export default function ManageRecommendationFormView({
@@ -49,14 +46,13 @@ export default function ManageRecommendationFormView({
   id?: string;
 }) {
   const router = useRouter();
-
   const isEdit = mode === PAGE_ACTION.EDIT;
 
   const { modal, showSuccess, showFailed, closeModal, showConfirm } =
     useModal();
   const [loading, setLoading] = useState(false);
   const [payload, setPayload] = useState<RecommendationForm>(defaultValues);
-
+  const [options, setOptions] = useState<Array<any>>([]);
   const schema = isEdit ? EditRecommendationSchema : BaseRecommendationSchema;
   type RecommendationForm = z.infer<typeof schema>;
 
@@ -80,18 +76,36 @@ export default function ManageRecommendationFormView({
     if (isEdit && id !== undefined) {
       fetchRecommendationById(id);
     }
+
+    fetchConclusionOptions();
   }, []);
+
+  const fetchConclusionOptions = async () => {
+    setLoading(true);
+    try {
+      // Fetch conclusion options if needed
+      const { data } = await ConclusionService.getOptions();
+      if (!data) {
+        setOptions([]);
+      }
+
+      setOptions(data);
+    } catch (error) {
+      const message = getErrorMessage(error);
+      showFailed(message);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const fetchRecommendationById = async (id: string) => {
     setLoading(true);
     try {
       const { data } = await RecommendationService.findById(id);
       setValue("title", data.title);
-      setValue("category", data.category);
-      setValue("sourceName", data.sourceName);
-      setValue("author", data.author);
-      setValue("sourceType", data.sourceType);
+      setValue("source", data.source);
       setValue("content", data.content);
+      setValue("conclusionId", data.conclusion.id);
       setValue("id", data.id);
     } catch (error) {
       const message = getErrorMessage(error);
@@ -134,7 +148,9 @@ export default function ManageRecommendationFormView({
   return (
     <Card className="shadow-lg rounded-2xl">
       <CardContent className="w-full">
-        <Typography variant="h6">Add Recommendation</Typography>
+        <Typography variant="h6">
+          {isEdit ? "Edit" : "Tambah"} Rekomendasi
+        </Typography>
         <form onSubmit={handleSubmit(onSubmit)}>
           <Grid
             container
@@ -154,39 +170,23 @@ export default function ManageRecommendationFormView({
                 placeholder="Title"
               />
             </div>
-            <div>
-              <Typography>Category</Typography>
-              <Controller
-                name="category"
-                control={control}
-                render={({ field, fieldState }) => {
-                  return (
-                    <TextField
-                      {...field}
-                      select
-                      fullWidth
-                      size="small"
-                      error={!!fieldState.error}
-                      placeholder="Select Category"
-                      helperText={fieldState.error?.message}
-                    >
-                      <MenuItem value="">--- Select Category ---</MenuItem>
-                      <MenuItem value="menabung">Menabung</MenuItem>
-                      <MenuItem value="dana_darurat">Dana Darurat</MenuItem>
-                      <MenuItem value="investasi">Investasi</MenuItem>
-                    </TextField>
-                  );
-                }}
-              />
-            </div>
 
-            {/* Source */}
             <Grid container size={12} spacing={2}>
               <Grid size={6}>
-                <Typography>Source Type</Typography>
-
+                <Typography>Sumber</Typography>
+                <TextField
+                  {...register("source")}
+                  fullWidth
+                  size="small"
+                  error={!!errors.source}
+                  helperText={errors.source?.message}
+                  placeholder="Sumber Rekomendasi"
+                />
+              </Grid>
+              <Grid size={6}>
+                <Typography>Kategori Kesimpulan</Typography>
                 <Controller
-                  name="sourceType"
+                  name="conclusionId"
                   control={control}
                   render={({ field, fieldState }) => {
                     return (
@@ -196,42 +196,23 @@ export default function ManageRecommendationFormView({
                         fullWidth
                         size="small"
                         error={!!fieldState.error}
-                        placeholder="Select Type"
+                        placeholder="Pilih kesimpulan"
                         helperText={fieldState.error?.message}
                       >
-                        <MenuItem value="">--- Select Type ---</MenuItem>
-                        <MenuItem value="book">Buku</MenuItem>
-                        <MenuItem value="educational">Edukasi</MenuItem>
-                        <MenuItem value="influencer">Influencer</MenuItem>
+                        <MenuItem value="">
+                          --- Pilih Kategori Kesimpulan ---
+                        </MenuItem>
+                        {options.map((option) => (
+                          <MenuItem key={option.id} value={option.id}>
+                            {option.label}
+                          </MenuItem>
+                        ))}
                       </TextField>
                     );
                   }}
                 />
               </Grid>
-              <Grid size={6}>
-                <Typography>Source Name</Typography>
-                <TextField
-                  {...register("sourceName")}
-                  fullWidth
-                  size="small"
-                  error={!!errors.sourceName}
-                  placeholder="Source Name"
-                  helperText={errors.sourceName?.message}
-                />
-              </Grid>
             </Grid>
-
-            <div>
-              <Typography>Author</Typography>
-              <TextField
-                {...register("author")}
-                fullWidth
-                size="small"
-                error={!!errors.author}
-                placeholder="Author"
-                helperText={errors.author?.message}
-              />
-            </div>
 
             <div>
               <Typography>Content</Typography>
@@ -242,7 +223,7 @@ export default function ManageRecommendationFormView({
                 rows={5}
                 size="small"
                 error={!!errors.content}
-                placeholder="Content"
+                placeholder="Konten Rekomendasi"
                 helperText={errors.content?.message}
               />
             </div>
@@ -256,15 +237,16 @@ export default function ManageRecommendationFormView({
                   onClick={handleCancel}
                   className="!mt-6"
                 >
-                  Cancel
+                  Batal
                 </Button>
                 <Button
+                  loading={loading}
                   variant="contained"
                   color="primary"
                   type="submit"
                   className="!mt-6"
                 >
-                  Save Recommendation
+                  Simpan
                 </Button>
               </Grid>
             </div>

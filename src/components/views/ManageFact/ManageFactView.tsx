@@ -1,47 +1,46 @@
 "use client";
 
-import { useEffect, useState } from "react";
 import {
   Button,
   TextField,
   Table,
-  TableBody,
-  TableCell,
-  TableContainer,
   TableHead,
   TableRow,
+  TableCell,
+  TableBody,
+  TableContainer,
   Paper,
   IconButton,
-  Grid,
   styled,
   tableCellClasses,
+  Grid,
   Box,
-  Chip,
-  Stack,
 } from "@mui/material";
-import { FaEdit, FaPlus } from "react-icons/fa";
+import { useState, useEffect } from "react";
+import { FaEdit } from "react-icons/fa";
 import { FaTrashCan } from "react-icons/fa6";
 import { useRouter } from "next/navigation";
 import { ROUTE_PATHS } from "@/utils/constants/routes";
-import { PAGE_ACTION } from "@/utils/constants/page-action";
-import Loading from "@/components/shared/Loading";
-import { RuleService } from "@/service/ruleService";
-import TablePagination from "@/components/shared/Pagination/TablePagination";
-import { IoSearch } from "react-icons/io5";
-import { formatDateView } from "@/utils/date";
 import { useModal } from "@/hooks/useModal";
 import ModalNotification from "@/components/shared/Modal/ModalNotification";
+import Loading from "@/components/shared/Loading";
+import { IoSearch } from "react-icons/io5";
 import { getErrorMessage, getResponseMessage } from "@/utils/message";
+import TablePagination from "@/components/shared/Pagination/TablePagination";
+import { formatDateView } from "@/utils/date";
+import { PAGE_ACTION } from "@/utils/constants/page-action";
+import { FactService } from "@/service/factService";
+import { FaPlus } from "react-icons/fa";
 
 const defaultParams = {
   search: "",
-  limit: 1,
+  limit: 10,
   page: 1,
 };
 
-const StyledTableCell = styled(TableCell)(({ theme }) => ({
+const StyledTableCell = styled(TableCell)(() => ({
   [`&.${tableCellClasses.head}`]: {
-    backgroundColor: theme.palette.primary.main,
+    backgroundColor: "#003366",
     fontWeight: "bold",
     color: "#fff",
   },
@@ -61,26 +60,23 @@ const StyledTableRow = styled(TableRow)(() => ({
   },
 }));
 
-export default function ManageRulesPage() {
+export default function ManageFactView() {
   const router = useRouter();
-  const [rules, setRules] = useState<any[] | null>(null);
-  const [params, setParams] = useState<any>(defaultParams);
-  const [loading, setLoading] = useState(true);
-  const [selectedId, setSelectedId] = useState("");
-  const [total, setTotal] = useState(0);
-  const [tempSearch, setTempSearch] = useState("");
   const { modal, closeModal, showConfirm, showFailed, showSuccess } =
     useModal();
 
-  const handleAddRule = () => {
-    router.push(ROUTE_PATHS.ADMIN.MANAGE_RULE.ADD);
-  };
+  const [loading, setLoading] = useState(false);
+  const [params, setParams] = useState<any>(defaultParams);
+  const [facts, setFacts] = useState<any[]>([]);
+  const [total, setTotal] = useState(0);
+  const [selectedId, setSelectedId] = useState("");
+  const [tempSearch, setTempSearch] = useState("");
 
-  const fetchRules = async () => {
+  const fetchFacts = async () => {
     setLoading(true);
     try {
-      const response = await RuleService.getList(params);
-      setRules(response.data);
+      const response = await FactService.getList(params);
+      setFacts(response.data);
       setTotal(response.total);
     } catch (error) {
       const message = getErrorMessage(error);
@@ -91,44 +87,11 @@ export default function ManageRulesPage() {
   };
 
   useEffect(() => {
-    fetchRules();
+    fetchFacts();
   }, [params]);
 
-  const handleActions = (action: string, rule: any) => {
-    const { id } = rule;
-    switch (action) {
-      case "view":
-        router.push(`${ROUTE_PATHS.ADMIN.MANAGE_RULE.VIEW}/${id}`);
-        break;
-      case "edit":
-        router.push(`${ROUTE_PATHS.ADMIN.MANAGE_RULE.EDIT}/${id}`);
-        break;
-      case "delete":
-        setSelectedId(id);
-        showConfirm("Apakah anda yakin ingin menghapus aturan ?");
-        break;
-    }
-  };
-
-  const apiDeleteRule = async () => {
-    setLoading(true);
-    try {
-      const response = await RuleService.deleteData(selectedId);
-      const message = getResponseMessage(response);
-
-      // re-fetch rules
-      await fetchRules();
-      showSuccess(message);
-    } catch (error) {
-      const message = getErrorMessage(error);
-      showFailed(message);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleChangeSearch = (value: string) => {
-    setTempSearch(value);
+  const handleAdd = () => {
+    router.push(ROUTE_PATHS.ADMIN.MANAGE_FACT.ADD);
   };
 
   const onEnterSearch = (value: any) => {
@@ -140,6 +103,10 @@ export default function ManageRulesPage() {
     }
   };
 
+  const handleChangeSearch = (value: string) => {
+    setTempSearch(value);
+  };
+
   const handleChangePage = (event: any, page: number) => {
     setParams((prev: any) => ({
       ...prev,
@@ -147,34 +114,67 @@ export default function ManageRulesPage() {
     }));
   };
 
+  const handleActions = (action: string, rule: any) => {
+    const { id } = rule;
+    switch (action) {
+      case "view":
+        router.push(`${ROUTE_PATHS.ADMIN.MANAGE_FACT.VIEW}/${id}`);
+        break;
+      case "edit":
+        router.push(`${ROUTE_PATHS.ADMIN.MANAGE_FACT.EDIT}/${id}`);
+        break;
+      case "delete":
+        setSelectedId(id);
+        showConfirm("Apakah anda yakin ingin menghapus data fakta ?");
+        break;
+    }
+  };
+
+  const apiDeleteFact = async () => {
+    setLoading(true);
+
+    try {
+      const response = await FactService.deleteData(selectedId);
+      const message = getResponseMessage(response);
+
+      await fetchFacts();
+      showSuccess(message);
+    } catch (error) {
+      const message = getErrorMessage(error);
+      showFailed(message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <div className="p-6 space-y-6">
       {/* Header */}
-      <h1 className="text-2xl font-semibold">Kelola Aturan</h1>
+
+      <h1 className="text-2xl font-semibold">Kelola Fakta</h1>
 
       <Box className="bg-white border-2 border-[#eaeaea] rounded-2xl flex flex-col gap-4 p-4 shadow-xs">
         <Grid container size={12} justifyContent={"space-between"}>
-          <Grid container size={6} spacing={2}>
-            <TextField
-              size="small"
-              label="Cari..."
-              value={tempSearch}
-              onKeyDown={onEnterSearch}
-              onChange={(e) => handleChangeSearch(e.target.value)}
-              slotProps={{
-                input: {
-                  endAdornment: <IoSearch />,
-                },
-              }}
-            />
-          </Grid>
+          <TextField
+            size="small"
+            label="Cari..."
+            value={tempSearch}
+            onKeyDown={onEnterSearch}
+            onChange={(e) => handleChangeSearch(e.target.value)}
+            slotProps={{
+              input: {
+                endAdornment: <IoSearch />,
+              },
+            }}
+          />
           <Button
             startIcon={<FaPlus />}
             variant="contained"
             color="primary"
-            onClick={handleAddRule}
+            onClick={handleAdd}
+            className="max-h-[40px]"
           >
-            Aturan
+            Fakta
           </Button>
         </Grid>
 
@@ -186,13 +186,12 @@ export default function ManageRulesPage() {
         >
           <Table stickyHeader>
             <TableHead>
-              <StyledTableRow>
+              <StyledTableRow className="bg-gray-100">
                 <StyledTableCell>No</StyledTableCell>
-                <StyledTableCell>Nama Aturan</StyledTableCell>
+                <StyledTableCell>Kode</StyledTableCell>
                 <StyledTableCell>Deskripsi</StyledTableCell>
-                <StyledTableCell>Kategori Kesimpulan</StyledTableCell>
                 <StyledTableCell>Created At</StyledTableCell>
-                <StyledTableCell>Aksi</StyledTableCell>
+                <StyledTableCell>Actions</StyledTableCell>
               </StyledTableRow>
             </TableHead>
             <TableBody>
@@ -210,31 +209,21 @@ export default function ManageRulesPage() {
                     </Grid>
                   </StyledTableCell>
                 </StyledTableRow>
-              ) : Array.isArray(rules) && rules.length > 0 ? (
-                rules.map((rule, index) => (
-                  <StyledTableRow key={rule.id}>
+              ) : Array.isArray(facts) && facts.length > 0 ? (
+                facts.map((fact, index) => (
+                  <StyledTableRow key={fact.id}>
                     <StyledTableCell>{index + 1}.</StyledTableCell>
-                    <StyledTableCell>{rule.name}</StyledTableCell>
-                    <StyledTableCell>{rule.description}</StyledTableCell>
+                    <StyledTableCell>{fact.code}</StyledTableCell>
+                    <StyledTableCell>{fact.description}</StyledTableCell>
                     <StyledTableCell>
-                      <Stack direction={"row"} spacing={2}>
-                        {rule.conclusions.map((conclusion: any) => (
-                          <Chip
-                            key={conclusion.id}
-                            label={conclusion.category}
-                            color="info"
-                          />
-                        ))}
-                      </Stack>
-                    </StyledTableCell>
-                    <StyledTableCell>
-                      {formatDateView(rule.createdAt)}
+                      {formatDateView(fact.createdAt)}
                     </StyledTableCell>
                     <StyledTableCell>
                       <div className="flex gap-2">
                         <IconButton
                           size="small"
-                          onClick={() => handleActions(PAGE_ACTION.EDIT, rule)}
+                          color="primary"
+                          onClick={() => handleActions(PAGE_ACTION.EDIT, fact)}
                         >
                           <FaEdit className="text-primary" />
                         </IconButton>
@@ -242,7 +231,7 @@ export default function ManageRulesPage() {
                           size="small"
                           color="error"
                           onClick={() =>
-                            handleActions(PAGE_ACTION.DELETE, rule)
+                            handleActions(PAGE_ACTION.DELETE, fact)
                           }
                         >
                           <FaTrashCan />
@@ -262,12 +251,13 @@ export default function ManageRulesPage() {
           </Table>
         </TableContainer>
 
+        {/* Pagination */}
         <div className="flex justify-end">
           <TablePagination
             total={total}
             limit={params.limit}
             onChange={handleChangePage}
-            list={rules}
+            list={facts}
           />
         </div>
       </Box>
@@ -277,7 +267,7 @@ export default function ManageRulesPage() {
         message={modal.message}
         onClose={closeModal}
         type={modal.type}
-        onConfirm={apiDeleteRule}
+        onConfirm={() => apiDeleteFact()}
       />
     </div>
   );

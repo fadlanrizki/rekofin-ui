@@ -3,31 +3,37 @@ import { apiClient } from "./apiService";
 import { ParamsUser } from "@/types/user";
 
 const create = async (data: any): Promise<any> => {
-  return await apiClient.post(API_ROUTE.RECOMMENDATION, data);
+  return await apiClient.post(API_ROUTE.CONCLUSION, data);
 };
 
 const getList = async (params: ParamsUser): Promise<any> => {
-  return await apiClient.get(API_ROUTE.RECOMMENDATION, params);
+  return await apiClient.get(API_ROUTE.CONCLUSION, params);
 };
 
 const deleteData = async (id: string): Promise<any> => {
-  const url = `${API_ROUTE.RECOMMENDATION}/${id}`;
+  const url = `${API_ROUTE.CONCLUSION}/${id}`;
   return await apiClient.delete(url);
 };
 
 const findById = async (id: string): Promise<any> => {
-  const url = `${API_ROUTE.RECOMMENDATION}/${id}`;
+  const url = `${API_ROUTE.CONCLUSION}/${id}`;
   return await apiClient.get(url);
 };
 
 const update = async (data: any): Promise<any> => {
-  return await apiClient.put(API_ROUTE.RECOMMENDATION, data);
+  return await apiClient.put(API_ROUTE.CONCLUSION, data);
 };
 
-export const RecommendationService = {
+const getOptions = async (): Promise<any> => {
+  return await apiClient.get(`${API_ROUTE.CONCLUSION}/options/list`);
+};
+
+
+export const ConclusionService = {
   create,
   getList,
   deleteData,
   findById,
-  update
+  update,
+  getOptions
 };

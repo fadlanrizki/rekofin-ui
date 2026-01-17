@@ -29,6 +29,18 @@ export const ROUTE_PATHS = {
       ADD: `${adminPrefix}/manage-recommendation/form/add`,
       EDIT: `${adminPrefix}/manage-recommendation/form/edit`,
       VIEW: `${adminPrefix}/manage-recommendation/form/view`,
+    },
+    MANAGE_FACT: {
+      LIST: `${adminPrefix}/manage-fact`,
+      ADD: `${adminPrefix}/manage-fact/form/add`,
+      EDIT: `${adminPrefix}/manage-fact/form/edit`,
+      VIEW: `${adminPrefix}/manage-fact/form/view`,
+    },
+    MANAGE_CONCLUSION: {
+      LIST: `${adminPrefix}/manage-conclusion`,
+      ADD: `${adminPrefix}/manage-conclusion/form/add`,
+      EDIT: `${adminPrefix}/manage-conclusion/form/edit`,
+      VIEW: `${adminPrefix}/manage-conclusion/form/view`,
     }
   },
   LOGIN: "/login",

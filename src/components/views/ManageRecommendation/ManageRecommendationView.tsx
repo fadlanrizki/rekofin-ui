@@ -3,8 +3,6 @@
 import {
   Button,
   TextField,
-  Select,
-  MenuItem,
   Table,
   TableHead,
   TableRow,
@@ -13,15 +11,13 @@ import {
   TableContainer,
   Paper,
   IconButton,
-  InputLabel,
-  FormControl,
   styled,
   tableCellClasses,
   Grid,
   Box,
 } from "@mui/material";
 import { useState, useEffect } from "react";
-import { FaEdit } from "react-icons/fa";
+import { FaEdit, FaPlus } from "react-icons/fa";
 import { FaTrashCan } from "react-icons/fa6";
 import { useRouter } from "next/navigation";
 import { ROUTE_PATHS } from "@/utils/constants/routes";
@@ -37,19 +33,15 @@ import { PAGE_ACTION } from "@/utils/constants/page-action";
 
 const defaultParams = {
   search: "",
-  filter: {
-    category: "all",
-    sourceType: "all",
-  },
   limit: 10,
   page: 1,
 };
 
-const StyledTableCell = styled(TableCell)(() => ({
+const StyledTableCell = styled(TableCell)(({ theme }) => ({
   [`&.${tableCellClasses.head}`]: {
-    backgroundColor: "#fff",
+    backgroundColor: theme.palette.primary.main,
     fontWeight: "bold",
-    color: "#000",
+    color: "#fff",
   },
   [`&.${tableCellClasses.body}`]: {
     fontSize: 14,
@@ -57,9 +49,9 @@ const StyledTableCell = styled(TableCell)(() => ({
   },
 }));
 
-const StyledTableRow = styled(TableRow)(({ theme }) => ({
-  "&:nth-of-type(odd)": {
-    backgroundColor: theme.palette.action.hover,
+const StyledTableRow = styled(TableRow)(() => ({
+  "&:nth-of-type(even)": {
+    backgroundColor: "#f2f6fa",
   },
   // hide last border
   "&:last-child td, &:last-child th": {
@@ -122,30 +114,6 @@ export default function ManageRecommendationView() {
     }));
   };
 
-  const handleChangeCategory = (value: string) => {
-    setParams((prev: any) => {
-      return {
-        ...prev,
-        filter: {
-          ...prev.filter,
-          category: value,
-        },
-      };
-    });
-  };
-
-  const handleChangeSource = (value: string) => {
-    setParams((prev: any) => {
-      return {
-        ...prev,
-        filter: {
-          ...prev.filter,
-          sourceType: value,
-        },
-      };
-    });
-  };
-
   const handleActions = (action: string, rule: any) => {
     const { id } = rule;
     switch (action) {
@@ -183,8 +151,7 @@ export default function ManageRecommendationView() {
     <div className="p-6 space-y-6">
       {/* Header */}
 
-      <h1 className="text-2xl font-semibold">Manage Recommendations</h1>
-
+      <h1 className="text-2xl font-semibold">Kelola Rekomendasi</h1>
       <Box className="bg-white border-2 border-[#eaeaea] rounded-2xl flex flex-col gap-4 p-4 shadow-xs">
         <Grid container size={12} justifyContent={"space-between"}>
           <Grid container size={6} spacing={2}>
@@ -200,39 +167,15 @@ export default function ManageRecommendationView() {
                 },
               }}
             />
-
-            <FormControl size="small" className="min-w-[160px]">
-              <InputLabel>Kategori</InputLabel>
-              <Select
-                value={params.filter.category}
-                label="Category"
-                onChange={(e) => handleChangeCategory(e.target.value)}
-                className="w-[200px]"
-              >
-                <MenuItem value="all">All</MenuItem>
-                <MenuItem value="dana_darurat">Dana Darurat</MenuItem>
-                <MenuItem value="menabung">Menabung</MenuItem>
-                <MenuItem value="investasi">Investasi</MenuItem>
-              </Select>
-            </FormControl>
-
-            <FormControl size="small" className="min-w-[160px]">
-              <InputLabel>Source</InputLabel>
-              <Select
-                value={params.filter.sourceType}
-                label="Source"
-                onChange={(e) => handleChangeSource(e.target.value)}
-                className="w-[200px]"
-              >
-                <MenuItem value="all">All</MenuItem>
-                <MenuItem value="book">Buku</MenuItem>
-                <MenuItem value="educational">Edukasi</MenuItem>
-                <MenuItem value="influencer">Influencer</MenuItem>
-              </Select>
-            </FormControl>
           </Grid>
-          <Button variant="contained" color="primary" onClick={handleAdd} className="max-h-[40px]">
-            Add Recommendation
+          <Button
+            startIcon={<FaPlus />}
+            variant="contained"
+            color="primary"
+            onClick={handleAdd}
+            className="max-h-[40px]"
+          >
+            Rekomendasi
           </Button>
         </Grid>
 
@@ -244,13 +187,13 @@ export default function ManageRecommendationView() {
         >
           <Table stickyHeader>
             <TableHead>
-              <StyledTableRow className="bg-gray-100">
+              <StyledTableRow>
                 <StyledTableCell>No</StyledTableCell>
                 <StyledTableCell>Title</StyledTableCell>
-                <StyledTableCell>Category</StyledTableCell>
-                <StyledTableCell>Source</StyledTableCell>
-                <StyledTableCell>Created At</StyledTableCell>
-                <StyledTableCell>Actions</StyledTableCell>
+                <StyledTableCell>Sumber</StyledTableCell>
+                <StyledTableCell>Kesimpulan</StyledTableCell>
+                <StyledTableCell>Dibuat pada</StyledTableCell>
+                <StyledTableCell>Aksi</StyledTableCell>
               </StyledTableRow>
             </TableHead>
             <TableBody>
@@ -272,10 +215,12 @@ export default function ManageRecommendationView() {
                 recommendations.length > 0 ? (
                 recommendations.map((rec, index) => (
                   <StyledTableRow key={rec.id}>
-                    <StyledTableCell>{index + 1}</StyledTableCell>
+                    <StyledTableCell>{index + 1}.</StyledTableCell>
                     <StyledTableCell>{rec.title}</StyledTableCell>
-                    <StyledTableCell>{rec.category}</StyledTableCell>
-                    <StyledTableCell>{rec.sourceType}</StyledTableCell>
+                    <StyledTableCell>{rec.source}</StyledTableCell>
+                    <StyledTableCell>
+                      {rec.conclusion?.category}
+                    </StyledTableCell>
                     <StyledTableCell>
                       {formatDateView(rec.createdAt)}
                     </StyledTableCell>

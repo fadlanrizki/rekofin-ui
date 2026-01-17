@@ -16,12 +16,12 @@ const deleteData = async (id: string): Promise<any> => {
 };
 
 const findById = async (id: string): Promise<any> => {
-  const url = `${API_ROUTE.RULE}${id}`;
+  const url = `${API_ROUTE.RULE}/${id}`;
   return await apiClient.get(url);
 };
 
 const update = async (data: any): Promise<any> => {
-  return await apiClient.patch(API_ROUTE.RULE, data);
+  return await apiClient.put(API_ROUTE.RULE, data);
 };
 
 export const RuleService = {
