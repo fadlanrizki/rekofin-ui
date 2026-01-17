@@ -218,7 +218,9 @@ export default function ManageRecommendationView() {
                     <StyledTableCell>{index + 1}.</StyledTableCell>
                     <StyledTableCell>{rec.title}</StyledTableCell>
                     <StyledTableCell>{rec.source}</StyledTableCell>
-                    <StyledTableCell>{rec.conclusion}</StyledTableCell>
+                    <StyledTableCell>
+                      {rec.conclusion?.category}
+                    </StyledTableCell>
                     <StyledTableCell>
                       {formatDateView(rec.createdAt)}
                     </StyledTableCell>

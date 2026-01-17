@@ -24,10 +24,15 @@ const update = async (data: any): Promise<any> => {
   return await apiClient.put(API_ROUTE.FACT, data);
 };
 
+const getOptions = async (): Promise<any> => {
+  return await apiClient.get(`${API_ROUTE.FACT}/options/list`);
+};
+
 export const FactService = {
   create,
   getList,
   deleteData,
   findById,
-  update
+  update,
+  getOptions
 };

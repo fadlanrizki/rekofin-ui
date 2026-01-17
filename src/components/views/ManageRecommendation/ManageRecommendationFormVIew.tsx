@@ -25,7 +25,7 @@ const BaseRecommendationSchema = z.object({
   title: z.string().min(1, "Required"),
   source: z.string().min(1, "Required"),
   content: z.string().min(1, "Required"),
-  conclusionCode: z.string().nullable(),
+  conclusionId: z.number(),
 });
 
 const EditRecommendationSchema = BaseRecommendationSchema.partial().extend({
@@ -35,7 +35,7 @@ const defaultValues = {
   title: "",
   source: "",
   content: "",
-  conclusionCode: null,
+  conclusionId: 0,
 };
 
 export default function ManageRecommendationFormView({
@@ -105,7 +105,7 @@ export default function ManageRecommendationFormView({
       setValue("title", data.title);
       setValue("source", data.source);
       setValue("content", data.content);
-      setValue("conclusionCode", data.conclusion.code);
+      setValue("conclusionId", data.conclusion.id);
       setValue("id", data.id);
     } catch (error) {
       const message = getErrorMessage(error);
@@ -186,7 +186,7 @@ export default function ManageRecommendationFormView({
               <Grid size={6}>
                 <Typography>Kategori Kesimpulan</Typography>
                 <Controller
-                  name="conclusionCode"
+                  name="conclusionId"
                   control={control}
                   render={({ field, fieldState }) => {
                     return (
@@ -203,8 +203,8 @@ export default function ManageRecommendationFormView({
                           --- Pilih Kategori Kesimpulan ---
                         </MenuItem>
                         {options.map((option) => (
-                          <MenuItem key={option.code} value={option.code}>
-                            {option.category}
+                          <MenuItem key={option.id} value={option.id}>
+                            {option.label}
                           </MenuItem>
                         ))}
                       </TextField>
