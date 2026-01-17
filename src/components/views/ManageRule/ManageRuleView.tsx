@@ -4,8 +4,6 @@ import { useEffect, useState } from "react";
 import {
   Button,
   TextField,
-  Select,
-  MenuItem,
   Table,
   TableBody,
   TableCell,
@@ -14,15 +12,14 @@ import {
   TableRow,
   Paper,
   IconButton,
-  InputLabel,
-  FormControl,
   Grid,
-  Chip,
   styled,
   tableCellClasses,
   Box,
+  Chip,
+  Stack,
 } from "@mui/material";
-import { FaEdit, FaInfoCircle } from "react-icons/fa";
+import { FaEdit, FaPlus } from "react-icons/fa";
 import { FaTrashCan } from "react-icons/fa6";
 import { useRouter } from "next/navigation";
 import { ROUTE_PATHS } from "@/utils/constants/routes";
@@ -38,18 +35,15 @@ import { getErrorMessage, getResponseMessage } from "@/utils/message";
 
 const defaultParams = {
   search: "",
-  filter: {
-    categoryResult: "all",
-  },
-  limit: 10,
+  limit: 1,
   page: 1,
 };
 
-const StyledTableCell = styled(TableCell)(() => ({
+const StyledTableCell = styled(TableCell)(({ theme }) => ({
   [`&.${tableCellClasses.head}`]: {
-    backgroundColor: "#fff",
+    backgroundColor: theme.palette.primary.main,
     fontWeight: "bold",
-    color: "#000",
+    color: "#fff",
   },
   [`&.${tableCellClasses.body}`]: {
     fontSize: 14,
@@ -57,9 +51,9 @@ const StyledTableCell = styled(TableCell)(() => ({
   },
 }));
 
-const StyledTableRow = styled(TableRow)(({ theme }) => ({
-  "&:nth-of-type(odd)": {
-    backgroundColor: theme.palette.action.hover,
+const StyledTableRow = styled(TableRow)(() => ({
+  "&:nth-of-type(even)": {
+    backgroundColor: "#f2f6fa",
   },
   // hide last border
   "&:last-child td, &:last-child th": {
@@ -111,7 +105,7 @@ export default function ManageRulesPage() {
         break;
       case "delete":
         setSelectedId(id);
-        showConfirm("Apakah anda yakin ingin menghapus rule ?");
+        showConfirm("Apakah anda yakin ingin menghapus aturan ?");
         break;
     }
   };
@@ -153,22 +147,10 @@ export default function ManageRulesPage() {
     }));
   };
 
-  const handleChangeCategory = (value: string) => {
-    setParams((prev: any) => {
-      return {
-        ...prev,
-        filter: {
-          ...prev.filter,
-          categoryResult: value,
-        },
-      };
-    });
-  };
-
   return (
     <div className="p-6 space-y-6">
       {/* Header */}
-      <h1 className="text-2xl font-semibold">Manage Rules</h1>
+      <h1 className="text-2xl font-semibold">Kelola Aturan</h1>
 
       <Box className="bg-white border-2 border-[#eaeaea] rounded-2xl flex flex-col gap-4 p-4 shadow-xs">
         <Grid container size={12} justifyContent={"space-between"}>
@@ -185,24 +167,14 @@ export default function ManageRulesPage() {
                 },
               }}
             />
-
-            <FormControl size="small" className="min-w-[160px]">
-              <InputLabel>Kategori</InputLabel>
-              <Select
-                value={params.filter.categoryResult}
-                label="Category"
-                onChange={(e) => handleChangeCategory(e.target.value)}
-                className="w-[200px]"
-              >
-                <MenuItem value="all">All</MenuItem>
-                <MenuItem value="dana_darurat">Dana Darurat</MenuItem>
-                <MenuItem value="menabung">Menabung</MenuItem>
-                <MenuItem value="investasi">Investasi</MenuItem>
-              </Select>
-            </FormControl>
           </Grid>
-          <Button variant="contained" color="primary" onClick={handleAddRule}>
-            Add Rule
+          <Button
+            startIcon={<FaPlus />}
+            variant="contained"
+            color="primary"
+            onClick={handleAddRule}
+          >
+            Aturan
           </Button>
         </Grid>
 
@@ -216,12 +188,11 @@ export default function ManageRulesPage() {
             <TableHead>
               <StyledTableRow>
                 <StyledTableCell>No</StyledTableCell>
-                <StyledTableCell>Nama</StyledTableCell>
+                <StyledTableCell>Nama Aturan</StyledTableCell>
                 <StyledTableCell>Deskripsi</StyledTableCell>
-                <StyledTableCell>Kategori</StyledTableCell>
-                <StyledTableCell>Status</StyledTableCell>
+                <StyledTableCell>Kategori Kesimpulan</StyledTableCell>
                 <StyledTableCell>Created At</StyledTableCell>
-                <StyledTableCell>Actions</StyledTableCell>
+                <StyledTableCell>Aksi</StyledTableCell>
               </StyledTableRow>
             </TableHead>
             <TableBody>
@@ -245,12 +216,16 @@ export default function ManageRulesPage() {
                     <StyledTableCell>{index + 1}.</StyledTableCell>
                     <StyledTableCell>{rule.name}</StyledTableCell>
                     <StyledTableCell>{rule.description}</StyledTableCell>
-                    <StyledTableCell>{rule.categoryResult}</StyledTableCell>
                     <StyledTableCell>
-                      <Chip
-                        label={rule.active ? "Active" : "Inactive"}
-                        color={rule.active ? "success" : "error"}
-                      />
+                      <Stack direction={"row"} spacing={2}>
+                        {rule.conclusions.map((conclusion: any) => (
+                          <Chip
+                            key={conclusion.id}
+                            label={conclusion.category}
+                            color="info"
+                          />
+                        ))}
+                      </Stack>
                     </StyledTableCell>
                     <StyledTableCell>
                       {formatDateView(rule.createdAt)}
@@ -259,15 +234,9 @@ export default function ManageRulesPage() {
                       <div className="flex gap-2">
                         <IconButton
                           size="small"
-                          onClick={() => handleActions(PAGE_ACTION.VIEW, rule)}
-                        >
-                          <FaInfoCircle className="text-primary" />
-                        </IconButton>
-                        <IconButton
-                          size="small"
                           onClick={() => handleActions(PAGE_ACTION.EDIT, rule)}
                         >
-                          <FaEdit className="text-accent" />
+                          <FaEdit className="text-primary" />
                         </IconButton>
                         <IconButton
                           size="small"
