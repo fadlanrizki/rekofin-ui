@@ -237,7 +237,7 @@ export default function ManageRecommendationFormView({
                   onClick={handleCancel}
                   className="!mt-6"
                 >
-                  Cancel
+                  Batal
                 </Button>
                 <Button
                   loading={loading}
@@ -246,7 +246,7 @@ export default function ManageRecommendationFormView({
                   type="submit"
                   className="!mt-6"
                 >
-                  Save
+                  Simpan
                 </Button>
               </Grid>
             </div>
