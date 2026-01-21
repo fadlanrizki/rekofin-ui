@@ -1,12 +1,11 @@
 import { API_ROUTE } from "@/utils/constants/api-routes";
 import { apiClient } from "./apiService";
-import { ParamsUser } from "@/types/user";
 
 const create = async (data: any): Promise<any> => {
   return await apiClient.post(API_ROUTE.CONCLUSION, data);
 };
 
-const getList = async (params: ParamsUser): Promise<any> => {
+const getList = async (params: any): Promise<any> => {
   return await apiClient.get(API_ROUTE.CONCLUSION, params);
 };
 
@@ -28,12 +27,11 @@ const getOptions = async (): Promise<any> => {
   return await apiClient.get(`${API_ROUTE.CONCLUSION}/options/list`);
 };
 
-
 export const ConclusionService = {
   create,
   getList,
   deleteData,
   findById,
   update,
-  getOptions
+  getOptions,
 };
