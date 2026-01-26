@@ -43,7 +43,6 @@ const Login = () => {
       setLoading(true);
       const res = await loginService(data);
       console.log(res);
-      
 
       const token = res?.data?.token || "";
       const decodedToken = decodeToken(token);
@@ -51,9 +50,8 @@ const Login = () => {
       localStorage.setItem("token", token);
       localStorage.setItem("id", decodedToken.id.toString());
       localStorage.setItem("username", decodedToken.username);
-      localStorage.setItem("fullName", decodedToken.fullName);
 
-      if (decodedToken?.role === "user") {
+      if (decodedToken?.role === "USER") {
         router.push(ROUTE_PATHS.USER.DASHBOARD);
       } else {
         router.push(ROUTE_PATHS.ADMIN.DASHBOARD);

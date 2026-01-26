@@ -12,4 +12,8 @@ export const API_ROUTE = {
   CONCLUSION: apiAdminPrefix + "/conclusions",
   RULE: apiAdminPrefix + "/rules",
   CONSULTATION: apiUserPrefix + "/consultations",
+  DASHBOARD: {
+    ADMIN: apiAdminPrefix + "/dashboard",
+    USER: apiUserPrefix + "/dashboard",
+  },
 };

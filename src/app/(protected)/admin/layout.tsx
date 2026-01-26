@@ -72,6 +72,8 @@ const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
     router.push(path);
   };
 
+  const username = localStorage.getItem("username");
+
   return (
     <ThemeProvider theme={theme}>
       <main
@@ -87,13 +89,13 @@ const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
             >
               <GiHamburgerMenu />
             </button>
-            <Link href={"/user/dashboard"} className="text-primary">
+            <Link href={"/admin/dashboard"} className="text-primary">
               <Logo />
             </Link>
           </div>
 
           <div className="flex items-center gap-5">
-            <p className="text-textMain text-[1rem]">Fadlan Rizki</p>
+            <p className="text-textMain text-[1rem]">{username || "-"}</p>
             <FaUserCircle size={30} />
           </div>
         </header>

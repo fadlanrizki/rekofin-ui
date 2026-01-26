@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useEffect, useMemo } from "react";
 import ReactECharts from "echarts-for-react";
 import {
   AiOutlineUser,
@@ -14,30 +14,105 @@ import {
   FaClipboardList,
   FaDownload,
 } from "react-icons/fa";
+import { DashboardService } from "@/service/dashboardService";
+import { GoDiscussionClosed } from "react-icons/go";
+import { Box } from "@mui/material";
+
+type TDashboardData = {
+  count: {
+    user: number;
+    rule: number;
+    fact: number;
+    consultation: number;
+    complete_consultation: number;
+    inprogress_consultation: number;
+  };
+  number_of_weekly_consultation_chart: {
+    data: {
+      label: string;
+      value: number;
+    }[];
+  };
+  consultation_result_chart: {
+    data: {
+      label: string;
+      value: number;
+    }[];
+  };
+  fulfilled_rule_chart: {
+    data: {
+      label: string;
+      value: number;
+    }[];
+  };
+  // last_consultation_list: [];
+};
 
 const AdminDashboardView = () => {
-  const statData = [
-    {
-      label: "Total Users",
-      value: 125,
-      icon: <AiOutlineUser className="text-blue-600 text-3xl" />,
+  const [data, setData] = React.useState<TDashboardData>({
+    count: {
+      user: 0,
+      rule: 0,
+      fact: 0,
+      consultation: 0,
+      complete_consultation: 0,
+      inprogress_consultation: 0,
     },
-    {
-      label: "Total Rules",
-      value: 35,
-      icon: <AiOutlineProfile className="text-emerald-600 text-3xl" />,
+    number_of_weekly_consultation_chart: {
+      data: [],
     },
-    {
-      label: "Total Recommendations",
-      value: 72,
-      icon: <AiOutlineBook className="text-purple-600 text-3xl" />,
+    consultation_result_chart: {
+      data: [],
     },
-    {
-      label: "Categories",
-      value: 3,
-      icon: <AiOutlineAppstore className="text-orange-500 text-3xl" />,
+    fulfilled_rule_chart: {
+      data: [],
     },
-  ];
+  });
+  const [loading, setLoading] = React.useState<boolean>(false);
+
+  const fetchDasboardData = async () => {
+    setLoading(true);
+    try {
+      const response = await DashboardService.getAdminDashboardData();
+      setData(response.data);
+
+      console.log("response > ", response);
+    } catch (error) {
+      console.log(error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchDasboardData();
+  }, []);
+
+  const statData = useMemo(() => {
+    const list = [
+      {
+        label: "Pengguna",
+        value: data?.count?.user ?? 0,
+        icon: <AiOutlineUser className="text-primary text-3xl" />,
+      },
+      {
+        label: "Aturan",
+        value: data?.count?.rule ?? 0,
+        icon: <AiOutlineProfile className="text-primary text-3xl" />,
+      },
+      {
+        label: "Fakta / Pertanyaan",
+        value: data?.count?.fact ?? 0,
+        icon: <AiOutlineBook className="text-primary text-3xl" />,
+      },
+      {
+        label: "Konsultasi",
+        value: data?.count?.consultation ?? 0,
+        icon: <GoDiscussionClosed className="text-primary text-3xl" />,
+      },
+    ];
+    return list;
+  }, [data.count]);
 
   const chartOption = {
     tooltip: {
@@ -77,9 +152,11 @@ const AdminDashboardView = () => {
             className="bg-white shadow-md rounded-2xl p-4 flex items-center gap-4 border border-gray-100"
           >
             <div className="p-3 rounded-full bg-gray-100">{item.icon}</div>
-            <div>
-              <p className="text-sm text-gray-500">{item.label}</p>
-              <h2 className="text-2xl font-semibold text-gray-800">
+            <div className="w-full">
+              <p className="text-lg text-primary font-medium text-ellipsis">
+                {item.label}
+              </p>
+              <h2 className="text-md font-semibold text-gray-600">
                 {item.value}
               </h2>
             </div>
@@ -97,47 +174,13 @@ const AdminDashboardView = () => {
           <ReactECharts option={chartOption} style={{ height: 350 }} />
         </div>
 
-        {/* Activity Log */}
-        <div className="bg-white shadow-lg rounded-2xl p-6 w-full box-border">
-          <h2 className="text-xl font-semibold mb-4">Quick Actions</h2>
+        {/* Weekly Consultation line chart*/}
+        <div className="bg-white shadow-md rounded-2xl p-4 border border-gray-100">
+          <h3 className="text-lg font-semibold text-gray-800 mb-4">
+            Weekly Consultation
+          </h3>
 
-          <div className="h-4/5 grid grid-cols-2 gap-4 box-border">
-            <div className="w-full h-full">
-              <button className="w-full h-full flex flex-col items-center justify-center bg-blue-100 text-blue-700 rounded-xl p-4 hover:bg-blue-200 transition">
-                <FaUserCog size={28} />
-                <span className="mt-2 text-sm font-medium text-center">
-                  Manage Users
-                </span>
-              </button>
-            </div>
-
-            <div className="w-full h-full">
-              <button className="w-full h-full flex flex-col items-center justify-center bg-green-100 text-green-700 rounded-xl p-4 hover:bg-green-200 transition">
-                <FaPlusCircle size={28} />
-                <span className="mt-2 text-sm font-medium text-center">
-                  Add Rule
-                </span>
-              </button>
-            </div>
-
-            <div className="w-full h-full">
-              <button className="w-full h-full flex flex-col items-center justify-center bg-yellow-100 text-yellow-700 rounded-xl p-4 hover:bg-yellow-200 transition">
-                <FaClipboardList size={28} />
-                <span className="mt-2 text-sm font-medium text-center">
-                  Manage Recs
-                </span>
-              </button>
-            </div>
-
-            <div className="w-full h-full">
-              <button className="w-full h-full flex flex-col items-center justify-center bg-purple-100 text-purple-700 rounded-xl p-4 hover:bg-purple-200 transition">
-                <FaDownload size={28} />
-                <span className="mt-2 text-sm font-medium text-center">
-                  Export Data
-                </span>
-              </button>
-            </div>
-          </div>
+          {/* <Box></Box> */}
         </div>
       </div>
     </div>
