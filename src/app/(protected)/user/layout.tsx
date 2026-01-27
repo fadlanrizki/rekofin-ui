@@ -2,9 +2,9 @@
 import { GiHamburgerMenu } from "react-icons/gi";
 import { MdOutlineSpaceDashboard } from "react-icons/md";
 import { FaRegUser, FaRegLightbulb } from "react-icons/fa6";
-import { GrMoney } from "react-icons/gr";
 import { FaHistory, FaUserCircle } from "react-icons/fa";
 import { TbLogout2 } from "react-icons/tb";
+import { GoDiscussionClosed } from "react-icons/go";
 import Logo from "@/components/shared/Logo";
 import Link from "next/link";
 import { JSX, useState } from "react";
@@ -30,17 +30,12 @@ const listMenu = [
     icon: <FaRegUser size={25} />,
   },
   {
-    name: "Input Keuangan",
-    path: ROUTE_PATHS.USER.FINANCE,
-    icon: <GrMoney size={25} />,
+    name: "Konsultasi",
+    path: ROUTE_PATHS.USER.CONSULTATION,
+    icon: <GoDiscussionClosed size={25} />,
   },
   {
-    name: "Rekomendasi",
-    path: ROUTE_PATHS.USER.RECOMMENDATION,
-    icon: <FaRegLightbulb size={25} />,
-  },
-  {
-    name: "Riwayat Rekomendasi",
+    name: "Riwayat Konsultasi",
     path: ROUTE_PATHS.USER.HISTORY,
     icon: <FaHistory size={25} />,
   },
