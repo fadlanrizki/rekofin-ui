@@ -11,6 +11,7 @@ export const API_ROUTE = {
   FACT: apiAdminPrefix + "/facts",
   CONCLUSION: apiAdminPrefix + "/conclusions",
   RULE: apiAdminPrefix + "/rules",
+  SOURCE: apiAdminPrefix + "/sources",
   CONSULTATION: apiUserPrefix + "/consultations",
   DASHBOARD: {
     ADMIN: apiAdminPrefix + "/dashboard",

@@ -15,8 +15,47 @@ import {
 import { RiQuestionnaireFill } from "react-icons/ri";
 import { MdOutlineTimer } from "react-icons/md";
 import { FaGears } from "react-icons/fa6";
+import { ConsultationService } from "@/service/consultationService";
+import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
+import { ROUTE_PATHS } from "@/utils/constants/routes";
 
 export default function ConsultationView() {
+  const router = useRouter();
+  const [loading, setLoading] = useState(false);
+
+  const startConsultation = async () => {
+    try {
+      setLoading(true);
+      const response: any = await ConsultationService.startConsultation();
+      localStorage.setItem("consultationId", response.data.id);
+      router.push(ROUTE_PATHS.USER.QUESTION);
+    } catch (error) {
+      console.log(error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const getConsultationStatus = async () => {
+    try {
+      setLoading(true);
+      const response: any = await ConsultationService.getConsultationStatus();
+      if (response.data.id) {
+        localStorage.setItem("consultationId", response.data.id);
+        router.push(ROUTE_PATHS.USER.QUESTION);
+      }
+    } catch (error) {
+      console.log(error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    getConsultationStatus();
+  }, []);
+
   return (
     <Paper sx={{ p: 4 }}>
       <Stack direction={"column"} gap={3}>
@@ -64,7 +103,13 @@ export default function ConsultationView() {
           rekomendasi dan tidak akan dibagikan kepada pihak lain.
         </Alert>
 
-        <Button variant="contained" color="primary">
+        <Button
+          variant="contained"
+          color="primary"
+          onClick={startConsultation}
+          disabled={loading}
+          loading={loading}
+        >
           Mulai Konsultasi
         </Button>
       </Stack>

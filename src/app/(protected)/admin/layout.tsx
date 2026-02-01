@@ -1,6 +1,10 @@
 "use client";
 import { GiHamburgerMenu } from "react-icons/gi";
-import { MdOutlineSpaceDashboard, MdFactCheck } from "react-icons/md";
+import {
+  MdOutlineSpaceDashboard,
+  MdFactCheck,
+  MdOutlineSource,
+} from "react-icons/md";
 import { FaUserCircle } from "react-icons/fa";
 import { TbLogout2 } from "react-icons/tb";
 import Logo from "@/components/shared/Logo";
@@ -45,6 +49,11 @@ const listMenu = [
     name: "Kelola Rekomendasi",
     path: ROUTE_PATHS.ADMIN.MANAGE_RECOMMENDATION.LIST,
     icon: <VscLightbulbSparkle size={25} />,
+  },
+  {
+    name: "Kelola Sumber",
+    path: ROUTE_PATHS.ADMIN.MANAGE_SOURCE.LIST,
+    icon: <MdOutlineSource size={25} />,
   },
   {
     name: "Kelola Aturan",

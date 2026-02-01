@@ -5,7 +5,11 @@ export const ROUTE_PATHS = {
   USER: {
     DASHBOARD: `${userPrefix}/dashboard`,
     PROFILE: `${userPrefix}/profile`,
-    CONSULTATION: `${userPrefix}/consultation`,
+    CONSULTATION: {
+      BASE: `${userPrefix}/consultation`,
+      QUESTION: `${userPrefix}/consultation/question`,
+      RESULT: `${userPrefix}/consultation/result`,
+    },
     HISTORY: `${userPrefix}/history`,
   },
   ADMIN: {
@@ -39,6 +43,12 @@ export const ROUTE_PATHS = {
       ADD: `${adminPrefix}/manage-conclusion/form/add`,
       EDIT: `${adminPrefix}/manage-conclusion/form/edit`,
       VIEW: `${adminPrefix}/manage-conclusion/form/view`,
+    },
+    MANAGE_SOURCE: {
+      LIST: `${adminPrefix}/manage-source`,
+      ADD: `${adminPrefix}/manage-source/form/add`,
+      EDIT: `${adminPrefix}/manage-source/form/edit`,
+      VIEW: `${adminPrefix}/manage-source/form/view`,
     },
   },
   LOGIN: "/login",

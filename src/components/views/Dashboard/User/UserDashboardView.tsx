@@ -5,6 +5,7 @@ import {
   // Chip,
   Grid,
   Paper,
+  Stack,
   Table,
   TableBody,
   TableCell,
@@ -23,7 +24,7 @@ const UserDashboardView = () => {
   }));
 
   return (
-    <Box className="flex flex-col gap-4">
+    <Stack direction={"column"} spacing={4}>
       {/* Greetings */}
       <Box className="flex flex-col gap-1">
         <Typography variant="h5" fontWeight="bold" color="primary">
@@ -37,14 +38,14 @@ const UserDashboardView = () => {
       </Box>
 
       {/* Status Konsultasi Terakhir */}
-      <Paper className="p-4">
+      <Paper className="p-4" elevation={3}>
         <Box className="flex flex-col gap-2">
-          <Typography variant="h6" fontWeight="bold">
+          <Typography variant="h6" fontWeight="bold" color="primary">
             Status Konsultasi Terakhir
           </Typography>
 
           <Box className="flex flex-col gap-2">
-            <Typography variant="body1" fontWeight="regular">
+            <Typography variant="body1" fontWeight="regular" color="primary">
               Belum ada konsultasi
             </Typography>
 
@@ -63,7 +64,7 @@ const UserDashboardView = () => {
       {/* Card Summary */}
       <Grid container spacing={2}>
         <Grid size={{ xs: 4 }}>
-          <StyledSummaryCard className="p-4 text-center">
+          <StyledSummaryCard className="p-4 text-center" elevation={3}>
             <Typography variant="body1" fontWeight="bold">
               Total Konsultasi
             </Typography>
@@ -95,9 +96,9 @@ const UserDashboardView = () => {
       </Grid>
 
       {/* latest consultation conclusion */}
-      <Paper className="p-4">
+      <Paper className="p-4" elevation={3}>
         <Box className="flex flex-col gap-2">
-          <Typography variant="h6" fontWeight="bold">
+          <Typography variant="h6" fontWeight="bold" color="primary">
             Kesimpulan Konsultasi Terakhir
           </Typography>
 
@@ -119,9 +120,9 @@ const UserDashboardView = () => {
       </Paper>
 
       {/* Riwayat konsultasi terakhir */}
-      <Paper className="p-4">
+      <Paper className="p-4" elevation={3}>
         <Box className="flex flex-col gap-2">
-          <Typography variant="h6" fontWeight="bold">
+          <Typography variant="h6" fontWeight="bold" color="primary">
             Riwayat Konsultasi Terakhir
           </Typography>
 
@@ -162,7 +163,7 @@ const UserDashboardView = () => {
           </Box>
         </Box>
       </Paper>
-    </Box>
+    </Stack>
   );
 };
 
