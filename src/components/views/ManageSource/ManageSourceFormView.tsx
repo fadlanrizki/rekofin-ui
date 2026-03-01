@@ -6,9 +6,13 @@ import {
   CardContent,
   Typography,
   Grid,
+  FormControl,
+  InputLabel,
+  Select,
+  MenuItem,
 } from "@mui/material";
 import { z } from "zod";
-import { useForm } from "react-hook-form";
+import { Controller, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "next/navigation";
 import { ROUTE_PATHS } from "@/utils/constants/routes";
@@ -63,6 +67,7 @@ export default function ManageSourceFormView({
     handleSubmit,
     formState: { errors },
     setValue,
+    control
   } = useForm<SourceForm>({
     resolver: zodResolver(schema),
     defaultValues,
@@ -128,6 +133,11 @@ export default function ManageSourceFormView({
     apiSaveSource(payload);
   };
 
+  const handleChangeSourceType = (value: string) => {
+    console.log(value);
+
+  }
+
   return (
     <Card className="shadow-lg rounded-2xl">
       <CardContent className="w-full">
@@ -178,17 +188,29 @@ export default function ManageSourceFormView({
               />
             </div>
 
-            <div>
+
+            <FormControl fullWidth>
               <Typography>Jenis Sumber</Typography>
-              <TextField
-                {...register("sourceType")}
-                fullWidth
-                size="small"
-                error={!!errors.sourceType}
-                helperText={errors.sourceType?.message}
-                placeholder="Jenis Sumber"
-              />
-            </div>
+              <Controller name="sourceType" control={control} render={
+                ({ field, fieldState }) => (
+                  <TextField
+                    {...field}
+                    select
+                    size="small"
+                    error={!!fieldState.error}
+                    placeholder="Pilih jenis sumber"
+                    helperText={fieldState.error?.message}
+                  >
+                    <MenuItem value={"BOOK"}>Buku</MenuItem>
+                    <MenuItem value={"JOURNAL"}>Jurnal</MenuItem>
+                    <MenuItem value={"WEBSITE"}>Website</MenuItem>
+                    <MenuItem value={"EXPERT"}>Pakar</MenuItem>
+                    <MenuItem value={"OTHER"}>Lainnya</MenuItem>
+                  </TextField>
+                )
+              }>
+              </Controller>
+            </FormControl>
 
             <div>
               <Typography>URL</Typography>

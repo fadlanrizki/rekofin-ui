@@ -214,7 +214,7 @@ export default function ManageSourceListView() {
                 sources.map((src, index) => (
                   <StyledTableRow key={src.id}>
                     <StyledTableCell>{index + 1}.</StyledTableCell>
-                    <StyledTableCell>{src.name}</StyledTableCell>
+                    <StyledTableCell>{src.title}</StyledTableCell>
                     <StyledTableCell>{src.description || "-"}</StyledTableCell>
                     <StyledTableCell>
                       {formatDateView(src.createdAt)}
