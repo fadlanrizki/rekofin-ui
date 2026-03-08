@@ -12,11 +12,13 @@ import {
   Stack,
   Typography,
 } from "@mui/material";
+import { useRouter } from "next/navigation";
 
 import LinearProgress, {
   LinearProgressProps,
 } from "@mui/material/LinearProgress";
 import React, { useEffect, useState } from "react";
+import { ROUTE_PATHS } from "@/utils/constants/routes";
 
 function LinearProgressWithLabel(
   props: LinearProgressProps & { value: number },
@@ -54,6 +56,8 @@ type QuestionsState = {
 };
 
 export default function QuestionView() {
+  const router = useRouter();
+
   const [loading, setLoading] = useState(false);
   const [questions, setQuestions] = useState<QuestionsState>({
     total: 0,
@@ -142,14 +146,17 @@ export default function QuestionView() {
         value: item.value === "Y",
       }));
 
-      console.log("data > ", data);
+      const payload = {
+        answers: data
+      }
 
-      // const response = await ConsultationService.submitConsultationAnswer(
-      //   consultationId,
-      //   data,
-      // );
-      // console.log(response);
-      // router.push(ROUTE_PATHS.USER.RESULT);
+      const response = await ConsultationService.submitConsultationAnswer(
+        consultationId,
+        payload
+      );
+      console.log(JSON.stringify(response));
+
+      router.push(ROUTE_PATHS.USER.CONSULTATION.RESULT);
     } catch (error) {
       console.log(error);
     } finally {

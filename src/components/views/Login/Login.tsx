@@ -42,7 +42,6 @@ const Login = () => {
     try {
       setLoading(true);
       const res = await loginService(data);
-      console.log(res);
 
       const token = res?.data?.token || "";
       const decodedToken = decodeToken(token);

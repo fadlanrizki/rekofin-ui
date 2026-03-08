@@ -1,7 +1,7 @@
 "use client";
 import { GiHamburgerMenu } from "react-icons/gi";
 import { MdOutlineSpaceDashboard } from "react-icons/md";
-import { FaRegUser, FaRegLightbulb } from "react-icons/fa6";
+import { FaRegUser } from "react-icons/fa6";
 import { FaHistory, FaUserCircle } from "react-icons/fa";
 import { TbLogout2 } from "react-icons/tb";
 import { GoDiscussionClosed } from "react-icons/go";
@@ -31,7 +31,7 @@ const listMenu = [
   },
   {
     name: "Konsultasi",
-    path: ROUTE_PATHS.USER.CONSULTATION,
+    path: ROUTE_PATHS.USER.CONSULTATION.BASE,
     icon: <GoDiscussionClosed size={25} />,
   },
   {

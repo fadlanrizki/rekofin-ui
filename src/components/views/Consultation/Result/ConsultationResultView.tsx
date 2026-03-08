@@ -16,27 +16,12 @@ import { useRouter } from "next/navigation";
 import { ROUTE_PATHS } from "@/utils/constants/routes";
 import { RiRefreshLine, RiCheckDoubleLine } from "react-icons/ri";
 
-// --- Types ---
-interface Recommendation {
-  id: number;
-  title: string;
-  content: string;
-  source: string;
-}
-
-interface ResultData {
-  score: number;
-  status: string;
-  summary: string;
-  recommendations: Recommendation[];
-}
-
-// --- Mock Data ---
-const MOCK_RESULT: ResultData = {
-  score: 85,
-  status: "Sehat Finansial",
-  summary:
-    "Kondisi keuangan Anda saat ini tergolong sehat. Arus kas positif dan rasio utang aman. Anda siap untuk mulai fokus pada diversifikasi investasi dan peningkatan dana darurat.",
+const MOCK_RESULT = {
+  conclusion: {
+    category: "Dana Darurat",
+    description:
+      "Berdasarkan rule yang ditetapkan, kesimpulan yang dapat diambil adalah sebaiknya mengumpulkan dana darurat.",
+  },
   recommendations: [
     {
       id: 1,
@@ -79,9 +64,32 @@ export default function ConsultationResultView() {
     <Stack direction="column" gap={4}>
       {/* Header */}
       <Box>
-        <Typography variant="h5" fontWeight="bold" color="primary" gutterBottom>
-          Hasil Analisis Keuangan
-        </Typography>
+        <Stack
+          direction={"row"}
+          alignItems={"center"}
+          justifyContent={"space-between"}
+          gap={2}
+          mb={1}
+        >
+          <Typography
+            variant="h5"
+            fontWeight="bold"
+            color="primary"
+            gutterBottom
+          >
+            Hasil Analisis Keuangan
+          </Typography>
+
+          <Typography
+            variant="body2"
+            fontWeight="medium"
+            color="text.secondary"
+            gutterBottom
+          >
+            Minggu, 08 Maret 2026 12.00
+          </Typography>
+        </Stack>
+
         <Typography variant="body1" color="text.secondary">
           Berikut adalah Rekomendasi pengelolaan keuangan untuk Anda.
         </Typography>
@@ -91,17 +99,17 @@ export default function ConsultationResultView() {
       <Card
         elevation={4}
         sx={{
-          background: "linear-gradient(135deg, #1976d2 0%, #1565c0 100%)",
+          background: "#003366",
           color: "white",
           borderRadius: 3,
           position: "relative",
           overflow: "visible",
         }}
       >
-        <CardContent sx={{ p: 4 }}>
+        <CardContent>
           <Stack direction="column" alignItems="flex-start" spacing={2}>
             <Chip
-              label={MOCK_RESULT.status}
+              label={MOCK_RESULT.conclusion.category}
               sx={{
                 bgcolor: "rgba(255,255,255,0.2)",
                 color: "white",
@@ -113,14 +121,11 @@ export default function ConsultationResultView() {
               }}
             />
             <Box>
-              <Typography variant="h4" fontWeight="bold" gutterBottom>
-                Ringkasan Eksekutif
-              </Typography>
               <Typography
                 variant="body1"
                 sx={{ opacity: 0.9, lineHeight: 1.6, fontSize: "1.1rem" }}
               >
-                {MOCK_RESULT.summary}
+                {MOCK_RESULT.conclusion.description}
               </Typography>
             </Box>
           </Stack>

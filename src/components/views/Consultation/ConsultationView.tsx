@@ -29,7 +29,7 @@ export default function ConsultationView() {
       setLoading(true);
       const response: any = await ConsultationService.startConsultation();
       localStorage.setItem("consultationId", response.data.id);
-      router.push(ROUTE_PATHS.USER.QUESTION);
+      router.push(ROUTE_PATHS.USER.CONSULTATION.QUESTION);
     } catch (error) {
       console.log(error);
     } finally {
@@ -43,7 +43,7 @@ export default function ConsultationView() {
       const response: any = await ConsultationService.getConsultationStatus();
       if (response.data.id) {
         localStorage.setItem("consultationId", response.data.id);
-        router.push(ROUTE_PATHS.USER.QUESTION);
+        router.push(ROUTE_PATHS.USER.CONSULTATION.QUESTION);
       }
     } catch (error) {
       console.log(error);

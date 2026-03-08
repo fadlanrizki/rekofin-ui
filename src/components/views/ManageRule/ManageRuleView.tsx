@@ -35,7 +35,7 @@ import { getErrorMessage, getResponseMessage } from "@/utils/message";
 
 const defaultParams = {
   search: "",
-  limit: 1,
+  limit: 10,
   page: 1,
 };
 

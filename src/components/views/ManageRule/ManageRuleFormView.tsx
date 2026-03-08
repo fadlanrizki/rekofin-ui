@@ -34,11 +34,15 @@ import { Option } from "@/types/common";
 const defaultValues = {
   name: "",
   description: "",
+  facts: [] as Option["id"][],
+  conclusions: [] as Option["id"][],
 };
 
 const BaseManageRuleSchema = z.object({
   name: z.string().min(1, "Nama Rule wajib di isi"),
   description: z.string().optional(),
+  facts: z.array(z.number()).min(1, "Pilih minimal satu fakta"),
+  conclusions: z.array(z.number()).min(1, "Pilih minimal satu kesimpulan"),
 });
 
 const EditManageRuleSchema = BaseManageRuleSchema.partial().extend({
@@ -66,26 +70,24 @@ export default function ManageRuleFormView() {
     formState: { errors },
     handleSubmit,
     setValue,
+    watch,
+    getValues,
   } = useForm<FormManageRule>({
     resolver: zodResolver(schema),
     defaultValues,
   });
 
+  const watchedFacts = watch("facts") ?? [];
+  const watchedConclusions = watch("conclusions") ?? [];
+
   const { modal, showSuccess, showFailed, closeModal, showConfirm } =
     useModal();
 
   const [loading, setLoading] = useState(false);
-  const [payload, setPayload] = useState<FormManageRule>();
-  const [facts, setFacts] = useState<Option["id"][]>([]);
-  const [conclusions, setConclusions] = useState<Option["id"][]>([]);
+  const [payload, setPayload] = useState<any>();
 
   const [factOptions, setFactsOptions] = useState<Option[]>([]);
   const [conclusionOptions, setConclusionsOptions] = useState<Option[]>([]);
-
-  const [errorList, setErrorList] = useState<any>({
-    facts: false,
-    conclusions: false,
-  });
 
   const fetchRuleDetail = async () => {
     if (id === undefined) {
@@ -104,8 +106,8 @@ export default function ManageRuleFormView() {
       const facts = data.conditions.map((item: any) => item.id);
       const conclusions = data.conclusions.map((item: any) => item.id);
 
-      setFacts(facts);
-      setConclusions(conclusions);
+      setValue("facts", facts);
+      setValue("conclusions", conclusions);
     } catch (error) {
       const message = getErrorMessage(error);
       showFailed(message);
@@ -124,14 +126,6 @@ export default function ManageRuleFormView() {
       fetchConclusionOptions();
     }
   }, []);
-
-  useEffect(() => {
-    setErrorList((prev: any) => ({
-      ...prev,
-      facts: facts.length === 0,
-      conclusions: conclusions.length === 0,
-    }));
-  }, [facts, conclusions]);
 
   const fetchFactOptions = async () => {
     setLoading(true);
@@ -163,10 +157,8 @@ export default function ManageRuleFormView() {
 
   const errorCheck = () => {
     const errorForm = Object.values(errors).length > 0;
-    const emptyFact = errorList.facts;
-    const emptyConclusion = errorList.conclusions;
 
-    return errorForm || emptyFact || emptyConclusion;
+    return errorForm;
   };
 
   const onSubmit = (data: FormManageRule) => {
@@ -177,11 +169,11 @@ export default function ManageRuleFormView() {
 
     const payload = {
       ...data,
-      conditions: facts,
-      conclusions,
+      conditions: data.facts,
+      conclusions: data.conclusions,
     };
 
-    setPayload(payload);
+    setPayload(payload as any);
     showConfirm("Apakah anda yakin ingin melanjutkan proses ?");
   };
 
@@ -219,7 +211,7 @@ export default function ManageRuleFormView() {
     const {
       target: { value },
     } = event;
-    setFacts(value as Option["id"][]);
+    setValue("facts", value as Option["id"][]);
   };
 
   const handleChangeConclusions = (
@@ -228,28 +220,30 @@ export default function ManageRuleFormView() {
     const {
       target: { value },
     } = event;
-    setConclusions(value as Option["id"][]);
+    setValue("conclusions", value as Option["id"][]);
   };
 
   return (
     <Grid container flexDirection={"column"} spacing={4} size={12}>
       <Paper className="p-6 rounded-2xl shadow-md w-full mx-auto">
         <Grid container direction={"column"} spacing={2} rowGap={"2"}>
-          <Typography variant="h6">General</Typography>
+          <Typography variant="h6">
+            {isEdit ? "Edit Aturan" : "Tambah Aturan"}
+          </Typography>
 
           <div>
             <TextField
               {...register("name")}
-              label="Nama Rule"
+              label="Nama Aturan"
               fullWidth
-              size="small"
+              size="medium"
               error={!!errors.name}
               helperText={errors.name?.message}
             />
           </div>
 
           <Grid container size={{ xs: 6 }}>
-            <FormControl fullWidth error={errorList.facts}>
+            <FormControl fullWidth error={!!errors.facts}>
               <InputLabel id="fact-multiple-checkbox-label">
                 Fakta dan Pertanyaan
               </InputLabel>
@@ -258,7 +252,7 @@ export default function ManageRuleFormView() {
                 id="fact-multiple-checkbox"
                 multiple
                 size="medium"
-                value={facts}
+                value={watchedFacts}
                 onChange={(e: any) => handleChangeFacts(e)}
                 input={<OutlinedInput label="Fakta dan Pertanyaan" />}
                 renderValue={(selected) =>
@@ -271,7 +265,7 @@ export default function ManageRuleFormView() {
                 {factOptions.length > 0 ? (
                   factOptions.map((item) => (
                     <MenuItem key={item.id} value={item.id}>
-                      <Checkbox checked={facts.includes(item.id)} />
+                      <Checkbox checked={watchedFacts.includes(item.id)} />
                       <ListItemText primary={item.label} />
                     </MenuItem>
                   ))
@@ -280,14 +274,12 @@ export default function ManageRuleFormView() {
                 )}
               </Select>
 
-              <FormHelperText>
-                {errorList.facts ? "Pilih minimal satu fakta" : ""}
-              </FormHelperText>
+              <FormHelperText>{errors.facts?.message}</FormHelperText>
             </FormControl>
           </Grid>
 
           <Grid container size={{ xs: 6 }}>
-            <FormControl fullWidth error={errorList.conclusions}>
+            <FormControl fullWidth error={!!errors.conclusions}>
               <InputLabel id="conclusion-multiple-checkbox-label">
                 Kategori Kesimpulan
               </InputLabel>
@@ -296,7 +288,7 @@ export default function ManageRuleFormView() {
                 id="conclusion-multiple-checkbox"
                 multiple
                 size="medium"
-                value={conclusions}
+                value={watchedConclusions}
                 onChange={(e: any) => handleChangeConclusions(e)}
                 input={<OutlinedInput label="Kategori Kesimpulan" />}
                 renderValue={(selected) =>
@@ -309,7 +301,9 @@ export default function ManageRuleFormView() {
                 {conclusionOptions.length > 0 ? (
                   conclusionOptions.map((item) => (
                     <MenuItem key={item.id} value={item.id}>
-                      <Checkbox checked={conclusions.includes(item.id)} />
+                      <Checkbox
+                        checked={watchedConclusions.includes(item.id)}
+                      />
                       <ListItemText primary={item.label} />
                     </MenuItem>
                   ))
@@ -317,9 +311,7 @@ export default function ManageRuleFormView() {
                   <MenuItem disabled>No data available</MenuItem>
                 )}
               </Select>
-              <FormHelperText>
-                {errorList.conclusions ? "Pilih minimal satu kesimpulan" : ""}
-              </FormHelperText>
+              <FormHelperText>{errors.conclusions?.message}</FormHelperText>
             </FormControl>
           </Grid>
 

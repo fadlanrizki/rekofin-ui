@@ -13,7 +13,7 @@ const getQuestions = async (consultationId: string): Promise<any> => {
 
 const submitConsultationAnswer = async (
   consultationId: string,
-  data: any[],
+  data: { answers: any[] },
 ): Promise<any> => {
   return await apiClient.post(
     `${API_ROUTE.CONSULTATION}/${consultationId}/answers`,

@@ -41,6 +41,11 @@ const listMenu = [
     icon: <MdFactCheck size={25} />,
   },
   {
+    name: "Kelola Sumber",
+    path: ROUTE_PATHS.ADMIN.MANAGE_SOURCE.LIST,
+    icon: <MdOutlineSource size={25} />,
+  },
+  {
     name: "Kelola Kesimpulan",
     path: ROUTE_PATHS.ADMIN.MANAGE_CONCLUSION.LIST,
     icon: <FaFileCircleCheck size={25} />,
@@ -49,11 +54,6 @@ const listMenu = [
     name: "Kelola Rekomendasi",
     path: ROUTE_PATHS.ADMIN.MANAGE_RECOMMENDATION.LIST,
     icon: <VscLightbulbSparkle size={25} />,
-  },
-  {
-    name: "Kelola Sumber",
-    path: ROUTE_PATHS.ADMIN.MANAGE_SOURCE.LIST,
-    icon: <MdOutlineSource size={25} />,
   },
   {
     name: "Kelola Aturan",

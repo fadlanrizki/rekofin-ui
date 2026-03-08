@@ -10,7 +10,7 @@ const getList = async (params: any): Promise<any> => {
 };
 
 const deleteData = async (id: string): Promise<any> => {
-  const url = `${API_ROUTE.RULE}${id}`;
+  const url = `${API_ROUTE.RULE}/${id}`;
   return await apiClient.delete(url);
 };
 
