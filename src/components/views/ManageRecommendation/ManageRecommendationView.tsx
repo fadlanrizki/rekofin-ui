@@ -217,7 +217,7 @@ export default function ManageRecommendationView() {
                   <StyledTableRow key={rec.id}>
                     <StyledTableCell>{index + 1}.</StyledTableCell>
                     <StyledTableCell>{rec.title}</StyledTableCell>
-                    <StyledTableCell>{rec.source}</StyledTableCell>
+                    <StyledTableCell>{rec.source.title}</StyledTableCell>
                     <StyledTableCell>
                       {rec.conclusion?.category}
                     </StyledTableCell>

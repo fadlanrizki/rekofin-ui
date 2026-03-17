@@ -23,10 +23,15 @@ const update = async (data: any): Promise<any> => {
   return await apiClient.put(API_ROUTE.SOURCE, data);
 };
 
+const getOptions = async (): Promise<any> => {
+  return await apiClient.get(API_ROUTE.SOURCE + "/options");
+};
+
 export const SourceService = {
   create,
   getList,
   deleteData,
   findById,
   update,
+  getOptions,
 };

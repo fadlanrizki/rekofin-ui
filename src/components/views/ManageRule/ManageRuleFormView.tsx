@@ -71,7 +71,6 @@ export default function ManageRuleFormView() {
     handleSubmit,
     setValue,
     watch,
-    getValues,
   } = useForm<FormManageRule>({
     resolver: zodResolver(schema),
     defaultValues,
