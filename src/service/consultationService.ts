@@ -25,16 +25,16 @@ const getConsultationStatus = async (): Promise<any> => {
   return await apiClient.get(`${API_ROUTE.CONSULTATION}/status`);
 };
 
-// const getConsultationResult = async (consultationId: string): Promise<any> => {
-//   return await apiClient.get(
-//     `${API_ROUTE.CONSULTATION}/${consultationId}/result`,
-//   );
-// };
+const getConsultationResult = async (consultationId: string): Promise<any> => {
+  return await apiClient.get(
+    `${API_ROUTE.CONSULTATION}/${consultationId}/result`,
+  );
+};
 
 export const ConsultationService = {
   startConsultation,
   getQuestions,
   submitConsultationAnswer,
   getConsultationStatus,
-  // getConsultationResult,
+  getConsultationResult,
 };

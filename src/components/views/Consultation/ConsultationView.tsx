@@ -8,6 +8,7 @@ import {
   Paper,
   Stack,
   Table,
+  TableBody,
   TableCell,
   TableRow,
   Typography,
@@ -73,27 +74,29 @@ export default function ConsultationView() {
         <Card>
           <CardContent>
             <Table className="text-gray-500 font-medium">
-              <TableRow>
-                <TableCell sx={{ width: "30px" }} className="text-primary">
-                  <RiQuestionnaireFill size={20} />
-                </TableCell>
-                <TableCell sx={{ width: "20%" }}>Jumlah Pertanyaan</TableCell>
-                <TableCell>: 10</TableCell>
-              </TableRow>
-              <TableRow>
-                <TableCell sx={{ width: "30px" }} className="text-primary">
-                  <MdOutlineTimer size={20} />
-                </TableCell>
-                <TableCell sx={{ width: "20%" }}>Estimasi Waktu</TableCell>
-                <TableCell>: ± 5 Menit</TableCell>
-              </TableRow>
-              <TableRow sx={{ "& td": { border: 0 } }}>
-                <TableCell sx={{ width: "30px" }} className="text-primary">
-                  <FaGears size={20} />
-                </TableCell>
-                <TableCell sx={{ width: "20%" }}>Metode</TableCell>
-                <TableCell>: Sistem Pakar Forward Chaining</TableCell>
-              </TableRow>
+              <TableBody>
+                <TableRow>
+                  <TableCell sx={{ width: "30px" }} className="text-primary">
+                    <RiQuestionnaireFill size={20} />
+                  </TableCell>
+                  <TableCell sx={{ width: "20%" }}>Jumlah Pertanyaan</TableCell>
+                  <TableCell>: 10</TableCell>
+                </TableRow>
+                <TableRow>
+                  <TableCell sx={{ width: "30px" }} className="text-primary">
+                    <MdOutlineTimer size={20} />
+                  </TableCell>
+                  <TableCell sx={{ width: "20%" }}>Estimasi Waktu</TableCell>
+                  <TableCell>: ± 5 Menit</TableCell>
+                </TableRow>
+                <TableRow sx={{ "& td": { border: 0 } }}>
+                  <TableCell sx={{ width: "30px" }} className="text-primary">
+                    <FaGears size={20} />
+                  </TableCell>
+                  <TableCell sx={{ width: "20%" }}>Metode</TableCell>
+                  <TableCell>: Sistem Pakar Forward Chaining</TableCell>
+                </TableRow>
+              </TableBody>
             </Table>
           </CardContent>
         </Card>
