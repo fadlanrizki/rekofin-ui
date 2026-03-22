@@ -64,6 +64,8 @@ export default function ManageUserFormView() {
   const paramsId = params?.id;
 
   const id = Array.isArray(paramsId) ? paramsId[0] : paramsId;
+  console.log(id);
+  
   const mode = params.mode;
 
   const isView = mode === PAGE_ACTION.VIEW;

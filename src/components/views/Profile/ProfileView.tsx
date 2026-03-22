@@ -19,13 +19,13 @@ import GeneralProfleView from "./General/GeneralProfleView";
 import ChangePasswordView from "./ChangePassword/ChangePasswordView";
 
 type UserProfile = {
- email: string
- fullName: string
- username: string
- gender?: string | null
- occupation: string
- createdAt: string
-}
+  email: string;
+  fullName: string;
+  username: string;
+  gender?: string | null;
+  occupation: string;
+  createdAt: string;
+};
 
 export default function ProfileView() {
   const { modal, showFailed, closeModal } = useModal();
@@ -41,8 +41,6 @@ export default function ProfileView() {
       const id = localStorage.getItem("id") || "-";
       const { data } = await UserService.findUserById(id);
       setUserProfile(data);
-    
-      
     } catch (error) {
       const message = getErrorMessage(error);
       showFailed(message);
