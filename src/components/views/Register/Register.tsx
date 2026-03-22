@@ -17,7 +17,7 @@ import { registerSchema, TRegister } from "@/types/auth";
 import { registerService } from "@/service/authService";
 
 const initialValue = {
-  fullName: "",
+  fullname: "",
   username: "",
   email: "",
   password: "",
@@ -99,22 +99,22 @@ function Register() {
           <form onSubmit={handleSubmit(onSubmit)}>
             <Grid container size={12} direction={"column"} spacing={2}>
               <TextField
-                {...register("fullName")}
+                {...register("fullname")}
                 fullWidth
                 label="Nama Lengkap"
                 variant="outlined"
                 placeholder="Nama Lengkap"
-                error={!!errors.fullName}
-                helperText={errors.fullName?.message}
+                error={!!errors.fullname}
+                helperText={errors.fullname?.message}
               />
 
               <TextField
                 {...register("username")}
                 fullWidth
-                label="username"
+                label="Username"
                 variant="outlined"
                 type="text"
-                placeholder="username"
+                placeholder="Username"
                 error={!!errors.username}
                 helperText={errors.username?.message}
               />

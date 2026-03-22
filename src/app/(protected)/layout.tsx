@@ -29,11 +29,13 @@ export default function ProtectedLayout({
       <div className="w-full h-[100vh] flex justify-center items-center">
         <div className="flex-col items-center justify-center gap-2">
           <Loading />
-          <p className="text-center text-slate-500 font-medium text-2xl">Loading ...</p>
+          <p className="text-center text-slate-500 font-medium text-2xl">
+            Loading ...
+          </p>
         </div>
       </div>
     );
   }
 
-  return <>{children}</>;
+  return <div>{children}</div>;
 }

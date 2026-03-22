@@ -22,7 +22,7 @@ import { FaTrashCan } from "react-icons/fa6";
 import { useRouter } from "next/navigation";
 import { ROUTE_PATHS } from "@/utils/constants/routes";
 import { useModal } from "@/hooks/useModal";
-import ModalNotification from "@/components/shared/Modal/ModalNotification";
+import SweetAlertNotification from "@/components/shared/Modal/SweetAlertNotification";
 import Loading from "@/components/shared/Loading";
 import { IoSearch } from "react-icons/io5";
 import { getErrorMessage, getResponseMessage } from "@/utils/message";
@@ -38,21 +38,21 @@ const defaultParams = {
   page: 1,
 };
 
-const StyledTableCell = styled(TableCell)(() => ({
+const StyledTableCell = styled(TableCell)(({ theme }) => ({
   [`&.${tableCellClasses.head}`]: {
-    backgroundColor: "#003366",
+    backgroundColor: theme.palette.primary.main,
     fontWeight: "bold",
-    color: "#fff",
+    color: theme.palette.common.white,
   },
   [`&.${tableCellClasses.body}`]: {
     fontSize: 14,
-    color: "#7f8c8d",
+    color: theme.palette.text.secondary,
   },
 }));
 
-const StyledTableRow = styled(TableRow)(() => ({
+const StyledTableRow = styled(TableRow)(({ theme }) => ({
   "&:nth-of-type(even)": {
-    backgroundColor: "#f2f6fa",
+    backgroundColor: theme.palette.action.hover,
   },
   // hide last border
   "&:last-child td, &:last-child th": {
@@ -153,7 +153,14 @@ export default function ManageFactView() {
 
       <h1 className="text-2xl font-semibold">Kelola Fakta</h1>
 
-      <Box className="bg-white border-2 border-[#eaeaea] rounded-2xl flex flex-col gap-4 p-4 shadow-xs">
+      <Box
+        className="rounded-2xl flex flex-col gap-4 p-4 shadow-xs"
+        sx={{
+          bgcolor: "background.paper",
+          border: 2,
+          borderColor: "divider",
+        }}
+      >
         <Grid container size={12} justifyContent={"space-between"}>
           <TextField
             size="small"
@@ -262,7 +269,7 @@ export default function ManageFactView() {
         </div>
       </Box>
 
-      <ModalNotification
+      <SweetAlertNotification
         open={modal.open}
         message={modal.message}
         onClose={closeModal}

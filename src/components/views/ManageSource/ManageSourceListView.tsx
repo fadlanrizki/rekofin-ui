@@ -25,11 +25,11 @@ import { useModal } from "@/hooks/useModal";
 import SweetAlertNotification from "@/components/shared/Modal/SweetAlertNotification";
 import Loading from "@/components/shared/Loading";
 import { IoSearch } from "react-icons/io5";
+import { SourceService } from "@/service/sourceService";
 import { getErrorMessage, getResponseMessage } from "@/utils/message";
 import TablePagination from "@/components/shared/Pagination/TablePagination";
 import { formatDateView } from "@/utils/date";
 import { PAGE_ACTION } from "@/utils/constants/page-action";
-import { ConclusionService } from "@/service/conclusionService";
 
 const defaultParams = {
   search: "",
@@ -59,24 +59,24 @@ const StyledTableRow = styled(TableRow)(({ theme }) => ({
   },
 }));
 
-export default function ManageConclusionView() {
+export default function ManageSourceListView() {
   const router = useRouter();
   const { modal, closeModal, showConfirm, showFailed, showSuccess } =
     useModal();
 
   const [loading, setLoading] = useState(false);
   const [params, setParams] = useState<any>(defaultParams);
-  const [conclusions, setConclusions] = useState<any[]>([]);
+  const [sources, setSources] = useState<any[]>([]);
   const [total, setTotal] = useState(0);
   const [selectedId, setSelectedId] = useState("");
 
   const [tempSearch, setTempSearch] = useState("");
 
-  const fetchRecommendation = async () => {
+  const fetchSource = async () => {
     setLoading(true);
     try {
-      const response = await ConclusionService.getList(params);
-      setConclusions(response.data);
+      const response = await SourceService.getList(params);
+      setSources(response.data);
       setTotal(response.total);
     } catch (error) {
       const message = getErrorMessage(error);
@@ -87,11 +87,11 @@ export default function ManageConclusionView() {
   };
 
   useEffect(() => {
-    fetchRecommendation();
+    fetchSource();
   }, [params]);
 
   const handleAdd = () => {
-    router.push(ROUTE_PATHS.ADMIN.MANAGE_CONCLUSION.ADD);
+    router.push(ROUTE_PATHS.ADMIN.MANAGE_SOURCE.ADD);
   };
 
   const onEnterSearch = (value: any) => {
@@ -114,30 +114,30 @@ export default function ManageConclusionView() {
     }));
   };
 
-  const handleActions = (action: string, rule: any) => {
-    const { id } = rule;
+  const handleActions = (action: string, item: any) => {
+    const { id } = item;
     switch (action) {
       case "view":
-        router.push(`${ROUTE_PATHS.ADMIN.MANAGE_CONCLUSION.VIEW}/${id}`);
+        router.push(`${ROUTE_PATHS.ADMIN.MANAGE_SOURCE.VIEW}/${id}`);
         break;
       case "edit":
-        router.push(`${ROUTE_PATHS.ADMIN.MANAGE_CONCLUSION.EDIT}/${id}`);
+        router.push(`${ROUTE_PATHS.ADMIN.MANAGE_SOURCE.EDIT}/${id}`);
         break;
       case "delete":
         setSelectedId(id);
-        showConfirm("Apakah anda yakin ingin menghapus data kesimpulan ?");
+        showConfirm("Apakah anda yakin ingin menghapus sumber ini?");
         break;
     }
   };
 
-  const apiDeleteRecommendation = async () => {
+  const apiDeleteSource = async () => {
     setLoading(true);
 
     try {
-      const response = await ConclusionService.deleteData(selectedId);
+      const response = await SourceService.deleteData(selectedId);
       const message = getResponseMessage(response);
 
-      await fetchRecommendation();
+      await fetchSource();
       showSuccess(message);
     } catch (error) {
       const message = getErrorMessage(error);
@@ -151,8 +151,7 @@ export default function ManageConclusionView() {
     <div className="p-6 space-y-6">
       {/* Header */}
 
-      <h1 className="text-2xl font-semibold">Kelola Kesimpulan</h1>
-
+      <h1 className="text-2xl font-semibold">Kelola Sumber</h1>
       <Box
         className="rounded-2xl flex flex-col gap-4 p-4 shadow-xs"
         sx={{
@@ -165,7 +164,7 @@ export default function ManageConclusionView() {
           <Grid container size={6} spacing={2}>
             <TextField
               size="small"
-              label="Cari..."
+              label="Cari Sumber..."
               value={tempSearch}
               onKeyDown={onEnterSearch}
               onChange={(e) => handleChangeSearch(e.target.value)}
@@ -183,7 +182,7 @@ export default function ManageConclusionView() {
             onClick={handleAdd}
             className="max-h-[40px]"
           >
-            Kesimpulan
+            Sumber
           </Button>
         </Grid>
 
@@ -195,10 +194,9 @@ export default function ManageConclusionView() {
         >
           <Table stickyHeader>
             <TableHead>
-              <StyledTableRow className="bg-gray-100">
+              <StyledTableRow>
                 <StyledTableCell>No</StyledTableCell>
-                <StyledTableCell>Kode Kesimpulan</StyledTableCell>
-                <StyledTableCell>Kategori</StyledTableCell>
+                <StyledTableCell>Nama Sumber</StyledTableCell>
                 <StyledTableCell>Deskripsi</StyledTableCell>
                 <StyledTableCell>Dibuat pada</StyledTableCell>
                 <StyledTableCell>Aksi</StyledTableCell>
@@ -207,7 +205,7 @@ export default function ManageConclusionView() {
             <TableBody>
               {loading ? (
                 <StyledTableRow>
-                  <StyledTableCell colSpan={6} align="center">
+                  <StyledTableCell colSpan={5} align="center">
                     <Grid
                       container
                       direction={"row"}
@@ -219,29 +217,28 @@ export default function ManageConclusionView() {
                     </Grid>
                   </StyledTableCell>
                 </StyledTableRow>
-              ) : Array.isArray(conclusions) && conclusions.length > 0 ? (
-                conclusions.map((con, index) => (
-                  <StyledTableRow key={con.id}>
-                    <StyledTableCell>{index + 1}</StyledTableCell>
-                    <StyledTableCell>{con.code}</StyledTableCell>
-                    <StyledTableCell>{con.category}</StyledTableCell>
-                    <StyledTableCell>{con.description}</StyledTableCell>
+              ) : Array.isArray(sources) && sources.length > 0 ? (
+                sources.map((src, index) => (
+                  <StyledTableRow key={src.id}>
+                    <StyledTableCell>{index + 1}.</StyledTableCell>
+                    <StyledTableCell>{src.title}</StyledTableCell>
+                    <StyledTableCell>{src.description || "-"}</StyledTableCell>
                     <StyledTableCell>
-                      {formatDateView(con.createdAt)}
+                      {formatDateView(src.createdAt)}
                     </StyledTableCell>
                     <StyledTableCell>
                       <div className="flex gap-2">
                         <IconButton
                           size="small"
                           color="primary"
-                          onClick={() => handleActions(PAGE_ACTION.EDIT, con)}
+                          onClick={() => handleActions(PAGE_ACTION.EDIT, src)}
                         >
                           <FaEdit className="text-primary" />
                         </IconButton>
                         <IconButton
                           size="small"
                           color="error"
-                          onClick={() => handleActions(PAGE_ACTION.DELETE, con)}
+                          onClick={() => handleActions(PAGE_ACTION.DELETE, src)}
                         >
                           <FaTrashCan />
                         </IconButton>
@@ -251,7 +248,7 @@ export default function ManageConclusionView() {
                 ))
               ) : (
                 <StyledTableRow>
-                  <StyledTableCell colSpan={7} align="center">
+                  <StyledTableCell colSpan={5} align="center">
                     <p className="text-slate-500">Empty Data ...</p>
                   </StyledTableCell>
                 </StyledTableRow>
@@ -266,7 +263,7 @@ export default function ManageConclusionView() {
             total={total}
             limit={params.limit}
             onChange={handleChangePage}
-            list={conclusions}
+            list={sources}
           />
         </div>
       </Box>
@@ -276,7 +273,7 @@ export default function ManageConclusionView() {
         message={modal.message}
         onClose={closeModal}
         type={modal.type}
-        onConfirm={() => apiDeleteRecommendation()}
+        onConfirm={() => apiDeleteSource()}
       />
     </div>
   );

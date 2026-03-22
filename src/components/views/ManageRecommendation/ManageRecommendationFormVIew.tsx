@@ -18,12 +18,13 @@ import { useEffect, useState } from "react";
 import { PAGE_ACTION } from "@/utils/constants/page-action";
 import { RecommendationService } from "@/service/recommendationService";
 import { getErrorMessage, getResponseMessage } from "@/utils/message";
-import ModalNotification from "@/components/shared/Modal/ModalNotification";
+import SweetAlertNotification from "@/components/shared/Modal/SweetAlertNotification";
 import { ConclusionService } from "@/service/conclusionService";
+import { SourceService } from "@/service/sourceService";
 
 const BaseRecommendationSchema = z.object({
   title: z.string().min(1, "Required"),
-  source: z.string().min(1, "Required"),
+  sourceId: z.number(),
   content: z.string().min(1, "Required"),
   conclusionId: z.number(),
 });
@@ -33,7 +34,7 @@ const EditRecommendationSchema = BaseRecommendationSchema.partial().extend({
 });
 const defaultValues = {
   title: "",
-  source: "",
+  sourceId: 0,
   content: "",
   conclusionId: 0,
 };
@@ -52,7 +53,8 @@ export default function ManageRecommendationFormView({
     useModal();
   const [loading, setLoading] = useState(false);
   const [payload, setPayload] = useState<RecommendationForm>(defaultValues);
-  const [options, setOptions] = useState<Array<any>>([]);
+  const [conclusionOptions, setConclusionOptions] = useState<Array<any>>([]);
+  const [sourceOptions, setSourceOptions] = useState<Array<any>>([]);
   const schema = isEdit ? EditRecommendationSchema : BaseRecommendationSchema;
   type RecommendationForm = z.infer<typeof schema>;
 
@@ -78,6 +80,7 @@ export default function ManageRecommendationFormView({
     }
 
     fetchConclusionOptions();
+    fetchSourceOptions();
   }, []);
 
   const fetchConclusionOptions = async () => {
@@ -86,10 +89,28 @@ export default function ManageRecommendationFormView({
       // Fetch conclusion options if needed
       const { data } = await ConclusionService.getOptions();
       if (!data) {
-        setOptions([]);
+        setConclusionOptions([]);
       }
 
-      setOptions(data);
+      setConclusionOptions(data);
+    } catch (error) {
+      const message = getErrorMessage(error);
+      showFailed(message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const fetchSourceOptions = async () => {
+    setLoading(true);
+    try {
+      // Fetch source options if needed
+      const { data } = await SourceService.getOptions();
+      if (!data) {
+        setSourceOptions([]);
+      }
+
+      setSourceOptions(data);
     } catch (error) {
       const message = getErrorMessage(error);
       showFailed(message);
@@ -103,7 +124,7 @@ export default function ManageRecommendationFormView({
     try {
       const { data } = await RecommendationService.findById(id);
       setValue("title", data.title);
-      setValue("source", data.source);
+      setValue("sourceId", data.source.id);
       setValue("content", data.content);
       setValue("conclusionId", data.conclusion.id);
       setValue("id", data.id);
@@ -174,13 +195,31 @@ export default function ManageRecommendationFormView({
             <Grid container size={12} spacing={2}>
               <Grid size={6}>
                 <Typography>Sumber</Typography>
-                <TextField
-                  {...register("source")}
-                  fullWidth
-                  size="small"
-                  error={!!errors.source}
-                  helperText={errors.source?.message}
-                  placeholder="Sumber Rekomendasi"
+                <Controller
+                  name="sourceId"
+                  control={control}
+                  render={({ field, fieldState }) => {
+                    return (
+                      <TextField
+                        {...field}
+                        select
+                        fullWidth
+                        size="small"
+                        error={!!fieldState.error}
+                        placeholder="Pilih sumber"
+                        helperText={fieldState.error?.message}
+                      >
+                        <MenuItem value="">
+                          --- Pilih Sumber ---
+                        </MenuItem>
+                        {sourceOptions.map((option) => (
+                          <MenuItem key={option.id} value={option.id}>
+                            {option.label}
+                          </MenuItem>
+                        ))}
+                      </TextField>
+                    );
+                  }}
                 />
               </Grid>
               <Grid size={6}>
@@ -202,7 +241,7 @@ export default function ManageRecommendationFormView({
                         <MenuItem value="">
                           --- Pilih Kategori Kesimpulan ---
                         </MenuItem>
-                        {options.map((option) => (
+                        {conclusionOptions.map((option) => (
                           <MenuItem key={option.id} value={option.id}>
                             {option.label}
                           </MenuItem>
@@ -254,7 +293,7 @@ export default function ManageRecommendationFormView({
         </form>
       </CardContent>
 
-      <ModalNotification
+      <SweetAlertNotification
         open={modal.open}
         message={modal.message}
         onClose={closeModal}

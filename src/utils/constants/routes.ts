@@ -5,8 +5,11 @@ export const ROUTE_PATHS = {
   USER: {
     DASHBOARD: `${userPrefix}/dashboard`,
     PROFILE: `${userPrefix}/profile`,
-    FINANCE: `${userPrefix}/finance`,
-    RECOMMENDATION: `${userPrefix}/recommendation`,
+    CONSULTATION: {
+      BASE: `${userPrefix}/consultation`,
+      QUESTION: `${userPrefix}/consultation/question`,
+      RESULT: `${userPrefix}/consultation/result`,
+    },
     HISTORY: `${userPrefix}/history`,
   },
   ADMIN: {
@@ -22,7 +25,6 @@ export const ROUTE_PATHS = {
       ADD: `${adminPrefix}/manage-user/form/add`,
       EDIT: `${adminPrefix}/manage-user/form/edit`,
       VIEW: `${adminPrefix}/manage-user/form/view`,
-      
     },
     MANAGE_RECOMMENDATION: {
       LIST: `${adminPrefix}/manage-recommendation`,
@@ -41,7 +43,13 @@ export const ROUTE_PATHS = {
       ADD: `${adminPrefix}/manage-conclusion/form/add`,
       EDIT: `${adminPrefix}/manage-conclusion/form/edit`,
       VIEW: `${adminPrefix}/manage-conclusion/form/view`,
-    }
+    },
+    MANAGE_SOURCE: {
+      LIST: `${adminPrefix}/manage-source`,
+      ADD: `${adminPrefix}/manage-source/form/add`,
+      EDIT: `${adminPrefix}/manage-source/form/edit`,
+      VIEW: `${adminPrefix}/manage-source/form/view`,
+    },
   },
   LOGIN: "/login",
   REGISTER: "/register",

@@ -20,7 +20,7 @@ import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { FinancialService } from "@/service/financialService";
 import { useState } from "react";
-import ModalNotification from "@/components/shared/Modal/ModalNotification";
+import SweetAlertNotification from "@/components/shared/Modal/SweetAlertNotification";
 import { useModal } from "@/hooks/useModal";
 import { getErrorMessage, getResponseMessage } from "@/utils/message";
 
@@ -352,7 +352,7 @@ export default function FinanceView() {
         </Grid>
       </Grid>
 
-      <ModalNotification
+      <SweetAlertNotification
         open={modal.open}
         message={modal.message}
         onClose={closeModal}

@@ -1,4 +1,4 @@
-import ModalNotification from "@/components/shared/Modal/ModalNotification";
+import SweetAlertNotification from "@/components/shared/Modal/SweetAlertNotification";
 import PasswordTextfield from "@/components/shared/Textfield/PasswordTextfield/PasswordTextfield";
 import { useModal } from "@/hooks/useModal";
 import { UserService } from "@/service/userService";
@@ -114,7 +114,7 @@ export default function ChangePasswordView() {
           </Button>
         </Grid>
       </Grid>
-      <ModalNotification
+      <SweetAlertNotification
         open={modal.open}
         message={modal.message}
         onClose={closeModal}

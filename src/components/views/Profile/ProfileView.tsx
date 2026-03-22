@@ -14,7 +14,7 @@ import { useEffect, useState } from "react";
 import { UserService } from "@/service/userService";
 import { getErrorMessage } from "@/utils/message";
 import { useModal } from "@/hooks/useModal";
-import ModalNotification from "@/components/shared/Modal/ModalNotification";
+import SweetAlertNotification from "@/components/shared/Modal/SweetAlertNotification";
 import GeneralProfleView from "./General/GeneralProfleView";
 import ChangePasswordView from "./ChangePassword/ChangePasswordView";
 
@@ -134,7 +134,7 @@ export default function ProfileView() {
         </Grid>
       </Grid>
 
-      <ModalNotification
+      <SweetAlertNotification
         open={modal.open}
         message={modal.message}
         onClose={closeModal}
