@@ -278,7 +278,7 @@ export default function ProtectedDashboardShell({
           </div>
 
           <div className="flex items-center gap-3 md:gap-4">
-            <button
+            {/* <button
               type="button"
               aria-label={themeToggleMeta.label}
               title={themeToggleMeta.label}
@@ -290,7 +290,7 @@ export default function ProtectedDashboardShell({
               }}
             >
               {themeToggleMeta.icon}
-            </button>
+            </button> */}
             <p className="hidden text-sm md:block md:text-base">{username}</p>
             <FaUserCircle size={28} />
           </div>
