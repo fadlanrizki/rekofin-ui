@@ -16,7 +16,7 @@ import { useModal } from "@/hooks/useModal";
 import { useEffect, useState } from "react";
 import { PAGE_ACTION } from "@/utils/constants/page-action";
 import { getErrorMessage, getResponseMessage } from "@/utils/message";
-import ModalNotification from "@/components/shared/Modal/ModalNotification";
+import SweetAlertNotification from "@/components/shared/Modal/SweetAlertNotification";
 import { FactService } from "@/service/factService";
 
 const BaseFactSchema = z.object({
@@ -118,8 +118,7 @@ export default function ManageFactFormView({
     apiSaveFact(payload);
   };
 
-  console.log("errors >",errors);
-  
+  console.log("errors >", errors);
 
   return (
     <Card className="shadow-lg rounded-2xl">
@@ -195,7 +194,7 @@ export default function ManageFactFormView({
         </form>
       </CardContent>
 
-      <ModalNotification
+      <SweetAlertNotification
         open={modal.open}
         message={modal.message}
         onClose={closeModal}

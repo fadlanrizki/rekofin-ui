@@ -147,12 +147,12 @@ export default function QuestionView() {
       }));
 
       const payload = {
-        answers: data
-      }
+        answers: data,
+      };
 
       const response = await ConsultationService.submitConsultationAnswer(
         consultationId,
-        payload
+        payload,
       );
       console.log(JSON.stringify(response));
 
@@ -184,7 +184,14 @@ export default function QuestionView() {
           <Typography variant="h6" fontWeight={"medium"} color="primary">
             Pertanyaan
           </Typography>
-          <Box sx={{ border: "1px solid #ccc", p: 2, borderRadius: "8px" }}>
+          <Box
+            sx={{
+              border: "1px solid",
+              borderColor: "divider",
+              p: 2,
+              borderRadius: "8px",
+            }}
+          >
             <Typography>
               {questions?.data[currentQuestion]?.question || "-"}
             </Typography>

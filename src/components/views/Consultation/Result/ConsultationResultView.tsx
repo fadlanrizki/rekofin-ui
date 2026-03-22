@@ -11,6 +11,7 @@ import {
   Skeleton,
   Stack,
   Typography,
+  useTheme,
 } from "@mui/material";
 import React, { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
@@ -134,6 +135,8 @@ function RecommendationCard({
 }
 
 export default function ConsultationResultView() {
+  const theme = useTheme();
+  const isDark = theme.palette.mode === "dark";
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<ConsultationResult | null>(null);
   const router = useRouter();
@@ -146,9 +149,8 @@ export default function ConsultationResultView() {
     try {
       setLoading(true);
       const consultationId = localStorage.getItem("consultationId") ?? "2";
-      const response = await ConsultationService.getConsultationResult(
-        consultationId,
-      );
+      const response =
+        await ConsultationService.getConsultationResult(consultationId);
       setResult(response.data);
     } catch (error) {
       console.log(error);
@@ -233,7 +235,16 @@ export default function ConsultationResultView() {
               Kondisi Keuangan Anda
             </Typography>
           </Stack>
-          <Paper elevation={1} sx={{ borderRadius: 2, p: 2, bgcolor: "grey.50" }}>
+          <Paper
+            elevation={1}
+            sx={{
+              borderRadius: 2,
+              p: 2,
+              bgcolor: "background.paper",
+              border: "1px solid",
+              borderColor: "divider",
+            }}
+          >
             <Stack direction="column" gap={1.5}>
               {result.facts.map((fact) => (
                 <Stack
@@ -266,8 +277,10 @@ export default function ConsultationResultView() {
           <Card
             elevation={4}
             sx={{
-              background: "linear-gradient(135deg, #003366 0%, #004d99 100%)",
-              color: "white",
+              background: isDark
+                ? "linear-gradient(135deg, #0b2340 0%, #163b66 100%)"
+                : "linear-gradient(135deg, #003366 0%, #004d99 100%)",
+              color: theme.palette.common.white,
               borderRadius: 3,
               mb: 3,
             }}
@@ -285,7 +298,7 @@ export default function ConsultationResultView() {
                     label={conclusion.category}
                     sx={{
                       bgcolor: "rgba(255,255,255,0.2)",
-                      color: "white",
+                      color: theme.palette.common.white,
                       fontWeight: "bold",
                       fontSize: "0.95rem",
                       height: "auto",
@@ -297,7 +310,7 @@ export default function ConsultationResultView() {
                     size="small"
                     sx={{
                       bgcolor: "rgba(255,255,255,0.1)",
-                      color: "rgba(255,255,255,0.8)",
+                      color: "rgba(255,255,255,0.85)",
                     }}
                   />
                 </Stack>
@@ -312,27 +325,36 @@ export default function ConsultationResultView() {
           </Card>
 
           {/* Recommendations */}
-          {conclusion.recommendations && conclusion.recommendations.length > 0 && (
-            <Box>
-              <Stack direction="row" alignItems="center" gap={1.5} mb={2}>
-                <RiLightbulbLine size={20} />
-                <Typography variant="h6" fontWeight="bold" color="text.primary">
-                  Rekomendasi Tindakan
-                </Typography>
-                <Chip
-                  label={`${conclusion.recommendations.length} rekomendasi`}
-                  size="small"
-                  color="primary"
-                  variant="outlined"
-                />
-              </Stack>
-              <Stack direction="column" gap={2}>
-                {conclusion.recommendations.map((rec, idx) => (
-                  <RecommendationCard key={rec.id} rec={rec} index={idx + 1} />
-                ))}
-              </Stack>
-            </Box>
-          )}
+          {conclusion.recommendations &&
+            conclusion.recommendations.length > 0 && (
+              <Box>
+                <Stack direction="row" alignItems="center" gap={1.5} mb={2}>
+                  <RiLightbulbLine size={20} />
+                  <Typography
+                    variant="h6"
+                    fontWeight="bold"
+                    color="text.primary"
+                  >
+                    Rekomendasi Tindakan
+                  </Typography>
+                  <Chip
+                    label={`${conclusion.recommendations.length} rekomendasi`}
+                    size="small"
+                    color="primary"
+                    variant="outlined"
+                  />
+                </Stack>
+                <Stack direction="column" gap={2}>
+                  {conclusion.recommendations.map((rec, idx) => (
+                    <RecommendationCard
+                      key={rec.id}
+                      rec={rec}
+                      index={idx + 1}
+                    />
+                  ))}
+                </Stack>
+              </Box>
+            )}
         </Box>
       ))}
 

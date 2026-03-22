@@ -17,7 +17,7 @@ import { useEffect, useState } from "react";
 import { PAGE_ACTION } from "@/utils/constants/page-action";
 import { ConclusionService } from "@/service/conclusionService";
 import { getErrorMessage, getResponseMessage } from "@/utils/message";
-import ModalNotification from "@/components/shared/Modal/ModalNotification";
+import SweetAlertNotification from "@/components/shared/Modal/SweetAlertNotification";
 
 const BaseConclusionSchema = z.object({
   code: z.string().min(1, "Required"),
@@ -195,7 +195,7 @@ export default function ManageConclusionFormView({
         </form>
       </CardContent>
 
-      <ModalNotification
+      <SweetAlertNotification
         open={modal.open}
         message={modal.message}
         onClose={closeModal}

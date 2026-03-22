@@ -18,7 +18,7 @@ import { useEffect, useState } from "react";
 import { PAGE_ACTION } from "@/utils/constants/page-action";
 import { RecommendationService } from "@/service/recommendationService";
 import { getErrorMessage, getResponseMessage } from "@/utils/message";
-import ModalNotification from "@/components/shared/Modal/ModalNotification";
+import SweetAlertNotification from "@/components/shared/Modal/SweetAlertNotification";
 import { ConclusionService } from "@/service/conclusionService";
 import { SourceService } from "@/service/sourceService";
 
@@ -293,7 +293,7 @@ export default function ManageRecommendationFormView({
         </form>
       </CardContent>
 
-      <ModalNotification
+      <SweetAlertNotification
         open={modal.open}
         message={modal.message}
         onClose={closeModal}

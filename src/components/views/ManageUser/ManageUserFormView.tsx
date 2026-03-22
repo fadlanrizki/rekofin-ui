@@ -22,7 +22,7 @@ import { PAGE_ACTION } from "@/utils/constants/page-action";
 import { z } from "zod";
 import Loading from "@/components/shared/Loading";
 import { getErrorMessage, getResponseMessage } from "@/utils/message";
-import ModalNotification from "@/components/shared/Modal/ModalNotification";
+import SweetAlertNotification from "@/components/shared/Modal/SweetAlertNotification";
 import { useModal } from "@/hooks/useModal";
 
 const roleOption = ["ADMIN"];
@@ -278,7 +278,7 @@ export default function ManageUserFormView() {
           </Grid>
         </form>
       )}
-      <ModalNotification
+      <SweetAlertNotification
         open={modal.open}
         message={modal.message}
         onClose={closeModal}

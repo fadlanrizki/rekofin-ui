@@ -24,7 +24,7 @@ import { useParams, useRouter } from "next/navigation";
 import { ROUTE_PATHS } from "@/utils/constants/routes";
 import { RuleService } from "@/service/ruleService";
 import { useModal } from "@/hooks/useModal";
-import ModalNotification from "@/components/shared/Modal/ModalNotification";
+import SweetAlertNotification from "@/components/shared/Modal/SweetAlertNotification";
 import { PAGE_ACTION } from "@/utils/constants/page-action";
 import { getErrorMessage, getResponseMessage } from "@/utils/message";
 import { ConclusionService } from "@/service/conclusionService";
@@ -350,7 +350,7 @@ export default function ManageRuleFormView() {
         </Grid>
       </Paper>
 
-      <ModalNotification
+      <SweetAlertNotification
         open={modal.open}
         message={modal.message}
         onClose={closeModal}

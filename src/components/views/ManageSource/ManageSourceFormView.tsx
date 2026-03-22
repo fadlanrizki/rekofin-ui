@@ -21,7 +21,7 @@ import { useEffect, useState } from "react";
 import { PAGE_ACTION } from "@/utils/constants/page-action";
 import { SourceService } from "@/service/sourceService";
 import { getErrorMessage, getResponseMessage } from "@/utils/message";
-import ModalNotification from "@/components/shared/Modal/ModalNotification";
+import SweetAlertNotification from "@/components/shared/Modal/SweetAlertNotification";
 
 const BaseSourceSchema = z.object({
   title: z.string().min(1, "Required"),
@@ -264,7 +264,7 @@ export default function ManageSourceFormView({
         </form>
       </CardContent>
 
-      <ModalNotification
+      <SweetAlertNotification
         open={modal.open}
         message={modal.message}
         onClose={closeModal}
