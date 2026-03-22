@@ -69,11 +69,6 @@ export default function ProtectedDashboardShell({
   }, [isDesktop]);
 
   useEffect(() => {
-    // const savedMode = localStorage.getItem(THEME_MODE_KEY) as ThemeMode | null;
-    // const initialMode: ThemeMode =
-    //   savedMode === "light" || savedMode === "dark" || savedMode === "system"
-    //     ? savedMode
-    //     : "system";
     const initialMode: ThemeMode = "light";
 
     setThemeMode(initialMode);
@@ -278,19 +273,19 @@ export default function ProtectedDashboardShell({
           </div>
 
           <div className="flex items-center gap-3 md:gap-4">
-            {/* <button
+            <button
               type="button"
               aria-label={themeToggleMeta.label}
               title={themeToggleMeta.label}
               onClick={handleToggleTheme}
-              className="flex h-9 w-9 items-center justify-center rounded-md border"
+              className="hidden h-9 w-9 items-center justify-center rounded-md border"
               style={{
                 borderColor: "var(--app-border)",
                 color: "var(--header-fg)",
               }}
             >
               {themeToggleMeta.icon}
-            </button> */}
+            </button>
             <p className="hidden text-sm md:block md:text-base">{username}</p>
             <FaUserCircle size={28} />
           </div>

@@ -1,27 +1,25 @@
 "use client";
+import SweetAlertNotification from "@/components/shared/Modal/SweetAlertNotification";
+import { useModal } from "@/hooks/useModal";
+import { SourceService } from "@/service/sourceService";
+import { PAGE_ACTION } from "@/utils/constants/page-action";
+import { ROUTE_PATHS } from "@/utils/constants/routes";
+import { getErrorMessage, getResponseMessage } from "@/utils/message";
+import { zodResolver } from "@hookform/resolvers/zod";
 import {
-  TextField,
   Button,
   Card,
   CardContent,
-  Typography,
-  Grid,
   FormControl,
-  InputLabel,
-  Select,
+  Grid,
   MenuItem,
+  TextField,
+  Typography
 } from "@mui/material";
-import { z } from "zod";
-import { Controller, useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "next/navigation";
-import { ROUTE_PATHS } from "@/utils/constants/routes";
-import { useModal } from "@/hooks/useModal";
 import { useEffect, useState } from "react";
-import { PAGE_ACTION } from "@/utils/constants/page-action";
-import { SourceService } from "@/service/sourceService";
-import { getErrorMessage, getResponseMessage } from "@/utils/message";
-import SweetAlertNotification from "@/components/shared/Modal/SweetAlertNotification";
+import { Controller, useForm } from "react-hook-form";
+import { z } from "zod";
 
 const BaseSourceSchema = z.object({
   title: z.string().min(1, "Required"),
@@ -67,7 +65,7 @@ export default function ManageSourceFormView({
     handleSubmit,
     formState: { errors },
     setValue,
-    control
+    control,
   } = useForm<SourceForm>({
     resolver: zodResolver(schema),
     defaultValues,
@@ -82,7 +80,7 @@ export default function ManageSourceFormView({
     if (isEdit && id !== undefined) {
       fetchSourceById(id);
     }
-  }, []);
+  }, [id, isEdit]);
 
   const fetchSourceById = async (id: string) => {
     setLoading(true);
@@ -132,11 +130,6 @@ export default function ManageSourceFormView({
   const handleConfirm = () => {
     apiSaveSource(payload);
   };
-
-  const handleChangeSourceType = (value: string) => {
-    console.log(value);
-
-  }
 
   return (
     <Card className="shadow-lg rounded-2xl">
@@ -188,11 +181,12 @@ export default function ManageSourceFormView({
               />
             </div>
 
-
             <FormControl fullWidth>
               <Typography>Jenis Sumber</Typography>
-              <Controller name="sourceType" control={control} render={
-                ({ field, fieldState }) => (
+              <Controller
+                name="sourceType"
+                control={control}
+                render={({ field, fieldState }) => (
                   <TextField
                     {...field}
                     select
@@ -207,9 +201,8 @@ export default function ManageSourceFormView({
                     <MenuItem value={"EXPERT"}>Pakar</MenuItem>
                     <MenuItem value={"OTHER"}>Lainnya</MenuItem>
                   </TextField>
-                )
-              }>
-              </Controller>
+                )}
+              ></Controller>
             </FormControl>
 
             <div>
