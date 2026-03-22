@@ -1,12 +1,12 @@
 "use client";
 import PasswordTextfield from "@/components/shared/Textfield/PasswordTextfield/PasswordTextfield";
 import { UserService } from "@/service/userService";
-import { BaseManageUserSchema, EditManageUserSchema } from "@/types/user";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
   Autocomplete,
   Button,
   FormControlLabel,
+  FormLabel,
   Grid,
   Paper,
   Radio,
@@ -14,7 +14,7 @@ import {
   TextField,
   Typography,
 } from "@mui/material";
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { useParams, useRouter } from "next/navigation";
 import { ROUTE_PATHS } from "@/utils/constants/routes";
@@ -22,14 +22,13 @@ import { PAGE_ACTION } from "@/utils/constants/page-action";
 import { z } from "zod";
 import Loading from "@/components/shared/Loading";
 import { getErrorMessage, getResponseMessage } from "@/utils/message";
-import ModalNotification from "@/components/shared/Modal/ModalNotification";
+import SweetAlertNotification from "@/components/shared/Modal/SweetAlertNotification";
 import { useModal } from "@/hooks/useModal";
 
-const roleOption = ["User", "Admin"];
+const roleOption = ["ADMIN"];
 
 const initialValue = {
-  id: "",
-  fullName: "",
+  fullname: "",
   username: "",
   email: "",
   password: "",
@@ -37,6 +36,26 @@ const initialValue = {
   role: "",
   gender: "",
 };
+
+const BaseManageUserSchema = z
+  .object({
+    fullname: z.string().min(1, "Nama lengkap wajib diisi"),
+    username: z.string().min(1, "Username wajib diisi"),
+    email: z.email("Email tidak valid"),
+    password: z.string().min(1, "Password wajib diisi"),
+    confirmPassword: z.string().min(1, "Konfirmasi password wajib diisi"),
+    role: z.string().min(1, "Role wajib diisi"),
+    gender: z.string().optional(),
+  })
+  .superRefine((data, ctx) => {
+    if (data.password !== data.confirmPassword) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "Password tidak cocok",
+        path: ["confirmPassword"],
+      });
+    }
+  });
 
 export default function ManageUserFormView() {
   const router = useRouter();
@@ -47,14 +66,12 @@ export default function ManageUserFormView() {
   const id = Array.isArray(paramsId) ? paramsId[0] : paramsId;
   const mode = params.mode;
 
-  const isEdit = mode === PAGE_ACTION.EDIT;
   const isView = mode === PAGE_ACTION.VIEW;
 
   const { modal, showSuccess, showFailed, closeModal, showConfirm } =
     useModal();
 
-  const schema = isEdit ? EditManageUserSchema : BaseManageUserSchema;
-
+  const schema = BaseManageUserSchema;
   type ManageUserForm = z.infer<typeof schema>;
 
   const [loading, setLoading] = useState(false);
@@ -64,37 +81,10 @@ export default function ManageUserFormView() {
     handleSubmit,
     formState: { errors, isSubmitting },
     control,
-    setValue,
-    watch,
   } = useForm<ManageUserForm>({
     resolver: zodResolver(schema),
     defaultValues: initialValue,
   });
-
-  useEffect(() => {
-    const fetchUserData = async () => {
-      setLoading(true);
-      try {
-        const { data } = await UserService.findUserById(id || "");
-
-        setValue("fullName", data.fullName);
-        setValue("username", data.username);
-        setValue("email", data.email);
-        setValue("role", data.role);
-        setValue("gender", data.gender);
-        setValue("id", data.id);
-      } catch (error) {
-        const message = getErrorMessage(error);
-        showFailed(message);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    if (mode === PAGE_ACTION.VIEW || mode === PAGE_ACTION.EDIT) {
-      fetchUserData();
-    }
-  }, []);
 
   const onSubmit = async (data: ManageUserForm) => {
     setPayload(data);
@@ -104,9 +94,7 @@ export default function ManageUserFormView() {
   const saveUser = async (data: ManageUserForm) => {
     setLoading(true);
     try {
-      const response = isEdit
-        ? await UserService.updateUser(data)
-        : await UserService.createUser(data);
+      const response = await UserService.createUser(data);
 
       const message = getResponseMessage(response);
       showSuccess(message);
@@ -141,8 +129,6 @@ export default function ManageUserFormView() {
     saveUser(payload);
   };
 
-  console.log("watch > ", watch());
-
   return (
     <Paper className="p-6 rounded-2xl w-full mx-auto h-full">
       {loading ? (
@@ -155,33 +141,32 @@ export default function ManageUserFormView() {
           <Grid container direction={"column"} rowGap={2} spacing={2}>
             <Typography variant="h6">{getTitle()}</Typography>
 
-            <Grid container size={12}>
-              <Grid size={6}>
-                <Typography>Fullname</Typography>
-                <TextField
-                  {...register("fullName")}
-                  size="small"
-                  fullWidth
-                  error={!!errors.fullName}
-                  helperText={errors.fullName?.message}
-                  disabled={isView}
-                />
-              </Grid>
-              <Grid size={6}>
-                <Typography>Username</Typography>
-                <TextField
-                  {...register("username")}
-                  size="small"
-                  fullWidth
-                  error={!!errors.username}
-                  helperText={errors.username?.message}
-                  disabled={isView}
-                />
-              </Grid>
+            <Grid size={6}>
+              <FormLabel required>Nama Lengkap</FormLabel>
+              <TextField
+                {...register("fullname")}
+                size="small"
+                fullWidth
+                error={!!errors.fullname}
+                helperText={errors.fullname?.message}
+                disabled={isView}
+              />
             </Grid>
 
-            <Grid size={12}>
-              <Typography>Email</Typography>
+            <Grid size={6}>
+              <FormLabel required>Username</FormLabel>
+              <TextField
+                {...register("username")}
+                size="small"
+                fullWidth
+                error={!!errors.username}
+                helperText={errors.username?.message}
+                disabled={isView}
+              />
+            </Grid>
+
+            <Grid size={6}>
+              <FormLabel required>Email</FormLabel>
               <TextField
                 {...register("email")}
                 size="small"
@@ -192,36 +177,33 @@ export default function ManageUserFormView() {
               />
             </Grid>
 
-            {!isView && (
-              <Grid container size={12}>
-                <Grid size={6}>
-                  <Typography>Password</Typography>
-                  <PasswordTextfield
-                    {...register("password")}
-                    fullWidth
-                    size="small"
-                    error={!!errors.password}
-                    helperText={errors.password?.message}
-                    disabled={isView}
-                  />
-                </Grid>
-                <Grid size={6}>
-                  <Typography>Confirm Password</Typography>
-                  <PasswordTextfield
-                    {...register("confirmPassword")}
-                    fullWidth
-                    size="small"
-                    error={!!errors.confirmPassword}
-                    helperText={errors.confirmPassword?.message}
-                    disabled={isView}
-                  />
-                </Grid>
+            <Grid container size={12}>
+              <Grid size={6}>
+                <FormLabel required>Password</FormLabel>
+                <PasswordTextfield
+                  {...register("password")}
+                  size="small"
+                  fullWidth
+                  error={!!errors.password}
+                  helperText={errors.password?.message}
+                  disabled={isView}
+                />
               </Grid>
-            )}
+              <Grid size={6}>
+                <FormLabel required>Konfirmasi Password</FormLabel>
+                <PasswordTextfield
+                  {...register("confirmPassword")}
+                  size="small"
+                  fullWidth
+                  error={!!errors.confirmPassword}
+                  helperText={errors.confirmPassword?.message}
+                  disabled={isView}
+                />
+              </Grid>
+            </Grid>
 
-            <Grid size={12}>
-              <Typography>Role</Typography>
-
+            <Grid size={6}>
+              <FormLabel required>Role</FormLabel>
               <Controller
                 name="role"
                 control={control}
@@ -245,7 +227,7 @@ export default function ManageUserFormView() {
               />
             </Grid>
             <Grid size={6}>
-              <Typography>Gender</Typography>
+              <FormLabel>Gender</FormLabel>
               <Controller
                 name="gender"
                 control={control}
@@ -257,15 +239,16 @@ export default function ManageUserFormView() {
                         aria-labelledby="demo-radio-buttons-group-label"
                         name="radio-buttons-group"
                         row
+                        defaultValue={field.value}
                       >
                         <FormControlLabel
-                          value="pria"
+                          value="MALE"
                           control={<Radio />}
                           label="Pria"
                           disabled={isView}
                         />
                         <FormControlLabel
-                          value="wanita"
+                          value="FEMALE"
                           control={<Radio />}
                           label="Wanita"
                           disabled={isView}
@@ -295,7 +278,7 @@ export default function ManageUserFormView() {
           </Grid>
         </form>
       )}
-      <ModalNotification
+      <SweetAlertNotification
         open={modal.open}
         message={modal.message}
         onClose={closeModal}

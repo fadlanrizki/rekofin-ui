@@ -1,4 +1,4 @@
-import { z } from "zod"
+import { z } from "zod";
 
 export const loginSchema = z.object({
   credential: z.string().min(1, "Required"),
@@ -7,10 +7,9 @@ export const loginSchema = z.object({
 
 export type TLogin = z.infer<typeof loginSchema>;
 
-
 export const registerSchema = z
   .object({
-    fullName: z.string().min(1, "Required"),
+    fullname: z.string().min(1, "Required"),
     username: z.string().min(1, "Required"),
     email: z.email("Invalid email format"),
     password: z.string().min(1, "Required"),

@@ -1,4 +1,5 @@
 @import "tailwindcss";
+
 @theme {
   --color-primary: #003366;
   --color-secondary: #2ecc71;
@@ -6,11 +7,25 @@
   --color-textMain: #2c3e50;
   --color-textSub: #7f8c8d;
   --color-danger: #e74c3c;
-  --color-background-light: #f9f9f9
+  --color-background-light: #f9f9f9;
 }
+
 :root {
   --background: #ffffff;
   --foreground: #171717;
+  --app-bg: #f9f9f9;
+  --app-surface: #ffffff;
+  --app-border: #e5e7eb;
+  --app-text: #2c3e50;
+  --sidebar-bg: #003366;
+  --sidebar-fg: #ffffff;
+  --header-bg: #ffffff;
+  --header-fg: #2c3e50;
+  --notif-primary: #003366;
+  --notif-secondary: #2ecc71;
+  --notif-text-main: #2c3e50;
+  --notif-text-sub: #7f8c8d;
+  --notif-danger: #e74c3c;
 }
 
 @theme inline {
@@ -22,11 +37,114 @@
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+    --background: #121212;
+    --foreground: #ffffff;
+    --app-bg: #121212;
+    --app-surface: #1b1b1b;
+    --app-border: #2a2a2a;
+    --app-text: #ffffff;
+    --sidebar-bg: #121212;
+    --sidebar-fg: #ffffff;
+    --header-bg: #121212;
+    --header-fg: #ffffff;
   }
+}
+
+:root[data-theme="light"] {
+  color-scheme: light;
+  --background: #ffffff;
+  --foreground: #171717;
+  --app-bg: #f9f9f9;
+  --app-surface: #ffffff;
+  --app-border: #e5e7eb;
+  --app-text: #2c3e50;
+  --sidebar-bg: #003366;
+  --sidebar-fg: #ffffff;
+  --header-bg: #ffffff;
+  --header-fg: #2c3e50;
+}
+
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --background: #121212;
+  --foreground: #ffffff;
+  --app-bg: #121212;
+  --app-surface: #1b1b1b;
+  --app-border: #2a2a2a;
+  --app-text: #ffffff;
+  --sidebar-bg: #121212;
+  --sidebar-fg: #ffffff;
+  --header-bg: #121212;
+  --header-fg: #ffffff;
 }
 
 html {
   scroll-behavior: smooth;
+}
+
+body {
+  background: var(--app-bg);
+  color: var(--app-text);
+}
+
+.swal-notif-popup {
+  border-radius: 14px;
+  border: 1px solid color-mix(in srgb, var(--notif-primary) 18%, #ffffff 82%);
+  box-shadow: 0 20px 45px rgba(0, 0, 0, 0.18);
+  padding: 1.5rem;
+}
+
+.swal-notif-popup-confirm {
+  border-width: 2px;
+  border-color: color-mix(in srgb, var(--notif-primary) 28%, #ffffff 72%);
+  max-width: 34rem;
+  width: calc(100% - 2rem);
+}
+
+.swal-notif-content {
+  color: var(--notif-text-main) !important;
+  font-size: 0.98rem;
+  line-height: 1.5;
+}
+
+.swal-notif-actions {
+  display: flex;
+  gap: 0.625rem;
+  justify-content: center;
+  margin-top: 1.2rem;
+  width: 100%;
+}
+
+.swal-notif-confirm,
+.swal-notif-cancel {
+  border: 0;
+  border-radius: 8px;
+  color: #ffffff;
+  cursor: pointer;
+  font-size: 0.9rem;
+  font-weight: 600;
+  min-width: 92px;
+  padding: 0.5rem 1rem;
+}
+
+.swal-notif-confirm {
+  background: var(--notif-primary);
+}
+
+.swal-notif-confirm:hover {
+  background: color-mix(in srgb, var(--notif-primary) 86%, #000000 14%);
+}
+
+.swal-notif-cancel {
+  background: var(--notif-danger);
+}
+
+.swal-notif-cancel:hover {
+  background: color-mix(in srgb, var(--notif-danger) 88%, #000000 12%);
+}
+
+.swal-notif-confirm:focus-visible,
+.swal-notif-cancel:focus-visible {
+  outline: 2px solid color-mix(in srgb, var(--notif-primary) 45%, #ffffff 55%);
+  outline-offset: 2px;
 }

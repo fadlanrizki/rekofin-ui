@@ -3,8 +3,6 @@
 import {
   Button,
   TextField,
-  Select,
-  MenuItem,
   Table,
   TableHead,
   TableRow,
@@ -13,53 +11,46 @@ import {
   TableContainer,
   Paper,
   IconButton,
-  InputLabel,
-  FormControl,
   Grid,
   styled,
   tableCellClasses,
   Box,
+  Chip,
 } from "@mui/material";
 import { useCallback, useEffect, useState } from "react";
-import { FaEdit } from "react-icons/fa";
+import { FaUserPlus } from "react-icons/fa";
 import { FaTrashCan } from "react-icons/fa6";
-import { FaInfoCircle } from "react-icons/fa";
-import { ParamsUser, TListUser } from "@/types/user";
 import { UserService } from "@/service/userService";
 import Loading from "@/components/shared/Loading";
 import { IoSearch } from "react-icons/io5";
 import TablePagination from "@/components/shared/Pagination/TablePagination";
 import { useRouter } from "next/navigation";
 import { ROUTE_PATHS } from "@/utils/constants/routes";
-import { PAGE_ACTION } from "@/utils/constants/page-action";
 import { formatDateView } from "@/utils/date";
-import ModalNotification from "@/components/shared/Modal/ModalNotification";
+import SweetAlertNotification from "@/components/shared/Modal/SweetAlertNotification";
 import { useModal } from "@/hooks/useModal";
 import { getErrorMessage, getResponseMessage } from "@/utils/message";
 
-const defaultParams: ParamsUser = {
+const defaultParams = {
   search: "",
-  filter: {
-    role: "all",
-  },
   limit: 10,
   page: 1,
 };
 
 const StyledTableCell = styled(TableCell)(({ theme }) => ({
   [`&.${tableCellClasses.head}`]: {
-    backgroundColor: "#fff",
+    backgroundColor: theme.palette.primary.main,
     fontWeight: "bold",
-    color: "#000",
+    color: theme.palette.common.white,
   },
   [`&.${tableCellClasses.body}`]: {
     fontSize: 14,
-    color: "#7f8c8d",
+    color: theme.palette.text.secondary,
   },
 }));
 
 const StyledTableRow = styled(TableRow)(({ theme }) => ({
-  "&:nth-of-type(odd)": {
+  "&:nth-of-type(even)": {
     backgroundColor: theme.palette.action.hover,
   },
   // hide last border
@@ -72,8 +63,8 @@ export default function ManageUserView() {
   const router = useRouter();
   const { modal, showSuccess, showFailed, showConfirm, closeModal } =
     useModal();
-  const [users, setUsers] = useState<TListUser[] | null>(null);
-  const [params, setParams] = useState<ParamsUser>(defaultParams);
+  const [users, setUsers] = useState<any[] | null>(null);
+  const [params, setParams] = useState(defaultParams);
   const [loading, setLoading] = useState(true);
   const [selectedId, setSelectedId] = useState("");
   const [totalUser, setTotalUser] = useState(0); // const debounceSearch = useDebounce(params.search, 1500);
@@ -101,18 +92,6 @@ export default function ManageUserView() {
     setTempSearch(value);
   };
 
-  const handleChangeRole = (value: string) => {
-    setParams((prev: any) => {
-      return {
-        ...prev,
-        filter: {
-          ...prev.filter,
-          role: value,
-        },
-      };
-    });
-  };
-
   const onEnterSearch = (value: any) => {
     if (value.key === "Enter") {
       setParams((prev) => ({
@@ -122,9 +101,9 @@ export default function ManageUserView() {
     }
   };
 
-  const handleDeleteUser = (user: TListUser) => {
-    setSelectedId(user.id.toString());
-    showConfirm(`Apakah anda yakin ingin menghapus user "${user.fullName}" ? `);
+  const handleDeleteUser = (id: string) => {
+    setSelectedId(id);
+    showConfirm(`Apakah anda yakin ingin menghapus user ? `);
   };
 
   const apiDeleteUser = async () => {
@@ -134,6 +113,7 @@ export default function ManageUserView() {
       const response = await UserService.deleteUser(selectedId);
       message = getResponseMessage(response);
       showSuccess(message);
+      await fetchUsers();
     } catch (error: any) {
       message = getErrorMessage(error);
       showFailed(message);
@@ -153,26 +133,26 @@ export default function ManageUserView() {
     }));
   };
 
-  const handleActions = (action: string, user: any) => {
-    const { id } = user;
+  const handleActions = (action: string, id: string) => {
     switch (action) {
-      case "view":
-        router.push(`${ROUTE_PATHS.ADMIN.MANAGE_USER.VIEW}/${id}`);
-        break;
-      case "edit":
-        router.push(`${ROUTE_PATHS.ADMIN.MANAGE_USER.EDIT}/${id}`);
-        break;
       case "delete":
-        handleDeleteUser(user);
+        handleDeleteUser(id);
         break;
     }
   };
 
   return (
     <div className="p-6 space-y-6">
-      <h1 className="text-2xl font-semibold">Manage Users</h1>
+      <h1 className="text-2xl font-semibold">Kelola Pengguna</h1>
 
-      <Box className="bg-white border-2 border-[#eaeaea] rounded-2xl flex flex-col gap-4 p-4 shadow-xs">
+      <Box
+        className="rounded-2xl flex flex-col gap-4 p-4 shadow-xs"
+        sx={{
+          bgcolor: "background.paper",
+          border: 2,
+          borderColor: "divider",
+        }}
+      >
         <Grid
           container
           size={12}
@@ -183,8 +163,8 @@ export default function ManageUserView() {
           <Grid container size={6} spacing={2} wrap="nowrap">
             <TextField
               size="small"
-              label="Search..."
-              value={params.search}
+              label="Cari..."
+              value={tempSearch}
               onKeyDown={onEnterSearch}
               onChange={(e) => handleChangeSearch(e.target.value)}
               slotProps={{
@@ -193,24 +173,15 @@ export default function ManageUserView() {
                 },
               }}
             />
-
-            <FormControl size="small" className="min-w-[160px]">
-              <InputLabel>Role</InputLabel>
-              <Select
-                value={params.filter.role}
-                label="Role"
-                onChange={(e) => handleChangeRole(e.target.value)}
-                className="w-[200px]"
-              >
-                <MenuItem value="all">All</MenuItem>
-                <MenuItem value="admin">Admin</MenuItem>
-                <MenuItem value="user">User</MenuItem>
-              </Select>
-            </FormControl>
           </Grid>
           <Grid container justifyContent={"flex-end"}>
-            <Button variant="contained" color="primary" onClick={handleAddUser}>
-              Add User
+            <Button
+              startIcon={<FaUserPlus />}
+              variant="contained"
+              color="primary"
+              onClick={handleAddUser}
+            >
+              Pengguna
             </Button>
           </Grid>
         </Grid>
@@ -225,11 +196,11 @@ export default function ManageUserView() {
             <TableHead>
               <StyledTableRow className="bg-gray-100">
                 <StyledTableCell>No</StyledTableCell>
-                <StyledTableCell>Full Name</StyledTableCell>
-                <StyledTableCell>Email</StyledTableCell>
+                <StyledTableCell>Nama Pengguna</StyledTableCell>
+                <StyledTableCell>Nama Lengkap</StyledTableCell>
                 <StyledTableCell>Role</StyledTableCell>
-                <StyledTableCell>Created At</StyledTableCell>
-                <StyledTableCell>Actions</StyledTableCell>
+                <StyledTableCell>Dibuat Pada</StyledTableCell>
+                <StyledTableCell>Aksi</StyledTableCell>
               </StyledTableRow>
             </TableHead>
             <TableBody>
@@ -251,9 +222,17 @@ export default function ManageUserView() {
                 users.map((user, index) => (
                   <StyledTableRow key={user.id}>
                     <StyledTableCell>{index + 1}</StyledTableCell>
-                    <StyledTableCell>{user.fullName}</StyledTableCell>
-                    <StyledTableCell>{user.email}</StyledTableCell>
-                    <StyledTableCell>{user.role}</StyledTableCell>
+                    <StyledTableCell>{user.username}</StyledTableCell>
+                    <StyledTableCell>{user.fullname}</StyledTableCell>
+                    <StyledTableCell>
+                      {user.role === "ADMIN" ? (
+                        <Chip label={user.role} color="primary" />
+                      ) : user.role === "USER" ? (
+                        <Chip label={user.role} color="secondary" />
+                      ) : (
+                        <Chip label={"-"} color="error" />
+                      )}
+                    </StyledTableCell>
                     <StyledTableCell>
                       {formatDateView(user.createdAt)}
                     </StyledTableCell>
@@ -261,22 +240,8 @@ export default function ManageUserView() {
                       <div className="flex gap-2">
                         <IconButton
                           size="small"
-                          onClick={() => handleActions(PAGE_ACTION.VIEW, user)}
-                        >
-                          <FaInfoCircle className="text-primary" />
-                        </IconButton>
-                        <IconButton
-                          size="small"
-                          onClick={() => handleActions(PAGE_ACTION.EDIT, user)}
-                        >
-                          <FaEdit className="text-accent" />
-                        </IconButton>
-                        <IconButton
-                          size="small"
                           color="error"
-                          onClick={() =>
-                            handleActions(PAGE_ACTION.DELETE, user)
-                          }
+                          onClick={() => handleDeleteUser(user.id)}
                         >
                           <FaTrashCan />
                         </IconButton>
@@ -287,7 +252,7 @@ export default function ManageUserView() {
               ) : (
                 <StyledTableRow>
                   <StyledTableCell colSpan={6} align="center">
-                    <p className="text-slate-500">Empty Data ...</p>
+                    <p className="text-slate-500">Data tidak ditemukan ...</p>
                   </StyledTableCell>
                 </StyledTableRow>
               )}
@@ -306,7 +271,7 @@ export default function ManageUserView() {
         </div>
       </Box>
 
-      <ModalNotification
+      <SweetAlertNotification
         open={modal.open}
         message={modal.message}
         onClose={closeModal}

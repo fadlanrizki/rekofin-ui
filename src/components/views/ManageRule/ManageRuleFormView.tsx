@@ -4,55 +4,49 @@ import React, { useEffect, useState } from "react";
 import {
   TextField,
   MenuItem,
-  Switch,
-  FormControlLabel,
   Button,
   Paper,
   Grid,
   Typography,
-  IconButton,
+  FormControl,
+  InputLabel,
+  Select,
+  Checkbox,
+  ListItemText,
+  OutlinedInput,
+  SelectChangeEvent,
+  FormHelperText,
 } from "@mui/material";
 import { z } from "zod";
-import { Controller, useFieldArray, useForm } from "react-hook-form";
+import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useParams, useRouter } from "next/navigation";
 import { ROUTE_PATHS } from "@/utils/constants/routes";
 import { RuleService } from "@/service/ruleService";
-import { FaTrashCan } from "react-icons/fa6";
 import { useModal } from "@/hooks/useModal";
-import ModalNotification from "@/components/shared/Modal/ModalNotification";
+import SweetAlertNotification from "@/components/shared/Modal/SweetAlertNotification";
 import { PAGE_ACTION } from "@/utils/constants/page-action";
 import { getErrorMessage, getResponseMessage } from "@/utils/message";
+import { ConclusionService } from "@/service/conclusionService";
+import { FactService } from "@/service/factService";
+import { Option } from "@/types/common";
 
 const defaultValues = {
   name: "",
   description: "",
-  conditions: [
-    {
-      field: "",
-      operator: "",
-      value: "",
-    },
-  ],
-  categoryResult: "",
-  active: false,
+  facts: [] as Option["id"][],
+  conclusions: [] as Option["id"][],
 };
 
 const BaseManageRuleSchema = z.object({
-  id: z.number().optional(),
   name: z.string().min(1, "Nama Rule wajib di isi"),
   description: z.string().optional(),
-  conditions: z
-    .array(
-      z.object({
-        field: z.string().min(1, "Field Harus di isi"),
-        operator: z.string().min(1, "Operator harus di isi"),
-        value: z.string().min(1, "Nilai Harus di isi"),
-      })
-    )
-    .nonempty("Harus mempunyai minimal 1 kondisi"),
-  categoryResult: z.string().min(1, "Category Result harus di isi"),
-  active: z.boolean(),
+  facts: z.array(z.number()).min(1, "Pilih minimal satu fakta"),
+  conclusions: z.array(z.number()).min(1, "Pilih minimal satu kesimpulan"),
+});
+
+const EditManageRuleSchema = BaseManageRuleSchema.partial().extend({
+  id: z.number(),
 });
 
 export default function ManageRuleFormView() {
@@ -67,60 +61,118 @@ export default function ManageRuleFormView() {
   const isEdit = mode === PAGE_ACTION.EDIT;
   const isView = mode === PAGE_ACTION.VIEW;
 
-  type FormManageRule = z.infer<typeof BaseManageRuleSchema>;
+  const schema = isEdit ? EditManageRuleSchema : BaseManageRuleSchema;
+
+  type FormManageRule = z.infer<typeof schema>;
 
   const {
     register,
     formState: { errors },
-    control,
     handleSubmit,
     setValue,
+    watch,
   } = useForm<FormManageRule>({
-    resolver: zodResolver(BaseManageRuleSchema),
+    resolver: zodResolver(schema),
     defaultValues,
   });
 
-  const { fields, append, remove } = useFieldArray({
-    control,
-    name: "conditions",
-  });
+  const watchedFacts = watch("facts") ?? [];
+  const watchedConclusions = watch("conclusions") ?? [];
 
   const { modal, showSuccess, showFailed, closeModal, showConfirm } =
     useModal();
 
   const [loading, setLoading] = useState(false);
-  const [payload, setPayload] = useState<FormManageRule>();
+  const [payload, setPayload] = useState<any>();
+
+  const [factOptions, setFactsOptions] = useState<Option[]>([]);
+  const [conclusionOptions, setConclusionsOptions] = useState<Option[]>([]);
+
+  const fetchRuleDetail = async () => {
+    if (id === undefined) {
+      return;
+    }
+
+    setLoading(true);
+    try {
+      const response = await RuleService.findById(id);
+      const data = response.data;
+
+      setValue("name", data.name);
+      setValue("description", data.description);
+      setValue("id", data.id);
+
+      const facts = data.conditions.map((item: any) => item.id);
+      const conclusions = data.conclusions.map((item: any) => item.id);
+
+      setValue("facts", facts);
+      setValue("conclusions", conclusions);
+    } catch (error) {
+      const message = getErrorMessage(error);
+      showFailed(message);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
-    const fetchRule = async () => {
-      if (id !== undefined) {
-        setLoading(true);
-        try {
-          const response = await RuleService.findById(id);
-          const data = response.data;
-
-          setValue("name", data.name);
-          setValue("description", data.description);
-          setValue("categoryResult", data.categoryResult);
-          setValue("active", data.active);
-          setValue("conditions", data.conditions);
-          setValue("id", data.id);
-        } catch (error) {
-          const message = getErrorMessage(error);
-          showFailed(message);
-        } finally {
-          setLoading(false);
-        }
-      }
-    };
-
     if (isView || isEdit) {
-      fetchRule();
+      fetchRuleDetail();
+    }
+
+    if (!isView) {
+      fetchFactOptions();
+      fetchConclusionOptions();
     }
   }, []);
 
+  const fetchFactOptions = async () => {
+    setLoading(true);
+    try {
+      const response = await FactService.getOptions();
+      const data = response.data;
+      setFactsOptions(data);
+    } catch (error) {
+      const message = getErrorMessage(error);
+      showFailed(message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const fetchConclusionOptions = async () => {
+    setLoading(true);
+    try {
+      const response = await ConclusionService.getOptions();
+      const data = response.data;
+      setConclusionsOptions(data);
+    } catch (error) {
+      const message = getErrorMessage(error);
+      showFailed(message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const errorCheck = () => {
+    const errorForm = Object.values(errors).length > 0;
+
+    return errorForm;
+  };
+
   const onSubmit = (data: FormManageRule) => {
-    setPayload(data);
+    if (errorCheck()) {
+      showFailed("Form tidak valid, Mohon periksa kembali");
+      return;
+    }
+
+    const payload = {
+      ...data,
+      conditions: data.facts,
+      conclusions: data.conclusions,
+    };
+
+    setPayload(payload as any);
     showConfirm("Apakah anda yakin ingin melanjutkan proses ?");
   };
 
@@ -154,212 +206,151 @@ export default function ManageRuleFormView() {
     }
   };
 
-  const handleAddCondition = () => {
-    append({
-      field: "",
-      operator: "",
-      value: "",
-    });
+  const handleChangeFacts = (event: SelectChangeEvent<Option["id"][]>) => {
+    const {
+      target: { value },
+    } = event;
+    setValue("facts", value as Option["id"][]);
+  };
+
+  const handleChangeConclusions = (
+    event: SelectChangeEvent<Option["id"][]>,
+  ) => {
+    const {
+      target: { value },
+    } = event;
+    setValue("conclusions", value as Option["id"][]);
   };
 
   return (
     <Grid container flexDirection={"column"} spacing={4} size={12}>
       <Paper className="p-6 rounded-2xl shadow-md w-full mx-auto">
         <Grid container direction={"column"} spacing={2} rowGap={"2"}>
-          <Typography variant="h6">General</Typography>
+          <Typography variant="h6">
+            {isEdit ? "Edit Aturan" : "Tambah Aturan"}
+          </Typography>
 
           <div>
             <TextField
               {...register("name")}
-              label="Rule Name"
+              label="Nama Aturan"
               fullWidth
-              size="small"
+              size="medium"
               error={!!errors.name}
               helperText={errors.name?.message}
             />
           </div>
 
-          <div>
-            <Controller
-              name={"categoryResult"}
-              control={control}
-              render={({ field, fieldState }) => {
-                return (
-                  <TextField
-                    {...field}
-                    select
-                    label="Category Result"
-                    fullWidth
-                    size="small"
-                    error={!!fieldState.error}
-                    helperText={fieldState.error?.message}
-                  >
-                    <MenuItem value="menabung">Menabung</MenuItem>
-                    <MenuItem value="dana_darurat">Dana Darurat</MenuItem>
-                    <MenuItem value="investasi">Investasi</MenuItem>
-                  </TextField>
-                );
-              }}
-            />
-          </div>
+          <Grid container size={{ xs: 6 }}>
+            <FormControl fullWidth error={!!errors.facts}>
+              <InputLabel id="fact-multiple-checkbox-label">
+                Fakta dan Pertanyaan
+              </InputLabel>
+              <Select
+                labelId="fact-multiple-checkbox-label"
+                id="fact-multiple-checkbox"
+                multiple
+                size="medium"
+                value={watchedFacts}
+                onChange={(e: any) => handleChangeFacts(e)}
+                input={<OutlinedInput label="Fakta dan Pertanyaan" />}
+                renderValue={(selected) =>
+                  factOptions
+                    .filter((opt) => selected.includes(opt.id))
+                    .map((opt) => opt.label)
+                    .join(", ")
+                }
+              >
+                {factOptions.length > 0 ? (
+                  factOptions.map((item) => (
+                    <MenuItem key={item.id} value={item.id}>
+                      <Checkbox checked={watchedFacts.includes(item.id)} />
+                      <ListItemText primary={item.label} />
+                    </MenuItem>
+                  ))
+                ) : (
+                  <MenuItem disabled>No data available</MenuItem>
+                )}
+              </Select>
+
+              <FormHelperText>{errors.facts?.message}</FormHelperText>
+            </FormControl>
+          </Grid>
+
+          <Grid container size={{ xs: 6 }}>
+            <FormControl fullWidth error={!!errors.conclusions}>
+              <InputLabel id="conclusion-multiple-checkbox-label">
+                Kategori Kesimpulan
+              </InputLabel>
+              <Select
+                labelId="conclusion-multiple-checkbox-label"
+                id="conclusion-multiple-checkbox"
+                multiple
+                size="medium"
+                value={watchedConclusions}
+                onChange={(e: any) => handleChangeConclusions(e)}
+                input={<OutlinedInput label="Kategori Kesimpulan" />}
+                renderValue={(selected) =>
+                  conclusionOptions
+                    .filter((opt) => selected.includes(opt.id))
+                    .map((opt) => opt.label)
+                    .join(", ")
+                }
+              >
+                {conclusionOptions.length > 0 ? (
+                  conclusionOptions.map((item) => (
+                    <MenuItem key={item.id} value={item.id}>
+                      <Checkbox
+                        checked={watchedConclusions.includes(item.id)}
+                      />
+                      <ListItemText primary={item.label} />
+                    </MenuItem>
+                  ))
+                ) : (
+                  <MenuItem disabled>No data available</MenuItem>
+                )}
+              </Select>
+              <FormHelperText>{errors.conclusions?.message}</FormHelperText>
+            </FormControl>
+          </Grid>
 
           <div>
             <TextField
               {...register("description")}
-              label="Description"
+              label="Deskripsi"
               fullWidth
               size="small"
               multiline
-              rows={3}
+              rows={4}
               error={!!errors.description}
               helperText={errors.description?.message}
             />
           </div>
 
-          <div>
-            <FormControlLabel
-              control={<Switch {...register("active")} />}
-              label="Active"
-            />
-          </div>
-        </Grid>
-      </Paper>
-      <Paper className="p-6 rounded-2xl shadow-md w-full mx-auto">
-        <Grid
-          container
-          justifyContent={"space-between"}
-          alignItems={"center"}
-          className="mb-4"
-        >
-          <Typography variant="h6">Rule Condition</Typography>
-          <Button
-            variant="contained"
-            color="primary"
-            onClick={handleAddCondition}
-          >
-            Add Condition
-          </Button>
-        </Grid>
-        <Grid container direction={"column"} spacing={2}>
-          {fields.map((field: any, index: number) => {
-            return (
-              <Grid
-                key={field.id}
-                container
-                direction={"row"}
-                spacing={2}
-                alignItems={"center"}
+          <Grid container size={12} justifyContent={"end"}>
+            <div className="flex justify-end gap-2">
+              <Button
+                loading={loading}
+                variant="outlined"
+                color="error"
+                onClick={handleCancel}
               >
-                <Grid size={1} container justifyContent={"center"}>
-                  <IconButton
-                    size="small"
-                    color="error"
-                    onClick={() => remove(index)}
-                  >
-                    <FaTrashCan />
-                  </IconButton>
-                </Grid>
-                <Grid size={4}>
-                  <Controller
-                    name={`conditions.${index}.field`}
-                    control={control}
-                    render={({ field, fieldState }) => {
-                      return (
-                        <TextField
-                          {...field}
-                          select
-                          label="Field"
-                          name="field"
-                          fullWidth
-                          size="small"
-                          error={!!fieldState.error}
-                        >
-                          <MenuItem value="income">Pendapatan</MenuItem>
-                          <MenuItem value="savings">Tabungan</MenuItem>
-                          <MenuItem value="emergency_fund">
-                            Dana Darurat
-                          </MenuItem>
-                          <MenuItem value="debt">Hutang</MenuItem>
-                          <MenuItem value="monthly_expenses">
-                            Pengeluaran Bulanan
-                          </MenuItem>
-                        </TextField>
-                      );
-                    }}
-                  />
-                </Grid>
-                <Grid size={3}>
-                  <Controller
-                    name={`conditions.${index}.operator`}
-                    control={control}
-                    render={({ field, fieldState }) => {
-                      return (
-                        <TextField
-                          {...field}
-                          select
-                          label="Operator"
-                          fullWidth
-                          size="small"
-                          name="operator"
-                          error={!!fieldState.error}
-                        >
-                          <MenuItem value="gt">{">"}</MenuItem>
-                          <MenuItem value="lt">{"<"}</MenuItem>
-                          <MenuItem value="gte">{">="}</MenuItem>
-                          <MenuItem value="lte">{"<="}</MenuItem>
-                          <MenuItem value="eq">{"="}</MenuItem>
-                          <MenuItem value="neq">{"!="}</MenuItem>
-                        </TextField>
-                      );
-                    }}
-                  />
-                </Grid>
-                <Grid size={4}>
-                  <Controller
-                    name={`conditions.${index}.value`}
-                    control={control}
-                    render={({ field, fieldState }) => {
-                      return (
-                        <TextField
-                          {...field}
-                          name="value"
-                          label="value"
-                          type="number"
-                          fullWidth
-                          size="small"
-                          error={!!fieldState.error}
-                        />
-                      );
-                    }}
-                  />
-                </Grid>
-              </Grid>
-            );
-          })}
+                Batal
+              </Button>
+
+              <Button
+                variant="contained"
+                color="primary"
+                onClick={handleSubmit(onSubmit)}
+              >
+                Simpan
+              </Button>
+            </div>
+          </Grid>
         </Grid>
       </Paper>
 
-      <Grid container size={12} justifyContent={"end"}>
-        <div className="flex justify-end gap-2">
-          <Button
-            loading={loading}
-            variant="outlined"
-            color="error"
-            onClick={handleCancel}
-          >
-            Cancel
-          </Button>
-
-          <Button
-            variant="contained"
-            color="primary"
-            onClick={handleSubmit(onSubmit)}
-          >
-            Save Rule
-          </Button>
-        </div>
-      </Grid>
-      <ModalNotification
+      <SweetAlertNotification
         open={modal.open}
         message={modal.message}
         onClose={closeModal}
