@@ -133,14 +133,6 @@ export default function ManageUserView() {
     }));
   };
 
-  const handleActions = (action: string, id: string) => {
-    switch (action) {
-      case "delete":
-        handleDeleteUser(id);
-        break;
-    }
-  };
-
   return (
     <div className="p-6 space-y-6">
       <h1 className="text-2xl font-semibold">Kelola Pengguna</h1>

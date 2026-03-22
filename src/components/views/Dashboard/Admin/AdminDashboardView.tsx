@@ -63,6 +63,8 @@ const AdminDashboardView = () => {
 
   const fetchDasboardData = async () => {
     setLoading(true);
+    console.log(loading);
+    
     try {
       const response = await DashboardService.getAdminDashboardData();
       setData(response.data);
