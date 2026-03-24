@@ -31,10 +31,15 @@ const getConsultationResult = async (consultationId: string): Promise<any> => {
   );
 };
 
+const getConsultationHistory = async (params: any): Promise<any> => {
+  return await apiClient.get(`${API_ROUTE.CONSULTATION}/history`, params);
+};
+
 export const ConsultationService = {
   startConsultation,
   getQuestions,
   submitConsultationAnswer,
   getConsultationStatus,
   getConsultationResult,
+  getConsultationHistory,
 };
