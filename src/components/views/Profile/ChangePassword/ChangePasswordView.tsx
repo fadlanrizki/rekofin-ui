@@ -4,7 +4,7 @@ import { useModal } from "@/hooks/useModal";
 import { UserService } from "@/service/userService";
 import { getErrorMessage, getResponseMessage } from "@/utils/message";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Button, Grid } from "@mui/material";
+import { Box, Button, Grid, Typography } from "@mui/material";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
@@ -37,89 +37,119 @@ export default function ChangePasswordView() {
   const {
     register,
     handleSubmit,
+    reset,
     formState: { errors },
   } = useForm<ChangePassword>({
     defaultValues,
     resolver: zodResolver(ChangePasswordSchema),
   });
-  const {
-    modal,
-    showSuccess,
-    showFailed,
-    closeModal,
-    //  showConfirm
-  } = useModal();
+  const { modal, showSuccess, showFailed, showConfirm, closeModal } =
+    useModal();
 
   const [loading, setLoading] = useState(false);
+  const [pendingPasswordData, setPendingPasswordData] =
+    useState<ChangePassword | null>(null);
 
   const onSubmit = (data: ChangePassword) => {
-    apiEditProfile(data);
+    setPendingPasswordData(data);
+    showConfirm("Yakin ingin mengubah password?");
   };
 
-  const apiEditProfile = (data: ChangePassword) => {
+  const apiEditProfile = async (data: ChangePassword) => {
     setLoading(true);
 
     const payload = {
+      old_password: data.old_password,
       password: data.password,
-      // id:
     };
 
-    let message = "";
-
     try {
-      const response = UserService.updateUser(payload);
-      message = getResponseMessage(response);
+      const response = await UserService.changePassword(payload);
+      const message =
+        getResponseMessage(response) || "Password berhasil diubah";
       showSuccess(message);
+      reset(defaultValues);
     } catch (error) {
-      message = getErrorMessage(error);
+      const message = getErrorMessage(error);
       showFailed(message);
     } finally {
       setLoading(false);
     }
   };
 
+  const handleConfirmChangePassword = () => {
+    if (!pendingPasswordData) {
+      return;
+    }
+
+    void apiEditProfile(pendingPasswordData);
+    setPendingPasswordData(null);
+  };
+
+  const handleCloseModal = () => {
+    closeModal();
+    if (modal.type === "confirm") {
+      setPendingPasswordData(null);
+    }
+  };
+
   return (
-    <form onSubmit={handleSubmit(onSubmit)}>
-      <Grid container direction={"column"} spacing={4}>
-        <Grid container>
-          <Grid size={6}>
-            <PasswordTextfield
-              {...register("old_password")}
-              label={"Password Lama"}
-              error={!!errors.password}
-              helperText={errors.password?.message}
-            />
-          </Grid>
-          <Grid size={6}>
-            <PasswordTextfield
-              {...register("password")}
-              label={"Password Baru"}
-              error={!!errors.password}
-              helperText={errors.password?.message}
-            />
-          </Grid>
+    <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+      <Typography variant="h6" fontWeight={600} mb={2}>
+        Ubah Password
+      </Typography>
+
+      <Grid container spacing={2}>
+        <Grid size={{ xs: 12, sm: 6, lg: 12 }}>
+          <PasswordTextfield
+            {...register("old_password")}
+            label={"Password Lama"}
+            error={!!errors.old_password}
+            helperText={errors.old_password?.message}
+            disabled={loading}
+          />
         </Grid>
 
-        <Grid size={12} justifyContent={"end"}>
+        <Grid size={{ xs: 12, sm: 6, lg: 12 }}>
+          <PasswordTextfield
+            {...register("password")}
+            label={"Password Baru"}
+            error={!!errors.password}
+            helperText={errors.password?.message}
+            disabled={loading}
+          />
+        </Grid>
+
+        <Grid size={{ xs: 12 }}>
           <PasswordTextfield
             {...register("confirm_password")}
             label={"Konfirmasi Password"}
-            error={!!errors.password}
-            helperText={errors.password?.message}
+            error={!!errors.confirm_password}
+            helperText={errors.confirm_password?.message}
+            disabled={loading}
           />
         </Grid>
-        <Grid container justifyContent={"end"}>
-          <Button loading={loading} type="submit">
-            Ubah Password
-          </Button>
+
+        <Grid size={{ xs: 12 }}>
+          <Box className="flex justify-end">
+            <Button
+              loading={loading}
+              type="submit"
+              variant="contained"
+              className="w-full sm:w-auto"
+            >
+              Ubah Password
+            </Button>
+          </Box>
         </Grid>
       </Grid>
+
       <SweetAlertNotification
         open={modal.open}
         message={modal.message}
-        onClose={closeModal}
+        onClose={handleCloseModal}
         type={modal.type}
-        // onConfirm={handleConfirm}
+        onConfirm={handleConfirmChangePassword}
       />
     </form>
   );

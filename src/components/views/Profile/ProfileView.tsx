@@ -1,135 +1,86 @@
 "use client";
 
-import {
-  Avatar,
-  Box,
-  Card,
-  CardContent,
-  Grid,
-  Tab,
-  Tabs,
-  Typography,
-} from "@mui/material";
-import { useEffect, useState } from "react";
+import SweetAlertNotification from "@/components/shared/Modal/SweetAlertNotification";
+import ChangePasswordView from "@/components/views/Profile/ChangePassword/ChangePasswordView";
+import GeneralProfileView from "@/components/views/Profile/General/GeneralProfileView";
+import { useModal } from "@/hooks/useModal";
 import { UserService } from "@/service/userService";
 import { getErrorMessage } from "@/utils/message";
-import { useModal } from "@/hooks/useModal";
-import SweetAlertNotification from "@/components/shared/Modal/SweetAlertNotification";
-import GeneralProfleView from "./General/GeneralProfleView";
-import ChangePasswordView from "./ChangePassword/ChangePasswordView";
+import { Box, CircularProgress, Grid } from "@mui/material";
+import { useCallback, useEffect, useState } from "react";
 
 type UserProfile = {
   email: string;
-  fullName: string;
+  fullname: string;
   username: string;
-  gender?: string | null;
+  gender?: string | "MALE" | "FEMALE" | "UNKNOWN";
   occupation: string;
   createdAt: string;
+  role: string | "ADMIN" | "USER";
+  isActive: boolean;
+};
+
+const normalizeProfile = (raw: any): UserProfile => {
+  return {
+    email: raw?.email || "-",
+    fullname: raw?.fullname || raw?.fullName || "-",
+    username: raw?.username || "-",
+    gender: raw?.gender || "UNKNOWN",
+    occupation: raw?.occupation || "-",
+    createdAt: raw?.createdAt || "",
+    role: raw?.role || "USER",
+    isActive: raw?.isActive ?? true,
+  };
 };
 
 export default function ProfileView() {
   const { modal, showFailed, closeModal } = useModal();
   const [loading, setLoading] = useState(false);
-  const [tab, setTab] = useState(0);
-  const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
+  const [profile, setProfile] = useState<UserProfile | null>(null);
 
-  const fetchUserProfile = async () => {
+  const fetchUserProfile = useCallback(async () => {
     setLoading(true);
-    console.log(loading);
 
     try {
-      const id = localStorage.getItem("id") || "-";
-      const { data } = await UserService.findUserById(id);
-      setUserProfile(data);
+      const response = await UserService.getUserProfile();
+      const rawProfile = response?.data || response;
+      setProfile(normalizeProfile(rawProfile));
     } catch (error) {
       const message = getErrorMessage(error);
       showFailed(message);
     } finally {
       setLoading(false);
     }
-  };
+  }, [showFailed]);
 
   useEffect(() => {
     fetchUserProfile();
-  }, []);
-
-  const handleChangeTab = (e: any, newValue: any) => {
-    console.log(e);
-    console.log(newValue);
-
-    setTab(newValue);
-  };
-
-  const tabContent = () => {
-    switch (tab) {
-      case 0:
-        return <GeneralProfleView data={userProfile} />;
-      case 1:
-        return <ChangePasswordView />;
-      default:
-        return "";
-    }
-  };
+  }, [fetchUserProfile]);
 
   return (
-    <Grid size={{ xs: 12 }}>
-      {/* Title */}
-      <Typography variant="h5" gutterBottom>
-        Profile
-      </Typography>
+    <Grid
+      container
+      spacing={2}
+      size={{ xs: 12 }}
+      alignItems="stretch"
+      className="lg:min-h-[70vh]"
+    >
+      <Grid size={{ xs: 12, lg: 12 }} className="flex">
+        <Box className="h-full w-full rounded-xl border border-gray-200 bg-background-light p-4 sm:p-6">
+          {loading && !profile ? (
+            <Box className="flex min-h-60 items-center justify-center">
+              <CircularProgress color="inherit" size={28} />
+            </Box>
+          ) : (
+            <GeneralProfileView data={profile} onUpdated={fetchUserProfile} />
+          )}
+        </Box>
+      </Grid>
 
-      <Grid container spacing={4}>
-        <Grid size={{ xs: 12, md: 4 }}>
-          <Card>
-            <CardContent
-              sx={{
-                display: "flex",
-                flexDirection: "column",
-                alignItems: "center",
-              }}
-            >
-              <Avatar
-                sx={{ width: 80, height: 80, mb: 2 }}
-                src="/avatar-placeholder.png"
-              />
-              <Typography variant="h6">John Doe</Typography>
-              <Typography color="text.secondary">john@example.com</Typography>
-              <Typography
-                variant="caption"
-                sx={{ mt: 2 }}
-                color="text.secondary"
-              >
-                Joined: July 12, 2024
-              </Typography>
-            </CardContent>
-          </Card>
-        </Grid>
-
-        {/* Right Column - Profile Form */}
-        <Grid size={{ xs: 12, md: 8 }}>
-          <Card className="h-full">
-            <CardContent>
-              <Box
-                sx={{
-                  borderBottom: 1,
-                  borderColor: "divider",
-                  marginBottom: 3,
-                }}
-              >
-                <Tabs
-                  value={tab}
-                  onChange={handleChangeTab}
-                  aria-label="basic tabs example"
-                >
-                  <Tab label="General" />
-                  <Tab label="Change Password" />
-                </Tabs>
-              </Box>
-
-              {tabContent()}
-            </CardContent>
-          </Card>
-        </Grid>
+      <Grid size={{ xs: 12, lg: 12 }} className="flex">
+        <Box className="h-full w-full rounded-xl border border-gray-200 bg-background-light p-4 sm:p-6">
+          <ChangePasswordView />
+        </Box>
       </Grid>
 
       <SweetAlertNotification
