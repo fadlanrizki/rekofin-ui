@@ -55,11 +55,11 @@ export default function SweetAlertNotification({
       },
       buttonsStyling: false,
     }).then((result) => {
+      onClose();
+
       if (isConfirm && result.isConfirmed) {
         onConfirm?.();
       }
-
-      onClose();
     });
   }, [open, message, type, onClose, onConfirm]);
 
