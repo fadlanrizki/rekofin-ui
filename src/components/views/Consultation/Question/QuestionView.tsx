@@ -19,6 +19,7 @@ import LinearProgress, {
 } from "@mui/material/LinearProgress";
 import React, { useEffect, useState } from "react";
 import { ROUTE_PATHS } from "@/utils/constants/routes";
+import { useParams, useSearchParams } from "next/navigation";
 
 function LinearProgressWithLabel(
   props: LinearProgressProps & { value: number },
@@ -57,6 +58,8 @@ type QuestionsState = {
 
 export default function QuestionView() {
   const router = useRouter();
+  const params = useParams<{ id?: string | string[] }>();
+  const searchParams = useSearchParams();
 
   const [loading, setLoading] = useState(false);
   const [questions, setQuestions] = useState<QuestionsState>({
@@ -67,6 +70,14 @@ export default function QuestionView() {
   const [currentQuestion, setCurrentQuestion] = useState(0);
   const [disableSubmit, setDisableSubmit] = useState(true);
   const [consultationId, setConsultationId] = useState<string>("");
+
+  const paramsId = params?.id;
+  const consultationIdFromParams = Array.isArray(paramsId)
+    ? paramsId[0]
+    : paramsId;
+  const consultationIdFromQuery = searchParams.get("id") ?? undefined;
+  const consultationIdFromUrl =
+    consultationIdFromParams ?? consultationIdFromQuery;
 
   const getQuestions = async (consultationId: string) => {
     try {
@@ -91,12 +102,11 @@ export default function QuestionView() {
   };
 
   useEffect(() => {
-    const consultationId = localStorage.getItem("consultationId");
-    if (consultationId) {
-      getQuestions(consultationId);
-      setConsultationId(consultationId);
+    if (consultationIdFromUrl) {
+      getQuestions(consultationIdFromUrl);
+      setConsultationId(consultationIdFromUrl);
     }
-  }, []);
+  }, [consultationIdFromUrl]);
 
   useEffect(() => {
     const getPercentage = () => {
@@ -156,7 +166,9 @@ export default function QuestionView() {
       );
       console.log(JSON.stringify(response));
 
-      router.push(ROUTE_PATHS.USER.CONSULTATION.RESULT);
+      router.push(
+        `${ROUTE_PATHS.USER.CONSULTATION.RESULT}?id=${consultationId}`,
+      );
     } catch (error) {
       console.log(error);
     } finally {
