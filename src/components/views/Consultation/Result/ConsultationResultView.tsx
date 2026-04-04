@@ -14,7 +14,7 @@ import {
   useTheme,
 } from "@mui/material";
 import React, { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
+import { useParams, useRouter, useSearchParams } from "next/navigation";
 import { ROUTE_PATHS } from "@/utils/constants/routes";
 import {
   RiRefreshLine,
@@ -140,15 +140,26 @@ export default function ConsultationResultView() {
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<ConsultationResult | null>(null);
   const router = useRouter();
+  const params = useParams<{ id?: string | string[] }>();
+  const searchParams = useSearchParams();
+
+  const paramsId = params?.id;
+  const consultationIdFromParams = Array.isArray(paramsId)
+    ? paramsId[0]
+    : paramsId;
+  const consultationIdFromQuery = searchParams.get("id") ?? undefined;
+  const consultationIdFromUrl =
+    consultationIdFromParams ?? consultationIdFromQuery;
 
   useEffect(() => {
-    fetchConsultationResult();
-  }, []);
+    if (consultationIdFromUrl) {
+      fetchConsultationResult(consultationIdFromUrl);
+    }
+  }, [consultationIdFromUrl]);
 
-  const fetchConsultationResult = async () => {
+  const fetchConsultationResult = async (consultationId: string) => {
     try {
       setLoading(true);
-      const consultationId = localStorage.getItem("consultationId") ?? "2";
       const response =
         await ConsultationService.getConsultationResult(consultationId);
       setResult(response.data);
@@ -160,7 +171,6 @@ export default function ConsultationResultView() {
   };
 
   const handleNewConsultation = () => {
-    localStorage.removeItem("consultationId");
     router.push(ROUTE_PATHS.USER.CONSULTATION.BASE);
   };
 

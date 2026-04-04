@@ -94,13 +94,23 @@ const UserDashboardView = () => {
 
   const handleNavigateResult = (consultationId?: number) => {
     if (consultationId) {
-      localStorage.setItem("consultationId", String(consultationId));
+      router.push(
+        `${ROUTE_PATHS.USER.CONSULTATION.RESULT}?id=${consultationId}`,
+      );
+      return;
     }
-    router.push(ROUTE_PATHS.USER.CONSULTATION.RESULT);
+    router.push(ROUTE_PATHS.USER.CONSULTATION.BASE);
   };
 
-  const handleNavigateQuestion = () => {
-    router.push(ROUTE_PATHS.USER.CONSULTATION.QUESTION);
+  const handleNavigateQuestion = (consultationId?: number) => {
+    if (consultationId) {
+      router.push(
+        `${ROUTE_PATHS.USER.CONSULTATION.QUESTION}?id=${consultationId}`,
+      );
+      return;
+    }
+
+    router.push(ROUTE_PATHS.USER.CONSULTATION.BASE);
   };
 
   const handleNavigateHistory = () => {
@@ -171,7 +181,9 @@ const UserDashboardView = () => {
                     <Button
                       variant="contained"
                       size="small"
-                      onClick={handleNavigateQuestion}
+                      onClick={() =>
+                        handleNavigateQuestion(lastConsultation?.id)
+                      }
                     >
                       Lanjutkan Konsultasi
                     </Button>
