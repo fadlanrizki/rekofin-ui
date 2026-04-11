@@ -31,12 +31,27 @@ const getUserProfile = async (): Promise<any> => {
 const updateUserProfile = async (data: any): Promise<any> => {
   const url = `${API_ROUTE.USER}/profile`;
   return await apiClient.put(url, data);
-}
+};
 
 const changePassword = async (data: any): Promise<any> => {
   const url = `${API_ROUTE.USER}/change_password`;
   return await apiClient.post(url, data);
-}
+};
+
+const getAdminProfile = async (): Promise<any> => {
+  const url = `${API_ROUTE.ADMIN_USER}/profile`;
+  return await apiClient.get(url);
+};
+
+const updateAdminProfile = async (data: any): Promise<any> => {
+  const url = `${API_ROUTE.ADMIN_USER}/profile`;
+  return await apiClient.put(url, data);
+};
+
+const changeAdminPassword = async (data: any): Promise<any> => {
+  const url = `${API_ROUTE.ADMIN_USER}/change_password`;
+  return await apiClient.post(url, data);
+};
 
 export const UserService = {
   createUser,
@@ -46,5 +61,8 @@ export const UserService = {
   updateUser,
   getUserProfile,
   updateUserProfile,
-  changePassword
+  changePassword,
+  getAdminProfile,
+  updateAdminProfile,
+  changeAdminPassword,
 };

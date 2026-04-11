@@ -28,17 +28,21 @@ type EditProfileForm = z.infer<typeof EditProfileSchema>;
 type GeneralProfileProps = {
   data: any;
   onUpdated?: () => Promise<void> | void;
+  isAdmin?: boolean;
 };
 
 export default function GeneralProfileView({
   data,
   onUpdated,
+  isAdmin = false,
 }: GeneralProfileProps) {
   const [isEdit, setIsEdit] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [pendingEditData, setPendingEditData] = useState<EditProfileForm | null>(null);
+  const [pendingEditData, setPendingEditData] =
+    useState<EditProfileForm | null>(null);
 
-  const { modal, showSuccess, showFailed, showConfirm, closeModal } = useModal();
+  const { modal, showSuccess, showFailed, showConfirm, closeModal } =
+    useModal();
 
   const {
     register,
@@ -67,14 +71,15 @@ export default function GeneralProfileView({
       email: data?.email || "",
       gender: data?.gender || "UNKNOWN",
     });
-
   }, [data, reset]);
 
   const submitEditProfile = async (formData: EditProfileForm) => {
     setLoading(true);
 
     try {
-      const response = await UserService.updateUserProfile(formData);
+      const response = isAdmin
+        ? await UserService.updateAdminProfile(formData)
+        : await UserService.updateUserProfile(formData);
 
       const message =
         getResponseMessage(response) || "Profil berhasil diperbarui";

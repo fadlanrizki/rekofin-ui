@@ -6,6 +6,7 @@ import {
 } from "react-icons/md";
 import { TbLogout2 } from "react-icons/tb";
 import { MdManageAccounts } from "react-icons/md";
+import { FaRegUser } from "react-icons/fa6";
 import { IoTrailSignSharp } from "react-icons/io5";
 import { VscLightbulbSparkle } from "react-icons/vsc";
 import { ROUTE_PATHS } from "@/utils/constants/routes";
@@ -17,6 +18,11 @@ const listMenu = [
     name: "Dashboard",
     path: ROUTE_PATHS.ADMIN.DASHBOARD,
     icon: <MdOutlineSpaceDashboard size={25} />,
+  },
+  {
+    name: "Profile",
+    path: ROUTE_PATHS.ADMIN.PROFILE,
+    icon: <FaRegUser size={25} />,
   },
   {
     name: "Kelola User",
