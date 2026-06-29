@@ -1,0 +1,51 @@
+@startuml
+left to right direction
+skinparam shadowing false
+skinparam actorStyle awesome
+
+title High Level UML Sistem Rekofin
+
+actor "User\n(Pengguna)" as User
+actor "Admin" as Admin
+
+rectangle "Sistem Rekofin" {
+  usecase "Landing Page" as M_Landing
+  usecase "Registrasi" as M_Register
+  usecase "Login User" as M_LoginUser
+  usecase "Login Admin" as M_LoginAdmin
+  usecase "Dashboard User" as M_UserDashboard
+  usecase "Profil User" as M_UserProfile
+  usecase "Konsultasi" as M_Consultation
+  usecase "Riwayat Konsultasi" as M_History
+  usecase "Dashboard Admin" as M_AdminDashboard
+  usecase "Profil Admin" as M_AdminProfile
+  usecase "Kelola User" as M_ManageUser
+  usecase "Kelola Fakta" as M_ManageFact
+  usecase "Kelola Sumber" as M_ManageSource
+  usecase "Kelola Kesimpulan" as M_ManageConclusion
+  usecase "Kelola Rekomendasi" as M_ManageRecommendation
+  usecase "Kelola Aturan" as M_ManageRule
+  usecase "Logout" as M_Logout
+}
+
+User --> M_Landing
+User --> M_Register
+User --> M_LoginUser
+User --> M_UserDashboard
+User --> M_UserProfile
+User --> M_Consultation
+User --> M_History
+User --> M_Logout
+
+Admin --> M_LoginAdmin
+Admin --> M_AdminDashboard
+Admin --> M_AdminProfile
+Admin --> M_ManageUser
+Admin --> M_ManageFact
+Admin --> M_ManageSource
+Admin --> M_ManageConclusion
+Admin --> M_ManageRecommendation
+Admin --> M_ManageRule
+Admin --> M_Logout
+
+@enduml

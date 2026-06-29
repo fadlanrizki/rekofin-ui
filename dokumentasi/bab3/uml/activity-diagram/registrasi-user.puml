@@ -1,0 +1,29 @@
+@startuml
+title Activity Diagram Swimlanes - Registrasi User
+
+|User|
+start
+:Akses landing page;
+:Klik menu Registrasi;
+:Isi form registrasi;
+:Kirim data registrasi;
+
+|Sistem|
+:Validasi data registrasi;
+if (Data valid dan email unik?) then (Ya)
+  :Buat akun user baru;
+  :Tampilkan notifikasi registrasi berhasil;
+
+  |User|
+  :Registrasi berhasil;
+  :Lanjut ke halaman login;
+  stop
+else (Tidak)
+  :Tampilkan pesan validasi registrasi;
+
+  |User|
+  :Perbaiki data registrasi;
+  stop
+endif
+
+@enduml
