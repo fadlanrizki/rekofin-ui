@@ -9,9 +9,9 @@ const getUsers = async (params: any): Promise<any> => {
   return await apiClient.get(API_ROUTE.ADMIN_USER, params);
 };
 
-const deleteUser = async (id: string): Promise<any> => {
+const changeStatusUser = async (id: string): Promise<any> => {
   const url = `${API_ROUTE.ADMIN_USER}/${id}`;
-  return await apiClient.delete(url);
+  return await apiClient.patch(url);
 };
 
 const findUserById = async (id: string): Promise<any> => {
@@ -56,7 +56,7 @@ const changeAdminPassword = async (data: any): Promise<any> => {
 export const UserService = {
   createUser,
   getUsers,
-  deleteUser,
+  changeStatusUser,
   findUserById,
   updateUser,
   getUserProfile,

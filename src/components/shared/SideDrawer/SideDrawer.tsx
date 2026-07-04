@@ -1,12 +1,12 @@
 "use client";
 
+import { Stack } from "@mui/material";
 import Box from "@mui/material/Box";
 import Drawer from "@mui/material/Drawer";
 import List from "@mui/material/List";
 import ListItem from "@mui/material/ListItem";
 import ListItemButton from "@mui/material/ListItemButton";
 import ListItemText from "@mui/material/ListItemText";
-import Logo from "../Logo";
 import Link from "next/link";
 
 type DrawerType = {
@@ -44,26 +44,26 @@ const SideDrawer = (props: DrawerType) => {
   return (
     <Drawer open={open} anchor={anchor} onClose={onClose}>
       <Box
-        sx={{ width: 250, height: "100%", boxSizing: "border-box" }}
         role="presentation"
-        className="overflow-y-hidden"
+        className="overflow-y-hidden w-[250px] h-full box-border px-2 py-4"
       >
-        <div className="h-full flex flex-col gap-5">
-          <div className="text-center p-10 text-primary">
-            <Logo />
-          </div>
+        <Stack justifyContent={"space-between"} className="h-full">
           <List>
             {listMenu.map((item, index) => (
               <Link key={index} href={item.url}>
                 <ListItem disablePadding>
                   <ListItemButton>
-                    <ListItemText className="text-right" primary={item.name} />
+                    <ListItemText
+                      className="text-right text-primary"
+                      primary={item.name}
+                    />
                   </ListItemButton>
                 </ListItem>
               </Link>
             ))}
           </List>
-        </div>
+          <center className="text-slate-400">Rekofin © 2026</center>
+        </Stack>
       </Box>
     </Drawer>
   );

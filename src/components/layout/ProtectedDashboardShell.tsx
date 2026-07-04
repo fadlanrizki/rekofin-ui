@@ -8,6 +8,9 @@ import { FaUserCircle } from "react-icons/fa";
 import { GiHamburgerMenu } from "react-icons/gi";
 import { FaAnglesLeft, FaAnglesRight } from "react-icons/fa6";
 import {
+  MdKeyboardArrowDown,
+  MdKeyboardArrowRight,
+  MdMenuBook,
   MdOutlineDarkMode,
   MdOutlineLightMode,
   MdOutlineSettingsBrightness,
@@ -30,6 +33,13 @@ type ProtectedDashboardShellProps = {
 type ThemeMode = "system" | "light" | "dark";
 
 const THEME_MODE_KEY = "rekofin-theme-mode";
+const KNOWLEDGE_MENU_NAMES = [
+  "Kelola Fakta",
+  "Kelola Sumber",
+  "Kelola Kesimpulan",
+  "Kelola Rekomendasi",
+  "Kelola Aturan",
+];
 
 export default function ProtectedDashboardShell({
   children,
@@ -43,6 +53,7 @@ export default function ProtectedDashboardShell({
   const [isSidebarMinimized, setIsSidebarMinimized] = useState(false);
   const [username, setUsername] = useState("-");
   const [themeMode, setThemeMode] = useState<ThemeMode>("system");
+  const [isKnowledgeOpen, setIsKnowledgeOpen] = useState(true);
 
   const applyThemeMode = (mode: ThemeMode) => {
     const root = document.documentElement;
@@ -128,7 +139,91 @@ export default function ProtectedDashboardShell({
       );
     };
 
-    return menus.map((item) => {
+    const knowledgeMenus = menus.filter(
+      (item) => !item.isLogout && KNOWLEDGE_MENU_NAMES.includes(item.name),
+    );
+    const isKnowledgeActive = knowledgeMenus.some((item) =>
+      isMenuActive(item.path),
+    );
+    const listedMenu = [] as React.ReactNode[];
+    let hasRenderedKnowledgeParent = false;
+
+    menus.forEach((item) => {
+      const isKnowledgeChild =
+        !item.isLogout && KNOWLEDGE_MENU_NAMES.includes(item.name);
+
+      if (isKnowledgeChild) {
+        if (hasRenderedKnowledgeParent) {
+          return;
+        }
+
+        hasRenderedKnowledgeParent = true;
+        const parentClass = [
+          "flex w-full items-center rounded-md px-3 py-3 text-sm md:text-base transition-colors",
+          showMenuLabel ? "gap-2 justify-start" : "justify-center",
+          isKnowledgeActive
+            ? "bg-white text-primary shadow-sm"
+            : "text-white hover:bg-white hover:text-primary",
+        ].join(" ");
+
+        listedMenu.push(
+          <div key="menu-kelola-pengetahuan" className="flex flex-col gap-1">
+            <button
+              type="button"
+              onClick={() => setIsKnowledgeOpen((prev) => !prev)}
+              className={`${parentClass} cursor-pointer text-left`}
+              aria-expanded={isKnowledgeOpen}
+              aria-controls="submenu-kelola-pengetahuan"
+            >
+              <span className="text-xl">
+                <MdMenuBook size={22} />
+              </span>
+              {showMenuLabel && (
+                <>
+                  <span className="flex-1">Kelola Pengetahuan</span>
+                  {isKnowledgeOpen ? (
+                    <MdKeyboardArrowDown size={20} />
+                  ) : (
+                    <MdKeyboardArrowRight size={20} />
+                  )}
+                </>
+              )}
+            </button>
+
+            {showMenuLabel && isKnowledgeOpen && (
+              <div
+                id="submenu-kelola-pengetahuan"
+                className="ml-3 flex flex-col gap-1 border-l border-white/40 pl-2"
+              >
+                {knowledgeMenus.map((submenu) => {
+                  const isActive = isMenuActive(submenu.path);
+                  const submenuClass = [
+                    "flex items-center gap-2 rounded-md px-3 py-2 text-sm transition-colors",
+                    isActive
+                      ? "bg-white text-primary shadow-sm"
+                      : "text-white hover:bg-white hover:text-primary",
+                  ].join(" ");
+
+                  return (
+                    <Link
+                      key={submenu.path}
+                      href={submenu.path}
+                      className={submenuClass}
+                      aria-current={isActive ? "page" : undefined}
+                    >
+                      <span className="text-lg">{submenu.icon}</span>
+                      <span>{submenu.name}</span>
+                    </Link>
+                  );
+                })}
+              </div>
+            )}
+          </div>,
+        );
+
+        return;
+      }
+
       const isActive = !item.isLogout && isMenuActive(item.path);
       const baseClass = [
         "flex items-center rounded-md px-3 py-3 text-sm md:text-base transition-colors",
@@ -139,7 +234,7 @@ export default function ProtectedDashboardShell({
       ].join(" ");
 
       if (item.isLogout) {
-        return (
+        listedMenu.push(
           <button
             key={item.path}
             type="button"
@@ -151,11 +246,13 @@ export default function ProtectedDashboardShell({
           >
             <span className="text-xl">{item.icon}</span>
             {showMenuLabel && <span>{item.name}</span>}
-          </button>
+          </button>,
         );
+
+        return;
       }
 
-      return (
+      listedMenu.push(
         <Link
           key={item.path}
           href={item.path}
@@ -164,10 +261,39 @@ export default function ProtectedDashboardShell({
         >
           <span className="text-xl">{item.icon}</span>
           {showMenuLabel && <span>{item.name}</span>}
-        </Link>
+        </Link>,
       );
     });
-  }, [menus, pathname, router, showMenuLabel]);
+
+    return listedMenu;
+  }, [isKnowledgeOpen, menus, pathname, router, showMenuLabel]);
+
+  useEffect(() => {
+    const normalizedPathname = (pathname || "/").replace(/\/+$/, "") || "/";
+    const isPathActive = (path: string) => {
+      const normalizedMenuPath = path.replace(/\/+$/, "") || "/";
+
+      if (normalizedMenuPath === "/") {
+        return normalizedPathname === "/";
+      }
+
+      return (
+        normalizedPathname === normalizedMenuPath ||
+        normalizedPathname.startsWith(`${normalizedMenuPath}/`)
+      );
+    };
+
+    const hasActiveKnowledgeSubmenu = menus.some(
+      (item) =>
+        !item.isLogout &&
+        KNOWLEDGE_MENU_NAMES.includes(item.name) &&
+        isPathActive(item.path),
+    );
+
+    if (hasActiveKnowledgeSubmenu) {
+      setIsKnowledgeOpen(true);
+    }
+  }, [menus, pathname]);
 
   const sidebarContent = (
     <div className="flex h-full flex-col p-3">
