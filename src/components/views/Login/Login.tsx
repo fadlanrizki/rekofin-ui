@@ -78,7 +78,7 @@ const Login = () => {
       const decode = decodeToken(token);
       const role = decode?.role;
 
-      if (role === "admin") {
+      if (role.toLowerCase() === "admin") {
         router.push(ROUTE_PATHS.ADMIN.DASHBOARD);
       } else {
         router.push(ROUTE_PATHS.USER.DASHBOARD);
