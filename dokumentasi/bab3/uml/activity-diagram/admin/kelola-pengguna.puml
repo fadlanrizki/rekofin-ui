@@ -1,0 +1,80 @@
+@startuml
+title Activity Diagram Swimlanes - Kelola Pengguna
+
+|Admin|
+start
+:Akses menu kelola pengguna;
+
+|Sistem|
+:Ambil data daftar pengguna;
+:Tampilkan daftar pengguna;
+
+|Admin|
+:Melihat data pengguna;
+:Mencari pengguna atau berpindah halaman;
+
+if (Aksi yang dipilih?) then (Cari)
+  :Ketik kata kunci pencarian;
+  :Tekan Enter;
+
+  |Sistem|
+  :Menerapkan filter pencarian;
+  :Memuat ulang daftar pengguna;
+
+  |Admin|
+  :Meninjau hasil pencarian;
+
+elseif (Pindah halaman) then (Ya)
+  :Klik nomor halaman;
+
+  |Sistem|
+  :Mengambil data sesuai halaman;
+  :Memperbarui tabel pengguna;
+
+  |Admin|
+  :Meninjau data pada halaman baru;
+
+elseif (Tambah pengguna) then (Ya)
+  :Klik tombol Pengguna;
+
+  |Sistem|
+  :Arahkan ke form tambah pengguna;
+
+  |Admin|
+  :Isi data pengguna baru;
+  :Kirim form pengguna;
+
+  |Sistem|
+  :Validasi data pengguna;
+  if (Data valid?) then (Ya)
+    :Simpan data pengguna baru;
+    :Tampilkan notifikasi berhasil;
+    :Arahkan kembali ke daftar pengguna;
+  else (Tidak)
+    :Tampilkan pesan kesalahan validasi;
+  endif
+
+  |Admin|
+  :Meninjau hasil proses tambah pengguna;
+
+else (Ubah status)
+  :Aktifkan atau nonaktifkan switch status;
+
+  |Sistem|
+  :Tampilkan dialog konfirmasi;
+
+  |Admin|
+  :Menekan tombol konfirmasi;
+
+  |Sistem|
+  :Memperbarui status pengguna;
+  :Menampilkan notifikasi hasil;
+  :Memuat ulang daftar pengguna;
+
+  |Admin|
+  :Meninjau status pengguna terbaru;
+endif
+
+stop
+
+@enduml

@@ -25,7 +25,7 @@ const listMenu = [
     icon: <FaRegUser size={25} />,
   },
   {
-    name: "Kelola User",
+    name: "Kelola Pengguna",
     path: ROUTE_PATHS.ADMIN.MANAGE_USER.LIST,
     icon: <MdManageAccounts size={25} />,
   },
