@@ -1,0 +1,29 @@
+@startuml
+!theme plain
+
+title Sequence Diagram Login User (Sederhana)
+
+autonumber
+
+actor "User" as U
+boundary "Halaman Login" as FE
+control "Auth Controller" as AC
+entity "User Entity" as UE
+database "Database" as DB
+
+U -> FE: Isi email dan password
+FE -> AC: Kirim request login
+AC -> UE: Validasi kredensial
+UE -> DB: Ambil data user
+DB --> UE: Data user
+UE --> AC: Hasil validasi
+
+alt Login berhasil
+  AC --> FE: Token + data user
+  FE --> U: Masuk ke dashboard
+else Login gagal
+  AC --> FE: Pesan error
+  FE --> U: Tampilkan pesan gagal login
+end
+
+@enduml
