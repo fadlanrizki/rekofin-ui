@@ -1,0 +1,49 @@
+@startuml
+!theme plain
+
+autonumber
+
+actor "User" as U
+boundary "Halaman Riwayat Konsultasi" as FE
+control "Auth Middleware" as AM
+control "Consultation Controller" as CC
+database "Database" as DB
+
+U -> FE: Buka menu history konsultasi
+activate FE
+FE -> AM: Validasi token akses
+activate AM
+
+alt Token valid
+  AM -> CC: Izinkan akses riwayat konsultasi
+  activate CC
+  CC -> DB: Ambil daftar riwayat konsultasi user
+  activate DB
+  DB --> CC: Data riwayat konsultasi
+  deactivate DB
+  CC --> FE: Kirim data riwayat konsultasi
+  deactivate CC
+  FE --> U: Tampilkan daftar riwayat
+
+  U -> FE: Pilih salah satu riwayat konsultasi
+  FE -> AM: Validasi token untuk detail riwayat
+  AM -> CC: Proses detail riwayat konsultasi
+  activate CC
+  CC -> DB: Ambil detail hasil konsultasi
+  activate DB
+  DB --> CC: Detail hasil konsultasi
+  deactivate DB
+  CC --> FE: Kirim detail riwayat
+  deactivate CC
+  AM --> FE: Respon detail riwayat berhasil
+  deactivate AM
+  FE --> U: Tampilkan detail riwayat konsultasi
+  deactivate FE
+else Token invalid
+  AM --> FE: Akses ditolak
+  deactivate AM
+  FE --> U: Arahkan ke halaman login
+  deactivate FE
+end
+
+@enduml

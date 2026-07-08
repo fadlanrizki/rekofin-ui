@@ -1,0 +1,46 @@
+@startuml
+!theme plain
+
+actor "Admin" as U
+boundary "Halaman Profile" as FE
+control "Auth Middleware" as AM
+control "User Controller" as UC
+database "Database" as DB
+
+U -> FE: Buka menu profile
+activate FE
+FE -> AM: Validasi token akses
+activate AM
+
+alt Token valid
+
+AM -> UC: Izinkan akses profile
+activate UC
+UC -> DB: Ambil data profile Admin
+activate DB
+DB --> UC: Data profile
+deactivate DB
+UC --> FE: Kirim data profile
+deactivate UC
+FE --> U: Tampilkan data profile
+
+U -> FE: Edit profile / change password
+FE -> AM: Validasi token untuk perubahan akun
+AM -> UC: Proses perubahan akun
+activate UC
+UC -> DB: Simpan perubahan profile /password
+activate DB
+DB --> UC: Status perubahan
+deactivate DB
+UC --> FE: Respon hasil perubahan
+deactivate UC
+FE --> U: Tampilkan notifikasi hasil
+deactivate AM
+deactivate FE
+else Token Invalid
+  AM --> FE: Akses ditolak
+  deactivate AM
+  FE --> U: Arahkan ke halaman login
+  deactivate FE
+end
+@enduml

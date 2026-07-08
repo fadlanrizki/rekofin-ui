@@ -1,0 +1,13 @@
+@startuml
+!theme plain
+
+actor "Admin" as U
+boundary "Halaman Aplikasi" as FE
+
+U -> FE: Klik tombol logout
+activate FE
+FE -> FE: Hapus data sesi
+FE --> U: Arahkan ke halaman login
+deactivate FE
+
+@enduml

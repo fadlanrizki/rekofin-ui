@@ -1,0 +1,15 @@
+@startuml
+!theme plain
+
+autonumber
+
+actor "User" as U
+boundary "Halaman Aplikasi" as FE
+
+U -> FE: Klik tombol logout
+activate FE
+FE -> FE: Hapus data sesi di localStorage
+FE --> U: Arahkan ke halaman login
+deactivate FE
+
+@enduml

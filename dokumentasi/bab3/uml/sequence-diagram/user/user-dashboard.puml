@@ -1,0 +1,36 @@
+@startuml
+!theme plain
+
+
+actor "User" as U
+boundary "Halaman Dashboard" as FE
+control "Auth Middleware" as AM
+control "Dashboard Controller" as DC
+database "Database" as DB
+
+U -> FE: Buka halaman dashboard
+activate FE
+FE -> AM: Minta data dashboard user
+activate AM
+
+alt Token valid
+  AM -> DC: Lanjutkan proses
+  activate DC
+  DC -> DB: Ambil data dashboard user
+  activate DB
+  DB --> DC: Data dashboard
+  deactivate DB
+  DC --> AM: Data dashboard berhasil diproses
+  deactivate DC
+  AM --> FE: Data dashboard berhasil dikirim
+  deactivate AM
+  FE --> U: Tampilkan dashboard
+  deactivate FE
+else Token Invalid
+  AM --> FE: Akses ditolak
+  deactivate AM
+  FE --> U: Arahkan ke login
+  deactivate FE
+end
+
+@enduml

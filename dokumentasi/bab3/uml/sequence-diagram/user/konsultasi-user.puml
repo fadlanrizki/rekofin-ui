@@ -1,0 +1,49 @@
+@startuml
+!theme plain
+
+autonumber
+
+actor "User" as U
+boundary "Halaman Konsultasi" as FE
+control "Auth Middleware" as AM
+control "Consultation Controller" as CC
+database "Database" as DB
+
+U -> FE: Buka menu konsultasi
+activate FE
+FE -> AM: Validasi token akses
+activate AM
+
+alt Token valid
+  AM -> CC: Izinkan akses konsultasi
+  activate CC
+  CC -> DB: Ambil daftar pertanyaan konsultasi
+  activate DB
+  DB --> CC: Data pertanyaan
+  deactivate DB
+  CC --> FE: Kirim pertanyaan konsultasi
+  deactivate CC
+  FE --> U: Tampilkan form konsultasi
+
+  U -> FE: Isi jawaban dan submit konsultasi
+  FE -> AM: Validasi token untuk submit
+  AM -> CC: Proses hasil konsultasi
+  activate CC
+  CC -> DB: Simpan jawaban dan hitung hasil
+  activate DB
+  DB --> CC: Hasil konsultasi/rekomendasi
+  deactivate DB
+  CC --> FE: Kirim hasil konsultasi
+  deactivate CC
+  AM --> FE: Respon konsultasi berhasil
+  deactivate AM
+  FE --> U: Tampilkan hasil konsultasi
+  deactivate FE
+else Token Invalid
+  AM --> FE: Akses ditolak
+  deactivate AM
+  FE --> U: Arahkan ke halaman login
+  deactivate FE
+end
+
+@enduml

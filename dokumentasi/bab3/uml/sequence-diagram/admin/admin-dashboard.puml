@@ -1,0 +1,34 @@
+@startuml
+!theme plain
+
+actor "Admin" as A
+boundary "Halaman Dashboard Admin" as FE
+control "Auth Middleware" as AM
+control "Dashboard Controller" as DC
+database "Database" as DB
+
+A -> FE: Buka menu dashboard admin
+activate FE
+FE -> AM: GET /api/admin/dashboard + Bearer token
+activate AM
+
+alt Token admin valid
+  AM -> DC: Lolos validasi token admin
+  activate DC
+  DC -> DB: Query statistik dan data chart
+  activate DB
+  DB --> DC: Hasil query dashboard
+  deactivate DB
+  DC --> FE: Response 200 + data dashboard
+  deactivate DC
+  deactivate AM
+  FE --> A: Tampilkan statistik dan chart
+  deactivate FE
+else Token Invalid
+  AM --> FE: Response 401/403
+  deactivate AM
+  FE --> A: Tampilkan error
+  deactivate FE
+end
+
+@enduml

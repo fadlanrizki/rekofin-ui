@@ -1,0 +1,42 @@
+@startuml
+!theme plain
+
+actor "Admin" as A
+boundary "Halaman Kelola Pengetahuan" as FE
+control "Sistem Rekofin" as SYS
+database "Database" as DB
+
+A -> FE: Buka menu kelola pengetahuan
+activate FE
+FE -> SYS: Minta data pengetahuan
+activate SYS
+
+alt Admin terverifikasi
+  SYS -> DB: Ambil daftar data
+  activate DB
+  DB --> SYS: Data ditemukan
+  deactivate DB
+  SYS --> FE: Kirim data ke halaman
+  FE --> A: Tampilkan daftar data
+
+  group Admin mengelola data
+    A -> FE: Tambah/Ubah/Hapus data
+    FE -> SYS: Kirim perubahan data
+    SYS -> DB: Simpan perubahan
+    activate DB
+    DB --> SYS: Perubahan tersimpan
+    deactivate DB
+    SYS --> FE: Status berhasil/gagal
+    FE --> A: Tampilkan pesan hasil
+  end
+
+  deactivate SYS
+  deactivate FE
+else Admin tidak terverifikasi
+  SYS --> FE: Akses ditolak
+  deactivate SYS
+  FE --> A: Tampilkan error akses
+  deactivate FE
+end
+
+@enduml

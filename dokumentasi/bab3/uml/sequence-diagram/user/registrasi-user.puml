@@ -1,0 +1,41 @@
+@startuml
+!theme plain
+
+actor "User" as U
+boundary "Halaman Registrasi" as FE
+control "Auth Controller" as AC
+entity "User Entity" as UE
+database "Database" as DB
+
+U -> FE: Isi data registrasi
+activate FE
+FE -> AC: Kirim request registrasi
+activate AC
+AC -> UE: Validasi data registrasi
+activate UE
+UE -> DB: Cek email sudah terdaftar
+activate DB
+DB --> UE: Hasil pengecekan
+deactivate DB
+
+alt Registrasi berhasil
+  UE -> DB: Simpan data user baru
+  activate DB
+  DB --> UE: Data tersimpan
+  deactivate DB
+  UE --> AC: Registrasi sukses
+  deactivate UE
+  AC --> FE: Pesan berhasil registrasi
+  deactivate AC
+  FE --> U: Arahkan ke halaman login
+  deactivate FE
+else Registrasi gagal
+  UE --> AC: Email sudah terdaftar / data tidak valid
+  deactivate UE
+  AC --> FE: Pesan error registrasi
+  deactivate AC
+  FE --> U: Tampilkan pesan gagal registrasi
+  deactivate FE
+end
+
+@enduml
