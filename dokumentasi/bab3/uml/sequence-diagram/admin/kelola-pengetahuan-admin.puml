@@ -3,7 +3,7 @@
 
 actor "Admin" as A
 boundary "Halaman Kelola Pengetahuan" as FE
-control "Sistem Rekofin" as SYS
+control "Sistem" as SYS
 database "Database" as DB
 
 A -> FE: Buka menu kelola pengetahuan
