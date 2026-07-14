@@ -1,6 +1,7 @@
 "use client";
 
 import Logo from "@/components/shared/Logo";
+import ModalConfirmation from "@/components/shared/Modal/ModalConfirmation";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { Box, Drawer, useMediaQuery } from "@mui/material";
@@ -54,6 +55,20 @@ export default function ProtectedDashboardShell({
   const [username, setUsername] = useState("-");
   const [themeMode, setThemeMode] = useState<ThemeMode>("system");
   const [isKnowledgeOpen, setIsKnowledgeOpen] = useState(true);
+  const [isLogoutModalOpen, setIsLogoutModalOpen] = useState(false);
+  const [logoutPath, setLogoutPath] = useState("");
+
+  const handleRequestLogout = (path: string) => {
+    setLogoutPath(path);
+    setIsLogoutModalOpen(true);
+  };
+
+  const handleConfirmLogout = () => {
+    localStorage.clear();
+    setOpenSidebar(false);
+    setIsLogoutModalOpen(false);
+    router.push(logoutPath || "/login");
+  };
 
   const applyThemeMode = (mode: ThemeMode) => {
     const root = document.documentElement;
@@ -238,10 +253,7 @@ export default function ProtectedDashboardShell({
           <button
             key={item.path}
             type="button"
-            onClick={() => {
-              localStorage.clear();
-              router.push(item.path);
-            }}
+            onClick={() => handleRequestLogout(item.path)}
             className={`${baseClass} cursor-pointer text-left`}
           >
             <span className="text-xl">{item.icon}</span>
@@ -308,6 +320,14 @@ export default function ProtectedDashboardShell({
       className="min-h-screen"
       style={{ backgroundColor: "var(--app-bg)", color: "var(--app-text)" }}
     >
+      <ModalConfirmation
+        open={isLogoutModalOpen}
+        title="Konfirmasi Logout"
+        message="Apakah Anda yakin ingin keluar dari akun ini?"
+        onClose={() => setIsLogoutModalOpen(false)}
+        onSubmit={handleConfirmLogout}
+      />
+
       <section
         className="grid h-screen"
         style={{
