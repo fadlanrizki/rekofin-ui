@@ -1,0 +1,64 @@
+@startuml
+title Activity Diagram Swimlanes - Dashboard Admin
+
+|Admin|
+start
+:Akses halaman login admin;
+:Isi kredensial admin;
+:Kirim data login;
+
+|Sistem|
+:Validasi kredensial admin;
+if (Kredensial valid?) then (Ya)
+  :Buat sesi admin;
+  :Arahkan ke dashboard admin;
+  :Ambil data ringkasan dashboard;
+  :Hitung statistik utama;
+  :Muat grafik dan aktivitas terbaru;
+  :Tampilkan halaman dashboard admin;
+
+  |Admin|
+  :Meninjau ringkasan data dashboard;
+  :Pilih aksi pada dashboard;
+
+  if (Aksi yang dipilih?) then (Refresh data)
+    :Klik refresh dashboard;
+
+    |Sistem|
+    :Ambil ulang data dashboard;
+    :Perbarui tampilan statistik dan grafik;
+
+    |Admin|
+    :Meninjau data terbaru;
+    stop
+
+  elseif (Navigasi ke menu manajemen) then (Ya)
+    :Klik menu manajemen;
+
+    |Sistem|
+    :Arahkan ke menu yang dipilih;
+
+    |Admin|
+    :Lanjut mengelola data;
+    stop
+
+  else (Lihat detail ringkasan)
+    :Klik kartu ringkasan;
+
+    |Sistem|
+    :Tampilkan detail data sesuai kartu;
+
+    |Admin|
+    :Meninjau detail informasi;
+    stop
+  endif
+
+else (Tidak)
+  :Tampilkan pesan gagal login;
+
+  |Admin|
+  :Perbaiki data login;
+  stop
+endif
+
+@enduml

@@ -1,6 +1,6 @@
 "use client";
 
-import { CssBaseline, ThemeProvider } from "@mui/material";
+import { ThemeProvider } from "@mui/material";
 import { useEffect, useMemo, useState } from "react";
 import { createTheme } from "@mui/material/styles";
 
@@ -145,10 +145,5 @@ export default function AppThemeProvider({
     });
   }, [mode]);
 
-  return (
-    <ThemeProvider theme={theme}>
-      <CssBaseline />
-      {children}
-    </ThemeProvider>
-  );
+  return <ThemeProvider theme={theme}>{children}</ThemeProvider>;
 }

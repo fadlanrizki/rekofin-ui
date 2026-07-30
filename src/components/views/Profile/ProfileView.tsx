@@ -7,6 +7,7 @@ import { useModal } from "@/hooks/useModal";
 import { UserService } from "@/service/userService";
 import { getErrorMessage } from "@/utils/message";
 import { Box, CircularProgress, Grid } from "@mui/material";
+import { usePathname } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
 
 type UserProfile = {
@@ -34,6 +35,8 @@ const normalizeProfile = (raw: any): UserProfile => {
 };
 
 export default function ProfileView() {
+  const pathname = usePathname();
+  const isAdmin = pathname.includes("/admin");
   const { modal, showFailed, closeModal } = useModal();
   const [loading, setLoading] = useState(false);
   const [profile, setProfile] = useState<UserProfile | null>(null);
@@ -42,7 +45,9 @@ export default function ProfileView() {
     setLoading(true);
 
     try {
-      const response = await UserService.getUserProfile();
+      const response = isAdmin
+        ? await UserService.getAdminProfile()
+        : await UserService.getUserProfile();
       const rawProfile = response?.data || response;
       setProfile(normalizeProfile(rawProfile));
     } catch (error) {
@@ -51,7 +56,7 @@ export default function ProfileView() {
     } finally {
       setLoading(false);
     }
-  }, [showFailed]);
+  }, [showFailed, isAdmin]);
 
   useEffect(() => {
     fetchUserProfile();
@@ -72,14 +77,18 @@ export default function ProfileView() {
               <CircularProgress color="inherit" size={28} />
             </Box>
           ) : (
-            <GeneralProfileView data={profile} onUpdated={fetchUserProfile} />
+            <GeneralProfileView
+              data={profile}
+              onUpdated={fetchUserProfile}
+              isAdmin={isAdmin}
+            />
           )}
         </Box>
       </Grid>
 
       <Grid size={{ xs: 12, lg: 12 }} className="flex">
         <Box className="h-full w-full rounded-xl border border-gray-200 bg-background-light p-4 sm:p-6">
-          <ChangePasswordView />
+          <ChangePasswordView isAdmin={isAdmin} />
         </Box>
       </Grid>
 

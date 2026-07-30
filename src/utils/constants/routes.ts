@@ -11,9 +11,11 @@ export const ROUTE_PATHS = {
       RESULT: `${userPrefix}/consultation/result`,
     },
     HISTORY: `${userPrefix}/history`,
+    HISTORY_DETAIL: (id: string | number) => `${userPrefix}/history/${id}`,
   },
   ADMIN: {
     DASHBOARD: `${adminPrefix}/dashboard`,
+    PROFILE: `${adminPrefix}/profile`,
     MANAGE_RULE: {
       LIST: `${adminPrefix}/manage-rule`,
       ADD: `${adminPrefix}/manage-rule/form/add`,

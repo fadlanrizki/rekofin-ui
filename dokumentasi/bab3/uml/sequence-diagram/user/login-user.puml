@@ -1,0 +1,41 @@
+@startuml
+!theme plain
+
+actor "User" as U
+boundary "Halaman Login" as FE
+control "Auth Controller" as AC
+control "Auth Service" as AS
+database "Database" as DB
+
+U -> FE: Isi email dan password
+activate FE
+FE -> AC: Kirim request login
+activate AC
+AC -> AS: Proses login
+activate AS
+AS -> DB: Ambil data user
+activate DB
+DB --> AS: Data user
+deactivate DB
+AS -> AS: Validasi data user
+AS --> AC: Hasil login + token JWT
+deactivate AS
+
+alt Login berhasil
+  AC --> FE: Response login (token JWT)
+  deactivate AC
+  FE -> FE: Decode token dan simpan ke localStorage
+  alt Role = USER
+    FE --> U: Arahkan ke dashboard user
+  else Role = ADMIN
+    FE --> U: Arahkan ke dashboard admin
+  end
+  deactivate FE
+else Login gagal
+  AC --> FE: Pesan error
+  deactivate AC
+  FE --> U: Tampilkan pesan gagal login
+  deactivate FE
+end
+
+@enduml

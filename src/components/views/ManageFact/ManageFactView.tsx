@@ -196,6 +196,7 @@ export default function ManageFactView() {
               <StyledTableRow className="bg-gray-100">
                 <StyledTableCell>No</StyledTableCell>
                 <StyledTableCell>Kode</StyledTableCell>
+                <StyledTableCell>Fakta</StyledTableCell>
                 <StyledTableCell>Deskripsi</StyledTableCell>
                 <StyledTableCell>Created At</StyledTableCell>
                 <StyledTableCell>Actions</StyledTableCell>
@@ -221,6 +222,7 @@ export default function ManageFactView() {
                   <StyledTableRow key={fact.id}>
                     <StyledTableCell>{index + 1}.</StyledTableCell>
                     <StyledTableCell>{fact.code}</StyledTableCell>
+                    <StyledTableCell>{fact.fact}</StyledTableCell>
                     <StyledTableCell>{fact.description}</StyledTableCell>
                     <StyledTableCell>
                       {formatDateView(fact.createdAt)}
@@ -249,7 +251,7 @@ export default function ManageFactView() {
                 ))
               ) : (
                 <StyledTableRow>
-                  <StyledTableCell colSpan={7} align="center">
+                  <StyledTableCell colSpan={6} align="center">
                     <p className="text-slate-500">Empty Data ...</p>
                   </StyledTableCell>
                 </StyledTableRow>

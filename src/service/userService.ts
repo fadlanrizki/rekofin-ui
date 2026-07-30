@@ -9,9 +9,9 @@ const getUsers = async (params: any): Promise<any> => {
   return await apiClient.get(API_ROUTE.ADMIN_USER, params);
 };
 
-const deleteUser = async (id: string): Promise<any> => {
+const changeStatusUser = async (id: string): Promise<any> => {
   const url = `${API_ROUTE.ADMIN_USER}/${id}`;
-  return await apiClient.delete(url);
+  return await apiClient.patch(url);
 };
 
 const findUserById = async (id: string): Promise<any> => {
@@ -31,20 +31,38 @@ const getUserProfile = async (): Promise<any> => {
 const updateUserProfile = async (data: any): Promise<any> => {
   const url = `${API_ROUTE.USER}/profile`;
   return await apiClient.put(url, data);
-}
+};
 
 const changePassword = async (data: any): Promise<any> => {
   const url = `${API_ROUTE.USER}/change_password`;
   return await apiClient.post(url, data);
-}
+};
+
+const getAdminProfile = async (): Promise<any> => {
+  const url = `${API_ROUTE.ADMIN_USER}/profile`;
+  return await apiClient.get(url);
+};
+
+const updateAdminProfile = async (data: any): Promise<any> => {
+  const url = `${API_ROUTE.ADMIN_USER}/profile`;
+  return await apiClient.put(url, data);
+};
+
+const changeAdminPassword = async (data: any): Promise<any> => {
+  const url = `${API_ROUTE.ADMIN_USER}/change_password`;
+  return await apiClient.post(url, data);
+};
 
 export const UserService = {
   createUser,
   getUsers,
-  deleteUser,
+  changeStatusUser,
   findUserById,
   updateUser,
   getUserProfile,
   updateUserProfile,
-  changePassword
+  changePassword,
+  getAdminProfile,
+  updateAdminProfile,
+  changeAdminPassword,
 };

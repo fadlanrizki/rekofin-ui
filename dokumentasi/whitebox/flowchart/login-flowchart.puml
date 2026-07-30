@@ -1,0 +1,50 @@
+@startuml
+title Flowchart - Login Feature
+start
+
+:checkIsLoggedIn();
+if (Token ada?) then (Ya)
+  if (Token valid?) then (Ya)
+    if (Role admin?) then (Ya)
+      :Redirect Admin Dashboard;
+      stop
+    else (Tidak)
+      :Redirect User Dashboard;
+      stop
+    endif
+  endif
+endif
+
+:Render form login;
+:User submit form;
+if (Input valid?) then (Ya)
+  :setLoading(true);
+  :POST /api/auth/login;
+  if (Request sukses?) then (Ya)
+    :Decode token;
+    :Simpan token/id/username;
+    if (Role USER?) then (Ya)
+      :Redirect USER Dashboard;
+    else (Tidak)
+      :Redirect ADMIN Dashboard;
+    endif
+  else (Tidak)
+    if (AxiosError?) then (Ya)
+      :setError dari response API;
+    else (Tidak)
+      if (instanceof Error?) then (Ya)
+        :setError dari error.message;
+      else (Tidak)
+        :Error message tetap;
+      endif
+    endif
+    :setOpenModalFailed(true);
+  endif
+  :setLoading(false);
+  stop
+else (Tidak)
+  :Tampilkan validasi field;
+  stop
+endif
+
+@enduml

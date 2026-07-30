@@ -33,7 +33,13 @@ const defaultValues = {
   confirm_password: "",
 };
 
-export default function ChangePasswordView() {
+type ChangePasswordViewProps = {
+  isAdmin?: boolean;
+};
+
+export default function ChangePasswordView({
+  isAdmin = false,
+}: ChangePasswordViewProps) {
   const {
     register,
     handleSubmit,
@@ -64,7 +70,9 @@ export default function ChangePasswordView() {
     };
 
     try {
-      const response = await UserService.changePassword(payload);
+      const response = isAdmin
+        ? await UserService.changeAdminPassword(payload)
+        : await UserService.changePassword(payload);
       const message =
         getResponseMessage(response) || "Password berhasil diubah";
       showSuccess(message);

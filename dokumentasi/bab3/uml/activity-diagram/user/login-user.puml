@@ -1,0 +1,28 @@
+@startuml
+title Activity Diagram Swimlanes - Login User
+
+|User|
+start
+:Akses landing page;
+:Klik menu Login;
+:Isi email dan password;
+:Kirim data login;
+
+|Sistem|
+:Validasi kredensial login;
+if (Kredensial valid?) then (Ya)
+  :Buat sesi user;
+  :Tampilkan dashboard user;
+
+  |User|
+  :Berhasil login;
+  stop
+else (Tidak)
+  :Tampilkan pesan gagal login;
+
+  |User|
+  :Perbaiki data login;
+  stop
+endif
+
+@enduml

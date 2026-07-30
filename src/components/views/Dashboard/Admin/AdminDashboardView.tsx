@@ -221,7 +221,7 @@ const AdminDashboardView = () => {
         <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-6">
           {[
             {
-              name: "Kelola User",
+              name: "Kelola Pengguna",
               path: ROUTE_PATHS.ADMIN.MANAGE_USER.LIST,
               icon: <MdManageAccounts size={25} />,
             },

@@ -1,0 +1,30 @@
+@startuml
+title Activity Diagram Swimlanes - Dashboard User
+
+|User|
+start
+:Login berhasil;
+:Akses dashboard user;
+
+|Sistem|
+:Tampilkan ringkasan dashboard;
+:Tampilkan menu navigasi;
+
+|User|
+:Melihat informasi dashboard;
+:Pilih menu atau fitur yang tersedia;
+
+|Sistem|
+if (Menu dipilih?) then (Ya)
+  :Mengarahkan ke halaman tujuan;
+  :Memuat data sesuai menu;
+else (Tidak)
+  :Tetap tampilkan dashboard;
+endif
+
+|User|
+:Meninjau data dan informasi;
+:Kembali ke dashboard atau memilih fitur lain;
+stop
+
+@enduml

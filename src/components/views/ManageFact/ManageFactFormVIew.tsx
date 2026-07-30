@@ -23,6 +23,7 @@ const BaseFactSchema = z.object({
   code: z.string().min(1, "Required"),
   description: z.string().min(1, "Required"),
   question: z.string().min(1, "Required"),
+  fact: z.string().min(1, "Required"),
 });
 
 const EditFactSchema = BaseFactSchema.partial().extend({
@@ -32,6 +33,7 @@ const defaultValues = {
   code: "",
   description: "",
   question: "",
+  fact: "",
 };
 
 export default function ManageFactFormView({
@@ -80,6 +82,7 @@ export default function ManageFactFormView({
       setValue("code", data.code);
       setValue("description", data.description);
       setValue("question", data.question);
+      setValue("fact", data.fact);
     } catch (error) {
       const message = getErrorMessage(error);
       showFailed(message);
@@ -118,8 +121,6 @@ export default function ManageFactFormView({
     apiSaveFact(payload);
   };
 
-  console.log("errors >", errors);
-
   return (
     <Card className="shadow-lg rounded-2xl">
       <CardContent className="w-full">
@@ -152,6 +153,19 @@ export default function ManageFactFormView({
                 error={!!errors.question}
                 helperText={errors.question?.message}
                 placeholder="Pertanyaan konsultasi"
+              />
+            </div>
+            <div>
+              <Typography>Fakta</Typography>
+              <TextField
+                {...register("fact")}
+                fullWidth
+                multiline={true}
+                rows={4}
+                size="small"
+                error={!!errors.fact}
+                helperText={errors.fact?.message}
+                placeholder="Fakta"
               />
             </div>
             <div>

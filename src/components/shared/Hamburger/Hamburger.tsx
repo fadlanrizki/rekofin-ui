@@ -1,17 +1,13 @@
-"use client";
 import { RxHamburgerMenu } from "react-icons/rx";
-import { RxCross1 } from "react-icons/rx";
 
-type PropsType = {
+type HamburgerType = {
   onClick: (e: React.MouseEvent<HTMLButtonElement>) => void;
-  isOpen: boolean;
 };
 
-const Hamburger = (props: PropsType) => {
-  const { isOpen } = props;
+const Hamburger = ({ onClick }: HamburgerType) => {
   return (
-    <button className="cursor-pointer" onClick={props.onClick}>
-      {isOpen ? <RxCross1 size={30} /> : <RxHamburgerMenu size={30} />}
+    <button className="cursor-pointer" onClick={onClick}>
+      <RxHamburgerMenu size={30} />
     </button>
   );
 };

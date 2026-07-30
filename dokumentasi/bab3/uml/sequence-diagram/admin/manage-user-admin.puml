@@ -1,0 +1,50 @@
+@startuml
+!theme plain
+
+actor "Admin" as A
+boundary "Halaman Kelola Pengguna" as FE
+control "Auth Middleware" as AM
+control "User Controller" as UC
+database "Database" as DB
+
+A -> FE: Buka menu kelola pengguna
+activate FE
+FE -> AM: Request data/manage user + Bearer token
+activate AM
+
+alt Token admin valid
+  AM -> UC: Lolos validasi token admin
+  activate UC
+  UC -> DB: Query list user + total data
+  activate DB
+  DB --> UC: Data user + total
+  deactivate DB
+  UC --> FE: Response data list pengguna
+  deactivate UC
+  deactivate AM
+  FE --> A: Tampilkan tabel pengguna
+else Token Invalid
+  AM --> FE: Response 401/403
+  deactivate AM
+  FE --> A: Gagal memuat data pengguna
+end
+
+group Kelola pengguna (Tambah / Ubah status)
+  A -> FE: Tambah user atau ubah status user
+  FE -> AM: Request kelola user + Bearer token
+  activate AM
+  AM -> UC: Lolos validasi token admin
+  activate UC
+  UC -> DB: Simpan user baru / update status user
+  activate DB
+  DB --> UC: Hasil proses kelola user
+  deactivate DB
+  UC --> FE: Response berhasil/gagal
+  deactivate UC
+  deactivate AM
+  FE --> A: Perbarui tabel + notifikasi
+end
+
+deactivate FE
+
+@enduml
