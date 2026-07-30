@@ -1,0 +1,160 @@
+@startuml
+skinparam linetype ortho
+
+class User {
+  +id: Int
+  +fullname: String
+  +username: String
+  +email: String
+  +password: String
+  +role: Role
+  +gender: Gender?
+  +isActive: Boolean
+  +createdAt: DateTime
+  --
+  +create()
+  +getList()
+  +findById()
+  +updateProfile()
+  +changeStatus()
+  +changePassword()
+}
+
+class Fact {
+  +id: Int
+  +code: String
+  +description: String
+  +question: String
+  +createdAt: DateTime
+  +isActive: Boolean
+  --
+  +create()
+  +getList()
+  +findById()
+  +update()
+  +softDelete()
+}
+
+class Conclusion {
+  +id: Int
+  +code: String
+  +description: String
+  +category: String
+  +createdAt: DateTime
+  +isActive: Boolean
+  --
+  +create()
+  +getList()
+  +findById()
+  +update()
+  +softDelete()
+}
+
+class Source {
+  +id: Int
+  +title: String
+  +author: String
+  +publisher: String?
+  +sourceType: SourceType
+  +url: String?
+  +description: String?
+  +createdAt: DateTime
+  --
+  +create()
+  +list()
+  +getDetail()
+  +update()
+  +delete()
+}
+
+class Recommendation {
+  +id: Int
+  +title: String
+  +content: String
+  +sourceId: Int?
+  +conclusionId: Int
+  +createdAt: DateTime
+  +isActive: Boolean
+  --
+  +create()
+  +getList()
+  +findById()
+  +update()
+  +softDelete()
+}
+
+class Rule {
+  +id: Int
+  +name: String
+  +description: String
+  +isActive: Boolean
+  +createdBy: Int
+  +createdAt: DateTime
+  --
+  +create()
+  +getList()
+  +findById()
+  +update()
+  +hardDelete()
+  +softDelete()
+}
+
+class RuleCondition {
+  +id: Int
+  +ruleId: Int
+  +factId: Int
+}
+
+class RuleResult {
+  +id: Int
+  +ruleId: Int
+  +conclusionId: Int
+}
+
+class Consultation {
+  +id: Int
+  +userId: Int
+  +status: ConsultationStatus
+  +startedAt: DateTime
+  +endedAt: DateTime?
+  --
+  +startConsultation()
+  +getConsultationQuestions()
+  +submitConsultationAnswer()
+  +getConsultationResult()
+  +getLatestConsultationResult()
+  +getConsultationHistory()
+}
+
+class ConsultationAnswer {
+  +id: Int
+  +consultationId: Int
+  +factId: Int
+  +value: Boolean
+}
+
+class ConsultationConclusion {
+  +id: Int
+  +consultationId: Int
+  +conclusionId: Int
+}
+
+User "1" -- "M" Consultation
+User "1" -- "M" Rule
+
+Rule "1" -- "M" RuleCondition
+Fact "1" -- "M" RuleCondition
+
+Rule "1" -- "M" RuleResult
+Conclusion "1" -- "M" RuleResult
+
+Consultation "1" -- "M" ConsultationAnswer
+Fact "1" -- "M" ConsultationAnswer
+
+Consultation "1" -- "M" ConsultationConclusion
+Conclusion "1" -- "M" ConsultationConclusion
+
+Conclusion "1" -- "M" Recommendation
+Recommendation "M" --> "1" Source
+
+@enduml

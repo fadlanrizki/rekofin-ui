@@ -1,0 +1,56 @@
+@startuml
+title Activity Diagram Swimlanes - Kelola Profil User
+
+|User|
+start
+:Akses menu profil;
+:Lihat data profil;
+:Pilih aksi kelola profil;
+
+if (Aksi yang dipilih?) then (Ubah data profil)
+  :Klik ubah profil;
+  :Perbarui data profil;
+  :Kirim perubahan;
+
+  |Sistem|
+  :Validasi data profil;
+  if (Data valid?) then (Ya)
+    :Simpan perubahan profil;
+    :Tampilkan notifikasi berhasil;
+  else (Tidak)
+    :Tampilkan pesan validasi;
+  endif
+
+  |User|
+  :Meninjau hasil perubahan;
+  stop
+
+elseif (Ubah password) then (Ya)
+  :Klik ubah password;
+  :Isi password lama dan baru;
+  :Kirim perubahan password;
+
+  |Sistem|
+  :Validasi password lama;
+  if (Password lama valid?) then (Ya)
+    :Validasi password baru;
+    if (Password baru valid?) then (Ya)
+      :Simpan password baru;
+      :Tampilkan notifikasi berhasil;
+    else (Tidak)
+      :Tampilkan pesan validasi password baru;
+    endif
+  else (Tidak)
+    :Tampilkan pesan password lama salah;
+  endif
+
+  |User|
+  :Meninjau hasil perubahan password;
+  stop
+
+else (Lihat profil)
+  :Meninjau informasi profil;
+  stop
+endif
+
+@enduml

@@ -25,7 +25,7 @@ import { getErrorMessage, getResponseMessage } from "@/utils/message";
 import SweetAlertNotification from "@/components/shared/Modal/SweetAlertNotification";
 import { useModal } from "@/hooks/useModal";
 
-const roleOption = ["ADMIN"];
+const roleOption = ["ADMIN", "USER"];
 
 const initialValue = {
   fullname: "",
@@ -65,7 +65,7 @@ export default function ManageUserFormView() {
 
   const id = Array.isArray(paramsId) ? paramsId[0] : paramsId;
   console.log(id);
-  
+
   const mode = params.mode;
 
   const isView = mode === PAGE_ACTION.VIEW;
@@ -143,28 +143,30 @@ export default function ManageUserFormView() {
           <Grid container direction={"column"} rowGap={2} spacing={2}>
             <Typography variant="h6">{getTitle()}</Typography>
 
-            <Grid size={6}>
-              <FormLabel required>Nama Lengkap</FormLabel>
-              <TextField
-                {...register("fullname")}
-                size="small"
-                fullWidth
-                error={!!errors.fullname}
-                helperText={errors.fullname?.message}
-                disabled={isView}
-              />
-            </Grid>
+            <Grid container size={12} spacing={2}>
+              <Grid size={6}>
+                <FormLabel required>Nama Lengkap</FormLabel>
+                <TextField
+                  {...register("fullname")}
+                  size="small"
+                  fullWidth
+                  error={!!errors.fullname}
+                  helperText={errors.fullname?.message}
+                  disabled={isView}
+                />
+              </Grid>
 
-            <Grid size={6}>
-              <FormLabel required>Username</FormLabel>
-              <TextField
-                {...register("username")}
-                size="small"
-                fullWidth
-                error={!!errors.username}
-                helperText={errors.username?.message}
-                disabled={isView}
-              />
+              <Grid size={6}>
+                <FormLabel required>Username</FormLabel>
+                <TextField
+                  {...register("username")}
+                  size="small"
+                  fullWidth
+                  error={!!errors.username}
+                  helperText={errors.username?.message}
+                  disabled={isView}
+                />
+              </Grid>
             </Grid>
 
             <Grid size={6}>

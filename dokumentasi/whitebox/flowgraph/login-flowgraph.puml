@@ -1,0 +1,64 @@
+@startuml
+title Control Flow Graph - Login Feature
+skinparam linetype ortho
+skinparam shadowing false
+
+circle "1 Start" as N1
+circle "2 checkIsLoggedIn()" as N2
+diamond "3 token exists?" as N3
+circle "4 render login form" as N4
+diamond "5 token valid?" as N5
+diamond "6 role admin?" as N6
+circle "7 redirect admin (auto login)" as N7
+circle "8 redirect user (auto login)" as N8
+circle "9 submit form" as N9
+diamond "10 input valid?" as N10
+circle "11 validation error" as N11
+circle "12 setLoading(true), call loginService" as N12
+diamond "13 request success?" as N13
+circle "14 decode token + save localStorage" as N14
+diamond "15 role USER?" as N15
+circle "16 redirect USER dashboard" as N16
+circle "17 redirect ADMIN dashboard" as N17
+diamond "18 axios error?" as N18
+circle "19 setError from API" as N19
+diamond "20 generic Error?" as N20
+circle "21 setError from error.message" as N21
+circle "22 keep previous error message" as N22
+circle "23 setOpenModalFailed(true)" as N23
+circle "24 setLoading(false)" as N24
+circle "25 End" as N25
+
+N1 --> N2
+N2 --> N3
+N3 --> N4 : no
+N3 --> N5 : yes
+N5 --> N4 : no
+N5 --> N6 : yes
+N6 --> N7 : yes
+N6 --> N8 : no
+N4 --> N9
+N9 --> N10
+N10 --> N11 : no
+N10 --> N12 : yes
+N12 --> N13
+N13 --> N14 : yes
+N13 --> N18 : no
+N14 --> N15
+N15 --> N16 : yes
+N15 --> N17 : no
+N18 --> N19 : yes
+N18 --> N20 : no
+N20 --> N21 : yes
+N20 --> N22 : no
+N19 --> N23
+N21 --> N23
+N22 --> N23
+N16 --> N24
+N17 --> N24
+N23 --> N24
+N11 --> N25
+N24 --> N25
+N7 --> N25
+N8 --> N25
+@enduml

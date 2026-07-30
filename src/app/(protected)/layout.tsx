@@ -26,7 +26,7 @@ export default function ProtectedLayout({
 
   if (checking) {
     return (
-      <div className="w-full h-[100vh] flex justify-center items-center">
+      <div className="w-full h-[100vh] flex justify-center items-center bg-white">
         <div className="flex-col items-center justify-center gap-2">
           <Loading />
           <p className="text-center text-slate-500 font-medium text-2xl">

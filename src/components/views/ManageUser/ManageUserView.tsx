@@ -1,35 +1,34 @@
 "use client";
 
-import {
-  Button,
-  TextField,
-  Table,
-  TableHead,
-  TableRow,
-  TableCell,
-  TableBody,
-  TableContainer,
-  Paper,
-  IconButton,
-  Grid,
-  styled,
-  tableCellClasses,
-  Box,
-  Chip,
-} from "@mui/material";
-import { useCallback, useEffect, useState } from "react";
-import { FaUserPlus } from "react-icons/fa";
-import { FaTrashCan } from "react-icons/fa6";
-import { UserService } from "@/service/userService";
 import Loading from "@/components/shared/Loading";
-import { IoSearch } from "react-icons/io5";
+import SweetAlertNotification from "@/components/shared/Modal/SweetAlertNotification";
 import TablePagination from "@/components/shared/Pagination/TablePagination";
-import { useRouter } from "next/navigation";
+import { useModal } from "@/hooks/useModal";
+import { UserService } from "@/service/userService";
 import { ROUTE_PATHS } from "@/utils/constants/routes";
 import { formatDateView } from "@/utils/date";
-import SweetAlertNotification from "@/components/shared/Modal/SweetAlertNotification";
-import { useModal } from "@/hooks/useModal";
 import { getErrorMessage, getResponseMessage } from "@/utils/message";
+import {
+  Box,
+  Button,
+  Chip,
+  Grid,
+  Paper,
+  Switch,
+  styled,
+  Table,
+  TableBody,
+  TableCell,
+  tableCellClasses,
+  TableContainer,
+  TableHead,
+  TableRow,
+  TextField,
+} from "@mui/material";
+import { useRouter } from "next/navigation";
+import { useCallback, useEffect, useState } from "react";
+import { FaUserPlus } from "react-icons/fa";
+import { IoSearch } from "react-icons/io5";
 
 const defaultParams = {
   search: "",
@@ -66,9 +65,21 @@ export default function ManageUserView() {
   const [users, setUsers] = useState<any[] | null>(null);
   const [params, setParams] = useState(defaultParams);
   const [loading, setLoading] = useState(true);
-  const [selectedId, setSelectedId] = useState("");
+  const [selectedUser, setSelectedUser] = useState<{
+    id: string;
+    isActive: boolean;
+  } | null>(null);
   const [totalUser, setTotalUser] = useState(0); // const debounceSearch = useDebounce(params.search, 1500);
   const [tempSearch, setTempSearch] = useState("");
+
+  const getUserActiveStatus = (user: any) => {
+    if (typeof user?.isActive === "boolean") return user.isActive;
+    if (typeof user?.active === "boolean") return user.active;
+    if (typeof user?.status === "string") {
+      return user.status.toUpperCase() === "ACTIVE";
+    }
+    return true;
+  };
 
   const fetchUsers = useCallback(async () => {
     setLoading(true);
@@ -101,16 +112,21 @@ export default function ManageUserView() {
     }
   };
 
-  const handleDeleteUser = (id: string) => {
-    setSelectedId(id);
-    showConfirm(`Apakah anda yakin ingin menghapus user ? `);
+  const handleToggleUserStatus = (user: any) => {
+    const isActive = getUserActiveStatus(user);
+    setSelectedUser({ id: user.id, isActive });
+    showConfirm(
+      `Apakah anda yakin ingin ${isActive ? "menonaktifkan" : "mengaktifkan"} user ini?`,
+    );
   };
 
-  const apiDeleteUser = async () => {
+  const apiToggleUserStatus = async () => {
+    if (!selectedUser?.id) return;
+
     let message = "";
     setLoading(true);
     try {
-      const response = await UserService.deleteUser(selectedId);
+      const response = await UserService.changeStatusUser(selectedUser.id);
       message = getResponseMessage(response);
       showSuccess(message);
       await fetchUsers();
@@ -126,7 +142,7 @@ export default function ManageUserView() {
     router.push(ROUTE_PATHS.ADMIN.MANAGE_USER.ADD);
   };
 
-  const handleChangePage = (event: any, page: number) => {
+  const handleChangePage = (_event: unknown, page: number) => {
     setParams((prev) => ({
       ...prev,
       page,
@@ -192,13 +208,13 @@ export default function ManageUserView() {
                 <StyledTableCell>Nama Lengkap</StyledTableCell>
                 <StyledTableCell>Role</StyledTableCell>
                 <StyledTableCell>Dibuat Pada</StyledTableCell>
-                <StyledTableCell>Aksi</StyledTableCell>
+                <StyledTableCell>Status</StyledTableCell>
               </StyledTableRow>
             </TableHead>
             <TableBody>
               {loading ? (
                 <StyledTableRow>
-                  <StyledTableCell colSpan={6} align="center">
+                  <StyledTableCell colSpan={7} align="center">
                     <Grid
                       container
                       direction={"row"}
@@ -211,39 +227,41 @@ export default function ManageUserView() {
                   </StyledTableCell>
                 </StyledTableRow>
               ) : users ? (
-                users.map((user, index) => (
-                  <StyledTableRow key={user.id}>
-                    <StyledTableCell>{index + 1}</StyledTableCell>
-                    <StyledTableCell>{user.username}</StyledTableCell>
-                    <StyledTableCell>{user.fullname}</StyledTableCell>
-                    <StyledTableCell>
-                      {user.role === "ADMIN" ? (
-                        <Chip label={user.role} color="primary" />
-                      ) : user.role === "USER" ? (
-                        <Chip label={user.role} color="secondary" />
-                      ) : (
-                        <Chip label={"-"} color="error" />
-                      )}
-                    </StyledTableCell>
-                    <StyledTableCell>
-                      {formatDateView(user.createdAt)}
-                    </StyledTableCell>
-                    <StyledTableCell>
-                      <div className="flex gap-2">
-                        <IconButton
-                          size="small"
-                          color="error"
-                          onClick={() => handleDeleteUser(user.id)}
-                        >
-                          <FaTrashCan />
-                        </IconButton>
-                      </div>
-                    </StyledTableCell>
-                  </StyledTableRow>
-                ))
+                users.map((user, index) => {
+                  const isActive = getUserActiveStatus(user);
+
+                  return (
+                    <StyledTableRow key={user.id}>
+                      <StyledTableCell>{index + 1}</StyledTableCell>
+                      <StyledTableCell>{user.username}</StyledTableCell>
+                      <StyledTableCell>{user.fullname}</StyledTableCell>
+                      <StyledTableCell>
+                        {user.role === "ADMIN" ? (
+                          <Chip label={user.role} color="primary" />
+                        ) : user.role === "USER" ? (
+                          <Chip label={user.role} color="secondary" />
+                        ) : (
+                          <Chip label={"-"} color="error" />
+                        )}
+                      </StyledTableCell>
+                      <StyledTableCell>
+                        {formatDateView(user.createdAt)}
+                      </StyledTableCell>
+
+                      <StyledTableCell>
+                        <Switch
+                          checked={isActive}
+                          color="success"
+                          onChange={() => handleToggleUserStatus(user)}
+                          disabled={loading}
+                        />
+                      </StyledTableCell>
+                    </StyledTableRow>
+                  );
+                })
               ) : (
                 <StyledTableRow>
-                  <StyledTableCell colSpan={6} align="center">
+                  <StyledTableCell colSpan={7} align="center">
                     <p className="text-slate-500">Data tidak ditemukan ...</p>
                   </StyledTableCell>
                 </StyledTableRow>
@@ -268,7 +286,7 @@ export default function ManageUserView() {
         message={modal.message}
         onClose={closeModal}
         type={modal.type}
-        onConfirm={apiDeleteUser}
+        onConfirm={apiToggleUserStatus}
       />
     </div>
   );
