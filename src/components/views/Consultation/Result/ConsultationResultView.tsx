@@ -26,7 +26,7 @@ import { ConsultationService } from "@/service/consultationService";
 
 type Fact = {
   code: string;
-  question: string;
+  fact: string;
 };
 
 type Recommendation = {
@@ -256,22 +256,22 @@ export default function ConsultationResultView() {
             }}
           >
             <Stack direction="column" gap={1.5}>
-              {result.facts.map((fact) => (
+              {result.facts.map((factItem) => (
                 <Stack
-                  key={fact.code}
+                  key={factItem.code}
                   direction="row"
-                  alignItems="flex-start"
+                  alignItems="center"
                   gap={1.5}
                 >
                   <Chip
-                    label={fact.code}
+                    label={factItem.code}
                     size="small"
                     color="primary"
                     variant="outlined"
                     sx={{ minWidth: 48, mt: 0.25, flexShrink: 0 }}
                   />
                   <Typography variant="body2" color="text.secondary">
-                    {fact.question}
+                    {factItem.fact}
                   </Typography>
                 </Stack>
               ))}
