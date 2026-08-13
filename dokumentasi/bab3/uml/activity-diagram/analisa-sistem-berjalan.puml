@@ -1,0 +1,47 @@
+@startuml
+
+start
+
+:Pengguna menerima pemasukan
+dan melakukan pengeluaran;
+
+if (Pengguna ingin
+mengelola keuangan?) then (Ya)
+	if (Metode yang dipilih?) then (Pencatatan manual)
+		:Catat pemasukan
+		dan pengeluaran
+		di buku / spreadsheet;
+		:Hitung saldo secara manual;
+		:Evaluasi kondisi keuangan
+		berdasarkan pemahaman pribadi;
+	else (Cari informasi)
+		:Mencari artikel / video / forum
+		di internet;
+		:Membandingkan saran dari
+		berbagai sumber;
+		:Memilih tindakan berdasarkan
+		interpretasi sendiri;
+	endif
+
+	if (Pengguna konsisten
+	menjalankan rencana?) then (Ya)
+		:Kondisi keuangan
+		berpotensi lebih terkontrol;
+	else (Tidak)
+		:Pencatatan / evaluasi
+		tidak berlanjut;
+		:Keputusan keuangan menjadi
+		tidak terarah;
+	endif
+
+else (Tidak)
+	:Tidak ada pencatatan
+	dan evaluasi keuangan;
+	:Keputusan keuangan bersifat
+	spontan / kebiasaan;
+	:Risiko pengeluaran berlebih
+	dan tujuan keuangan tidak tercapai;
+endif
+
+stop
+@enduml
