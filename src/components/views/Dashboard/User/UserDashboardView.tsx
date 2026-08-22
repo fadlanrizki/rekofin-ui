@@ -120,6 +120,7 @@ const UserDashboardView = () => {
   const lastConsultation = data.lastConsultation;
   const isInProgress = lastConsultation?.status.toLowerCase() === "in_progress";
   const isCompleted = lastConsultation?.status.toLowerCase() === "completed";
+  const canCompareResult = data.totalConsultation >= 2;
 
   if (error) {
     return (
@@ -239,6 +240,44 @@ const UserDashboardView = () => {
             </Box>
           )}
         </Box>
+      </Paper>
+
+      <Paper
+        className="p-4"
+        elevation={2}
+        sx={{ border: "1px solid", borderColor: "divider" }}
+      >
+        <Stack
+          direction={{ xs: "column", md: "row" }}
+          justifyContent="space-between"
+          alignItems={{ xs: "flex-start", md: "center" }}
+          spacing={2}
+        >
+          <Box>
+            <Typography variant="h6" fontWeight="bold" color="primary">
+              Bandingkan Hasil Konsultasi
+            </Typography>
+            <Typography variant="body2" color="text.secondary">
+              Lihat perubahan hasil konsultasi Anda dari sesi sebelum dan
+              sesudahnya.
+            </Typography>
+          </Box>
+
+          {canCompareResult ? (
+            <Button
+              variant="contained"
+              onClick={() => router.push(ROUTE_PATHS.USER.COMPARISON_RESULT)}
+            >
+              Lihat Perbandingan
+            </Button>
+          ) : (
+            <Chip
+              label="Minimal 2x konsultasi"
+              color="default"
+              variant="outlined"
+            />
+          )}
+        </Stack>
       </Paper>
 
       {/* Card Summary */}

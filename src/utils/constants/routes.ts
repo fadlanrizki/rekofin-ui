@@ -12,6 +12,7 @@ export const ROUTE_PATHS = {
     },
     HISTORY: `${userPrefix}/history`,
     HISTORY_DETAIL: (id: string | number) => `${userPrefix}/history/${id}`,
+    COMPARISON_RESULT: `${userPrefix}/comparison-result`,
   },
   ADMIN: {
     DASHBOARD: `${adminPrefix}/dashboard`,

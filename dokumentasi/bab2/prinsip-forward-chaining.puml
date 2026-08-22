@@ -1,0 +1,8 @@
+@startuml
+- Fakta awal
+- Pencocokan aturan
+- Aturan terpenuhi 
+- Fakta baru 
+- Pencocokan aturan berikutnya
+- Kesimpulan
+@enduml

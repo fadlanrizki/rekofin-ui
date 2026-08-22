@@ -31,6 +31,10 @@ const getConsultationResult = async (consultationId: string): Promise<any> => {
   );
 };
 
+const getLatestConsultationResult = async (): Promise<any> => {
+  return await apiClient.get(`${API_ROUTE.CONSULTATION}/latest`);
+};
+
 const getConsultationHistory = async (params: any): Promise<any> => {
   return await apiClient.get(`${API_ROUTE.CONSULTATION}/history`, params);
 };
@@ -41,5 +45,6 @@ export const ConsultationService = {
   submitConsultationAnswer,
   getConsultationStatus,
   getConsultationResult,
+  getLatestConsultationResult,
   getConsultationHistory,
 };
