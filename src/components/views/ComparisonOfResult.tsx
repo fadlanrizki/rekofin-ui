@@ -352,7 +352,7 @@ export default function ComparisonOfResult() {
                     </Stack>
                   </Box>
 
-                  <Box
+                  {/* <Box
                     sx={{
                       p: 2,
                       borderRadius: 2,
@@ -398,7 +398,7 @@ export default function ComparisonOfResult() {
                         )
                       )}
                     </Stack>
-                  </Box>
+                  </Box> */}
                 </Stack>
               </Paper>
             </Grid>
@@ -489,7 +489,7 @@ export default function ComparisonOfResult() {
                     </Stack>
                   </Box>
 
-                  <Box
+                  {/* <Box
                     sx={{
                       p: 2,
                       borderRadius: 2,
@@ -535,7 +535,7 @@ export default function ComparisonOfResult() {
                         )
                       )}
                     </Stack>
-                  </Box>
+                  </Box> */}
                 </Stack>
               </Paper>
             </Grid>
