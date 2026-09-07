@@ -31,23 +31,28 @@ import { ConclusionService } from "@/service/conclusionService";
 import { FactService } from "@/service/factService";
 import { Option } from "@/types/common";
 
-const defaultValues = {
-  name: "",
-  description: "",
-  facts: [] as Option["id"][],
-  conclusions: [] as Option["id"][],
-};
-
-const BaseManageRuleSchema = z.object({
+const ManageRuleSchema = z.object({
+  id: z.number().optional(),
   name: z.string().min(1, "Nama Rule wajib di isi"),
   description: z.string().optional(),
+  priority: z.coerce
+    .number()
+    .int()
+    .min(0, "Prioritas harus lebih dari atau sama dengan 0"),
   facts: z.array(z.number()).min(1, "Pilih minimal satu fakta"),
   conclusions: z.array(z.number()).min(1, "Pilih minimal satu kesimpulan"),
 });
 
-const EditManageRuleSchema = BaseManageRuleSchema.partial().extend({
-  id: z.number(),
-});
+type FormManageRule = z.input<typeof ManageRuleSchema>;
+
+const defaultValues: FormManageRule = {
+  id: undefined,
+  name: "",
+  description: "",
+  priority: 0,
+  facts: [],
+  conclusions: [],
+};
 
 export default function ManageRuleFormView() {
   const router = useRouter();
@@ -61,10 +66,6 @@ export default function ManageRuleFormView() {
   const isEdit = mode === PAGE_ACTION.EDIT;
   const isView = mode === PAGE_ACTION.VIEW;
 
-  const schema = isEdit ? EditManageRuleSchema : BaseManageRuleSchema;
-
-  type FormManageRule = z.infer<typeof schema>;
-
   const {
     register,
     formState: { errors },
@@ -72,7 +73,7 @@ export default function ManageRuleFormView() {
     setValue,
     watch,
   } = useForm<FormManageRule>({
-    resolver: zodResolver(schema),
+    resolver: zodResolver(ManageRuleSchema),
     defaultValues,
   });
 
@@ -100,6 +101,7 @@ export default function ManageRuleFormView() {
 
       setValue("name", data.name);
       setValue("description", data.description);
+      setValue("priority", data.priority ?? 0);
       setValue("id", data.id);
 
       const facts = data.conditions.map((item: any) => item.id);
@@ -168,6 +170,7 @@ export default function ManageRuleFormView() {
 
     const payload = {
       ...data,
+      priority: Number(data.priority) ?? 0,
       conditions: data.facts,
       conclusions: data.conclusions,
     };
@@ -313,6 +316,19 @@ export default function ManageRuleFormView() {
               <FormHelperText>{errors.conclusions?.message}</FormHelperText>
             </FormControl>
           </Grid>
+
+          <div>
+            <TextField
+              {...register("priority")}
+              label="Prioritas Rule"
+              fullWidth
+              size="small"
+              type="number"
+              inputProps={{ min: 0 }}
+              error={!!errors.priority}
+              helperText={errors.priority?.message}
+            />
+          </div>
 
           <div>
             <TextField
