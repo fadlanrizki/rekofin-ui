@@ -14,7 +14,7 @@ import {
   Typography,
 } from "@mui/material";
 import { useRouter } from "next/navigation";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 
 type ComparisonValue =
   | Record<string, any>
@@ -86,19 +86,96 @@ const isObjectEmpty = (value: any) => {
 const buildComparisonSection = (entry: any) => {
   const conclusions = normalizeConclusionList(entry?.conclusions);
   const facts = normalizeFactList(entry?.facts);
-  const recommendations = conclusions.flatMap((conclusion) =>
-    conclusion.recommendations.map((recommendation) => ({
-      ...recommendation,
-      conclusionCategory: conclusion.category,
-    })),
-  );
+  const recommendations = normalizeRecommendationList(entry?.recommendations);
 
   return {
+    consultationId: entry?.consultationId ?? null,
     conclusion: conclusions[0] ?? null,
     facts,
     recommendations,
   };
 };
+
+type RecommendationCardProps = {
+  title: string;
+  content: string;
+  accentColor: "primary" | "success";
+  borderColor: string;
+  shadow: string;
+};
+
+function RecommendationCard({
+  title,
+  content,
+  accentColor,
+  borderColor,
+  shadow,
+}: RecommendationCardProps) {
+  const contentRef = useRef<HTMLDivElement>(null);
+  const [expanded, setExpanded] = useState(false);
+  const [canExpand, setCanExpand] = useState(false);
+
+  useEffect(() => {
+    const contentElement = contentRef.current;
+    if (!contentElement) return;
+
+    const checkOverflow = () => {
+      setCanExpand(
+        contentElement.scrollHeight > contentElement.clientHeight + 1,
+      );
+    };
+
+    checkOverflow();
+    const resizeObserver = new ResizeObserver(checkOverflow);
+    resizeObserver.observe(contentElement);
+
+    return () => resizeObserver.disconnect();
+  }, [content]);
+
+  return (
+    <Box
+      sx={{
+        p: 1.5,
+        borderRadius: 2,
+        backgroundColor: "#ffffff",
+        border: `1px solid ${borderColor}`,
+        boxShadow: shadow,
+      }}
+    >
+      <Typography variant="subtitle2" fontWeight={700} color="text.primary">
+        {title}
+      </Typography>
+      <Typography
+        ref={contentRef}
+        variant="body2"
+        sx={{
+          mt: 0.75,
+          whiteSpace: "pre-line",
+          ...(expanded
+            ? {}
+            : {
+                display: "-webkit-box",
+                WebkitBoxOrient: "vertical",
+                WebkitLineClamp: 3,
+                overflow: "hidden",
+              }),
+        }}
+      >
+        {content}
+      </Typography>
+      {canExpand && (
+        <Button
+          size="small"
+          color={accentColor}
+          onClick={() => setExpanded((current) => !current)}
+          sx={{ minWidth: 0, p: 0, mt: 1, fontWeight: 700 }}
+        >
+          {expanded ? "Tampilkan lebih sedikit" : "Baca selengkapnya"}
+        </Button>
+      )}
+    </Box>
+  );
+}
 
 export default function ComparisonOfResult() {
   const router = useRouter();
@@ -184,7 +261,7 @@ export default function ComparisonOfResult() {
       return (
         item.title !== nextItem?.title ||
         item.content !== nextItem?.content ||
-        item.conclusionCategory !== nextItem?.conclusionCategory
+        item.conclusionId !== nextItem?.conclusionId
       );
     });
   })();
@@ -238,8 +315,8 @@ export default function ComparisonOfResult() {
               border: "1px solid",
               borderColor: "divider",
               borderRadius: 3,
-              background:
-                "linear-gradient(135deg, rgba(25,118,210,0.04), rgba(76,175,80,0.04))",
+              boxShadow: "0 8px 24px rgba(0, 51, 102, 0.08)",
+              background: "#fff",
             }}
           >
             <Stack direction="column" spacing={1.5}>
@@ -248,9 +325,12 @@ export default function ComparisonOfResult() {
                 color="text.secondary"
                 fontWeight={600}
               >
-                Catatan Konsultan
+                Catatan Konsultasi
               </Typography>
-              <Typography variant="body1" sx={{ lineHeight: 1.8 }}>
+              <Typography
+                variant="body1"
+                sx={{ lineHeight: 1.8, fontWeight: "bold" }}
+              >
                 {comparison?.note || "Tidak ada catatan perbandingan."}
               </Typography>
               {comparison?.savedAt && (
@@ -276,11 +356,24 @@ export default function ComparisonOfResult() {
                   borderRadius: 3,
                   height: "100%",
                   border: "1px solid",
-                  borderColor: "divider",
-                  backgroundColor: "background.paper",
+                  borderColor: "rgba(0, 51, 102, 0.16)",
+                  borderTop: "4px solid",
+                  borderTopColor: "error.main",
+                  backgroundColor: "#f7faff",
+                  boxShadow: "0 10px 28px rgba(0, 51, 102, 0.10)",
                 }}
               >
                 <Stack spacing={3}>
+                  <Stack
+                    direction="row"
+                    justifyContent="space-between"
+                    alignItems="center"
+                  >
+                    <Typography variant="subtitle1" fontWeight={700}>
+                      Konsultasi Sebelumnya
+                    </Typography>
+                  </Stack>
+
                   <Box
                     sx={{
                       p: 1.5,
@@ -289,7 +382,7 @@ export default function ComparisonOfResult() {
                       borderColor: conclusionChanged ? "error.main" : "divider",
                       backgroundColor: conclusionChanged
                         ? "rgba(244, 67, 54, 0.08)"
-                        : "transparent",
+                        : "rgba(0, 51, 102, 0.05)",
                     }}
                   >
                     <Typography variant="subtitle2" color="text.secondary">
@@ -298,7 +391,7 @@ export default function ComparisonOfResult() {
                     <Typography
                       variant="h6"
                       fontWeight={700}
-                      color="error.main"
+                      color={conclusionChanged ? "error.main" : "primary.main"}
                     >
                       {beforeSection.conclusion?.category ?? "-"}
                     </Typography>
@@ -315,7 +408,7 @@ export default function ComparisonOfResult() {
                       borderColor: factsChanged ? "error.main" : "divider",
                       backgroundColor: factsChanged
                         ? "rgba(244, 67, 54, 0.06)"
-                        : "transparent",
+                        : "rgba(255, 255, 255, 0.82)",
                     }}
                   >
                     <Typography variant="subtitle2" color="text.secondary">
@@ -333,7 +426,9 @@ export default function ComparisonOfResult() {
                             sx={{
                               p: 1.25,
                               borderRadius: 1.5,
-                              backgroundColor: "grey.50",
+                              backgroundColor: "#ffffff",
+                              border: "1px solid rgba(0, 51, 102, 0.08)",
+                              boxShadow: "0 3px 10px rgba(0, 51, 102, 0.05)",
                             }}
                           >
                             <Typography
@@ -343,7 +438,11 @@ export default function ComparisonOfResult() {
                             >
                               {fact.code}
                             </Typography>
-                            <Typography variant="body2" fontWeight={600}>
+                            <Typography
+                              variant="body2"
+                              fontWeight={600}
+                              color="text.primary"
+                            >
                               {fact.fact}
                             </Typography>
                           </Box>
@@ -352,7 +451,7 @@ export default function ComparisonOfResult() {
                     </Stack>
                   </Box>
 
-                  {/* <Box
+                  <Box
                     sx={{
                       p: 2,
                       borderRadius: 2,
@@ -362,7 +461,7 @@ export default function ComparisonOfResult() {
                         : "divider",
                       backgroundColor: recommendationsChanged
                         ? "rgba(244, 67, 54, 0.06)"
-                        : "transparent",
+                        : "rgba(255, 255, 255, 0.82)",
                     }}
                   >
                     <Typography variant="subtitle2" color="text.secondary">
@@ -376,29 +475,19 @@ export default function ComparisonOfResult() {
                       ) : (
                         beforeSection.recommendations.map(
                           (recommendation, index) => (
-                            <Box
+                            <RecommendationCard
                               key={`${recommendation.title}-${index}`}
-                              sx={{
-                                p: 1.5,
-                                borderRadius: 2,
-                                backgroundColor: "grey.50",
-                              }}
-                            >
-                              <Typography variant="subtitle2" fontWeight={700}>
-                                {recommendation.title}
-                              </Typography>
-                              <Typography
-                                variant="body2"
-                                sx={{ mt: 0.75, whiteSpace: "pre-line" }}
-                              >
-                                {recommendation.content}
-                              </Typography>
-                            </Box>
+                              title={recommendation.title}
+                              content={recommendation.content}
+                              accentColor="primary"
+                              borderColor="rgba(0, 51, 102, 0.08)"
+                              shadow="0 3px 10px rgba(0, 51, 102, 0.05)"
+                            />
                           ),
                         )
                       )}
                     </Stack>
-                  </Box> */}
+                  </Box>
                 </Stack>
               </Paper>
             </Grid>
@@ -411,11 +500,24 @@ export default function ComparisonOfResult() {
                   borderRadius: 3,
                   height: "100%",
                   border: "1px solid",
-                  borderColor: "divider",
-                  backgroundColor: "background.paper",
+                  borderColor: "rgba(46, 204, 113, 0.24)",
+                  borderTop: "4px solid",
+                  borderTopColor: "secondary.main",
+                  backgroundColor: "#f7fcf8",
+                  boxShadow: "0 10px 28px rgba(46, 130, 80, 0.12)",
                 }}
               >
                 <Stack spacing={3}>
+                  <Stack
+                    direction="row"
+                    justifyContent="space-between"
+                    alignItems="center"
+                  >
+                    <Typography variant="subtitle1" fontWeight={700}>
+                      Konsultasi Saat Ini
+                    </Typography>
+                  </Stack>
+
                   <Box
                     sx={{
                       p: 1.5,
@@ -426,7 +528,7 @@ export default function ComparisonOfResult() {
                         : "divider",
                       backgroundColor: conclusionChanged
                         ? "rgba(76, 175, 80, 0.08)"
-                        : "transparent",
+                        : "rgba(46, 204, 113, 0.06)",
                     }}
                   >
                     <Typography variant="subtitle2" color="text.secondary">
@@ -435,7 +537,9 @@ export default function ComparisonOfResult() {
                     <Typography
                       variant="h6"
                       fontWeight={700}
-                      color="success.main"
+                      color={
+                        conclusionChanged ? "success.main" : "secondary.main"
+                      }
                     >
                       {afterSection.conclusion?.category ?? "-"}
                     </Typography>
@@ -452,7 +556,7 @@ export default function ComparisonOfResult() {
                       borderColor: factsChanged ? "success.main" : "divider",
                       backgroundColor: factsChanged
                         ? "rgba(76, 175, 80, 0.06)"
-                        : "transparent",
+                        : "rgba(255, 255, 255, 0.82)",
                     }}
                   >
                     <Typography variant="subtitle2" color="text.secondary">
@@ -470,7 +574,9 @@ export default function ComparisonOfResult() {
                             sx={{
                               p: 1.25,
                               borderRadius: 1.5,
-                              backgroundColor: "grey.50",
+                              backgroundColor: "#ffffff",
+                              border: "1px solid rgba(46, 204, 113, 0.14)",
+                              boxShadow: "0 3px 10px rgba(46, 130, 80, 0.06)",
                             }}
                           >
                             <Typography
@@ -480,7 +586,11 @@ export default function ComparisonOfResult() {
                             >
                               {fact.code}
                             </Typography>
-                            <Typography variant="body2" fontWeight={600}>
+                            <Typography
+                              variant="body2"
+                              fontWeight={600}
+                              color="text.primary"
+                            >
                               {fact.fact}
                             </Typography>
                           </Box>
@@ -489,7 +599,7 @@ export default function ComparisonOfResult() {
                     </Stack>
                   </Box>
 
-                  {/* <Box
+                  <Box
                     sx={{
                       p: 2,
                       borderRadius: 2,
@@ -499,7 +609,7 @@ export default function ComparisonOfResult() {
                         : "divider",
                       backgroundColor: recommendationsChanged
                         ? "rgba(76, 175, 80, 0.06)"
-                        : "transparent",
+                        : "rgba(255, 255, 255, 0.82)",
                     }}
                   >
                     <Typography variant="subtitle2" color="text.secondary">
@@ -513,29 +623,19 @@ export default function ComparisonOfResult() {
                       ) : (
                         afterSection.recommendations.map(
                           (recommendation, index) => (
-                            <Box
+                            <RecommendationCard
                               key={`${recommendation.title}-${index}`}
-                              sx={{
-                                p: 1.5,
-                                borderRadius: 2,
-                                backgroundColor: "grey.50",
-                              }}
-                            >
-                              <Typography variant="subtitle2" fontWeight={700}>
-                                {recommendation.title}
-                              </Typography>
-                              <Typography
-                                variant="body2"
-                                sx={{ mt: 0.75, whiteSpace: "pre-line" }}
-                              >
-                                {recommendation.content}
-                              </Typography>
-                            </Box>
+                              title={recommendation.title}
+                              content={recommendation.content}
+                              accentColor="success"
+                              borderColor="rgba(46, 204, 113, 0.14)"
+                              shadow="0 3px 10px rgba(46, 130, 80, 0.06)"
+                            />
                           ),
                         )
                       )}
                     </Stack>
-                  </Box> */}
+                  </Box>
                 </Stack>
               </Paper>
             </Grid>

@@ -195,7 +195,7 @@ export default function ManageRulesPage() {
             <TableHead>
               <StyledTableRow>
                 <StyledTableCell>No</StyledTableCell>
-                <StyledTableCell>Nama Aturan</StyledTableCell>
+                <StyledTableCell>Kode Aturan</StyledTableCell>
                 <StyledTableCell>Deskripsi</StyledTableCell>
                 <StyledTableCell>Kategori Kesimpulan</StyledTableCell>
                 <StyledTableCell>Created At</StyledTableCell>
