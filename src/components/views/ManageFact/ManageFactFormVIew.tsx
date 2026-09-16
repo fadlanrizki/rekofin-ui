@@ -6,9 +6,11 @@ import {
   CardContent,
   Typography,
   Grid,
+  Switch,
+  FormControlLabel,
 } from "@mui/material";
 import { z } from "zod";
-import { useForm } from "react-hook-form";
+import { Controller, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "next/navigation";
 import { ROUTE_PATHS } from "@/utils/constants/routes";
@@ -24,6 +26,7 @@ const BaseFactSchema = z.object({
   description: z.string().min(1, "Required"),
   question: z.string().min(1, "Required"),
   fact: z.string().min(1, "Required"),
+  isYesOrNoQuestion: z.boolean(),
 });
 
 const EditFactSchema = BaseFactSchema.partial().extend({
@@ -34,6 +37,7 @@ const defaultValues = {
   description: "",
   question: "",
   fact: "",
+  isYesOrNoQuestion: false,
 };
 
 export default function ManageFactFormView({
@@ -58,6 +62,7 @@ export default function ManageFactFormView({
     handleSubmit,
     formState: { errors },
     setValue,
+    control,
   } = useForm<FactForm>({
     resolver: zodResolver(schema),
     defaultValues,
@@ -83,6 +88,7 @@ export default function ManageFactFormView({
       setValue("description", data.description);
       setValue("question", data.question);
       setValue("fact", data.fact);
+      setValue("isYesOrNoQuestion", data.isYesOrNoQuestion);
     } catch (error) {
       const message = getErrorMessage(error);
       showFailed(message);
@@ -179,6 +185,26 @@ export default function ManageFactFormView({
                 error={!!errors.description}
                 helperText={errors.description?.message}
                 placeholder="Deskripsi"
+              />
+            </div>
+            <div>
+              <Typography>Jenis jawaban Ya/Tidak</Typography>
+              <Controller
+                name="isYesOrNoQuestion"
+                control={control}
+                render={({ field }) => (
+                  <FormControlLabel
+                    control={
+                      <Switch
+                        checked={field.value}
+                        onChange={(event) =>
+                          field.onChange(event.target.checked)
+                        }
+                      />
+                    }
+                    label={field.value}
+                  />
+                )}
               />
             </div>
 

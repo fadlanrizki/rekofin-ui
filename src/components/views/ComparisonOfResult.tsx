@@ -15,6 +15,7 @@ import {
 } from "@mui/material";
 import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useRef, useState } from "react";
+import { FiInfo, FiTarget, FiTrendingDown, FiTrendingUp } from "react-icons/fi";
 
 type ComparisonValue =
   | Record<string, any>
@@ -60,8 +61,144 @@ const normalizeConclusionList = (value: any) => {
     code: item?.code ?? "-",
     category: item?.category ?? "-",
     description: item?.description ?? "-",
+    priority: typeof item?.priority === "number" ? item.priority : undefined,
     recommendations: normalizeRecommendationList(item?.recommendations),
   }));
+};
+
+// Kategori kesimpulan yang berada di tahap akhir (investasi berdasarkan profil risiko
+// dan prinsip finansial) tidak bisa dibandingkan naik/turun berdasarkan priority.
+const EXEMPT_CATEGORY_PATTERN = /profil risiko|prinsip finansial/i;
+
+type ConclusionSummaryType =
+  | "insufficient"
+  | "same"
+  | "exempt"
+  | "decline"
+  | "improve"
+  | "neutral";
+
+const buildConsultationSummary = (
+  beforeSection: ReturnType<typeof buildComparisonSection>,
+  afterSection: ReturnType<typeof buildComparisonSection>,
+) => {
+  const beforeConclusion = beforeSection.conclusion;
+  const afterConclusion = afterSection.conclusion;
+
+  if (!beforeConclusion || !afterConclusion) {
+    return {
+      type: "insufficient" as ConclusionSummaryType,
+      title: "Ringkasan Belum Tersedia",
+      message:
+        "Belum cukup data kesimpulan untuk membuat ringkasan perbandingan konsultasi.",
+      recommendations: [] as typeof afterSection.recommendations,
+    };
+  }
+
+  const sameConclusion =
+    beforeConclusion.id !== undefined && afterConclusion.id !== undefined
+      ? beforeConclusion.id === afterConclusion.id
+      : beforeConclusion.category === afterConclusion.category;
+
+  if (sameConclusion) {
+    return {
+      type: "same" as ConclusionSummaryType,
+      title: "Tidak Ada Perubahan",
+      message:
+        "Tidak ada perubahan kesimpulan pada konsultasi kali ini. Cek kembali jawaban Anda dan sesuaikan dengan kondisi keuangan Anda saat ini.",
+      recommendations: [] as typeof afterSection.recommendations,
+    };
+  }
+
+  const combinedCategoryText = [
+    beforeConclusion.category,
+    beforeConclusion.description,
+    afterConclusion.category,
+    afterConclusion.description,
+  ].join(" ");
+
+  if (EXEMPT_CATEGORY_PATTERN.test(combinedCategoryText)) {
+    return {
+      type: "exempt" as ConclusionSummaryType,
+      title: "Kondisi Keuangan Anda Sudah Matang",
+      message: `Kesimpulan Anda berubah dari "${beforeConclusion.category}" menjadi "${afterConclusion.category}". Perubahan ini merupakan bagian dari penyesuaian strategi investasi berdasarkan profil risiko dan prinsip finansial, bukan indikasi kemunduran maupun kemajuan. Pertahankan konsistensi dalam menerapkan kebiasaan keuangan yang sehat.`,
+      recommendations: afterSection.recommendations.slice(0, 3),
+    };
+  }
+
+  const beforePriority = beforeConclusion.priority;
+  const afterPriority = afterConclusion.priority;
+
+  if (
+    typeof beforePriority === "number" &&
+    typeof afterPriority === "number" &&
+    beforePriority !== afterPriority
+  ) {
+    if (beforePriority > afterPriority) {
+      return {
+        type: "decline" as ConclusionSummaryType,
+        title: "Perlu Perhatian Lebih",
+        message:
+          "Kondisi keuangan Anda saat ini menunjukkan adanya kemunduran dibandingkan sebelumnya. Jangan berkecil hati, ini adalah kesempatan baik untuk memperbaiki kembali kebiasaan finansial Anda. Berikut beberapa saran perbaikan yang bisa Anda terapkan:",
+        recommendations: afterSection.recommendations.slice(0, 3),
+      };
+    }
+
+    return {
+      type: "improve" as ConclusionSummaryType,
+      title: "Kemajuan Finansial yang Baik",
+      message:
+        "Kondisi keuangan Anda mengalami kemajuan dibandingkan sebelumnya. Pertahankan kebiasaan baik ini dan pertimbangkan beberapa rekomendasi tindakan selanjutnya berikut untuk terus meningkatkan kesehatan finansial Anda:",
+      recommendations: afterSection.recommendations.slice(0, 3),
+    };
+  }
+
+  return {
+    type: "neutral" as ConclusionSummaryType,
+    title: "Kesimpulan Konsultasi Berbeda",
+    message: `Kesimpulan Anda berubah dari "${beforeConclusion.category}" menjadi "${afterConclusion.category}". Teruslah menjaga kondisi keuangan Anda dan perhatikan rekomendasi berikut.`,
+    recommendations: afterSection.recommendations.slice(0, 3),
+  };
+};
+
+const SUMMARY_PRESENTATION: Record<
+  ConclusionSummaryType,
+  {
+    icon: typeof FiInfo;
+    color: "info" | "warning" | "success";
+    backgroundColor: string;
+  }
+> = {
+  insufficient: {
+    icon: FiInfo,
+    color: "info",
+    backgroundColor: "rgba(33, 150, 243, 0.06)",
+  },
+  same: {
+    icon: FiInfo,
+    color: "info",
+    backgroundColor: "rgba(33, 150, 243, 0.06)",
+  },
+  exempt: {
+    icon: FiTarget,
+    color: "info",
+    backgroundColor: "rgba(33, 150, 243, 0.06)",
+  },
+  decline: {
+    icon: FiTrendingDown,
+    color: "warning",
+    backgroundColor: "rgba(255, 193, 7, 0.08)",
+  },
+  improve: {
+    icon: FiTrendingUp,
+    color: "success",
+    backgroundColor: "rgba(46, 204, 113, 0.08)",
+  },
+  neutral: {
+    icon: FiInfo,
+    color: "info",
+    backgroundColor: "rgba(33, 150, 243, 0.06)",
+  },
 };
 
 const serializeValue = (value: any) => {
@@ -269,6 +406,16 @@ export default function ComparisonOfResult() {
   const hasAnyDifference =
     conclusionChanged || factsChanged || recommendationsChanged;
 
+  const summary = useMemo(
+    () => buildConsultationSummary(beforeSection, afterSection),
+    [beforeSection, afterSection],
+  );
+
+  const SummaryIcon = SUMMARY_PRESENTATION[summary.type].icon;
+  const summaryColor = SUMMARY_PRESENTATION[summary.type].color;
+  const summaryBackgroundColor =
+    SUMMARY_PRESENTATION[summary.type].backgroundColor;
+
   if (loading) {
     return (
       <Stack spacing={3}>
@@ -344,6 +491,75 @@ export default function ComparisonOfResult() {
                   sx={{ alignSelf: "flex-start" }}
                 />
               )}
+            </Stack>
+          </Paper>
+
+          <Paper
+            elevation={2}
+            sx={{
+              p: 3,
+              borderRadius: 3,
+              border: "1px solid",
+              borderColor: `${summaryColor}.main`,
+              backgroundColor: summaryBackgroundColor,
+              boxShadow: "0 8px 24px rgba(0, 51, 102, 0.08)",
+            }}
+          >
+            <Stack direction="row" spacing={2} alignItems="flex-start">
+              <Box
+                sx={{
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  width: 44,
+                  height: 44,
+                  borderRadius: "50%",
+                  flexShrink: 0,
+                  backgroundColor: `${summaryColor}.main`,
+                  color: "#fff",
+                }}
+              >
+                <SummaryIcon size={22} />
+              </Box>
+              <Stack spacing={1.25} flex={1}>
+                <Typography
+                  variant="subtitle1"
+                  fontWeight={700}
+                  color={`${summaryColor}.dark`}
+                >
+                  {summary.title}
+                </Typography>
+                <Typography variant="body2" sx={{ lineHeight: 1.8 }}>
+                  {summary.message}
+                </Typography>
+                {summary.recommendations.length > 0 && (
+                  <Stack spacing={1} sx={{ mt: 0.5 }}>
+                    {summary.recommendations.map((recommendation, index) => (
+                      <Box
+                        key={`${recommendation.title}-${index}`}
+                        sx={{
+                          p: 1.25,
+                          borderRadius: 1.5,
+                          backgroundColor: "#ffffff",
+                          border: "1px solid",
+                          borderColor: "divider",
+                        }}
+                      >
+                        <Typography
+                          variant="body2"
+                          fontWeight={700}
+                          color="text.primary"
+                        >
+                          {recommendation.title}
+                        </Typography>
+                        <Typography variant="body2" color="text.secondary">
+                          {recommendation.content}
+                        </Typography>
+                      </Box>
+                    ))}
+                  </Stack>
+                )}
+              </Stack>
             </Stack>
           </Paper>
 

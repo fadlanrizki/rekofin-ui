@@ -49,6 +49,7 @@ type Question = {
   question: string;
   description: string;
   value: string | null;
+  isYesOrNoQuestion: boolean;
 };
 
 type QuestionsState = {
@@ -70,6 +71,7 @@ export default function QuestionView() {
   const [currentQuestion, setCurrentQuestion] = useState(0);
   const [disableSubmit, setDisableSubmit] = useState(true);
   const [consultationId, setConsultationId] = useState<string>("");
+  const [submitError, setSubmitError] = useState<string | null>(null);
 
   const paramsId = params?.id;
   const consultationIdFromParams = Array.isArray(paramsId)
@@ -149,6 +151,22 @@ export default function QuestionView() {
   };
 
   const handleSubmit = async () => {
+    const isAllAnsweredN = questions.data.every(
+      (question: Question) => question.value === "N",
+    );
+    const isAllAnsweredY = questions.data.every(
+      (question: Question) => question.value === "Y",
+    );
+
+    if (isAllAnsweredN || isAllAnsweredY) {
+      setSubmitError(
+        "Jawaban tidak boleh sama semua. Mohon periksa kembali jawaban Anda.",
+      );
+      return;
+    }
+
+    setSubmitError(null);
+
     try {
       setLoading(true);
       const data = questions.data.map((item: any) => ({
@@ -160,11 +178,10 @@ export default function QuestionView() {
         answers: data,
       };
 
-      const response = await ConsultationService.submitConsultationAnswer(
+      await ConsultationService.submitConsultationAnswer(
         consultationId,
         payload,
       );
-      console.log(JSON.stringify(response));
 
       router.push(
         `${ROUTE_PATHS.USER.CONSULTATION.RESULT}?id=${consultationId}`,
@@ -217,12 +234,20 @@ export default function QuestionView() {
                   <FormControlLabel
                     value={"Y"}
                     control={<Radio />}
-                    label="Ya"
+                    label={
+                      questions?.data[currentQuestion]?.isYesOrNoQuestion
+                        ? "Ya"
+                        : "Belum"
+                    }
                   />
                   <FormControlLabel
                     value={"N"}
                     control={<Radio />}
-                    label="Tidak"
+                    label={
+                      questions?.data[currentQuestion]?.isYesOrNoQuestion
+                        ? "Tidak"
+                        : "Sudah"
+                    }
                   />
                 </RadioGroup>
               </FormControl>
@@ -241,6 +266,8 @@ export default function QuestionView() {
           {questions?.data[currentQuestion]?.description || "-"}
         </Alert>
       </Stack>
+
+      {submitError && <Alert severity="error">{submitError}</Alert>}
 
       <Box>
         <Stack direction={"row"} justifyContent={"space-between"}>

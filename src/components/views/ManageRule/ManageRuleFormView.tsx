@@ -234,13 +234,14 @@ export default function ManageRuleFormView() {
           </Typography>
 
           <div>
+            <InputLabel id="rule_name">Nama Aturan</InputLabel>
             <TextField
               {...register("name")}
-              label="Nama Aturan"
               fullWidth
               size="medium"
               error={!!errors.name}
               helperText={errors.name?.message}
+              id="rule_name"
             />
           </div>
 
@@ -331,9 +332,10 @@ export default function ManageRuleFormView() {
           </div>
 
           <div>
+            <InputLabel id="description-label">Deskripsi</InputLabel>
             <TextField
               {...register("description")}
-              label="Deskripsi"
+              id="description-label"
               fullWidth
               size="small"
               multiline
