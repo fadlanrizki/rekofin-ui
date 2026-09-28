@@ -16,6 +16,7 @@ import {
 import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { FiInfo, FiTarget, FiTrendingDown, FiTrendingUp } from "react-icons/fi";
+import Image from "next/image";
 
 type ComparisonValue =
   | Record<string, any>
@@ -103,7 +104,7 @@ const buildConsultationSummary = (
   if (sameConclusion) {
     return {
       type: "same" as ConclusionSummaryType,
-      title: "Tidak Ada Perubahan",
+      title: "Kesimpulan Konsutasi Masih Sama Seperti Sebelumnya",
       message:
         "Tidak ada perubahan kesimpulan pada konsultasi kali ini. Cek kembali jawaban Anda dan sesuaikan dengan kondisi keuangan Anda saat ini.",
       recommendations: [] as typeof afterSection.recommendations,
@@ -411,7 +412,7 @@ export default function ComparisonOfResult() {
     [beforeSection, afterSection],
   );
 
-  const SummaryIcon = SUMMARY_PRESENTATION[summary.type].icon;
+  // const SummaryIcon = SUMMARY_PRESENTATION[summary.type].icon;
   const summaryColor = SUMMARY_PRESENTATION[summary.type].color;
   const summaryBackgroundColor =
     SUMMARY_PRESENTATION[summary.type].backgroundColor;
@@ -519,7 +520,13 @@ export default function ComparisonOfResult() {
                   color: "#fff",
                 }}
               >
-                <SummaryIcon size={22} />
+                {/* <SummaryIcon size={22} /> */}
+                <Image
+                  src="/images/information.png"
+                  alt="information"
+                  height={50}
+                  width={50}
+                />
               </Box>
               <Stack spacing={1.25} flex={1}>
                 <Typography

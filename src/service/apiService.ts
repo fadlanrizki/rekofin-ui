@@ -1,4 +1,4 @@
-import axios from "axios";
+import axios, { type AxiosResponse } from "axios";
 
 const baseURL = process.env.NEXT_PUBLIC_API_BASE_URL;
 
@@ -43,6 +43,13 @@ export const apiClient = {
           throw new Error(message);
       }
     }
+  },
+
+  getFile: async (url: string): Promise<AxiosResponse<Blob>> => {
+    return await axiosInstance.get<Blob>(url, {
+      responseType: "blob",
+      headers: getHeader(),
+    });
   },
 
   post: async <T>(url: string, data?: object): Promise<T> => {

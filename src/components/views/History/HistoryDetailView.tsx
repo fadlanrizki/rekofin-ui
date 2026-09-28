@@ -6,6 +6,7 @@ import { ROUTE_PATHS } from "@/utils/constants/routes";
 import { formatDateView } from "@/utils/date";
 import { getErrorMessage } from "@/utils/message";
 import {
+  Alert,
   Box,
   Button,
   Card,
@@ -21,6 +22,7 @@ import { useParams, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import {
   RiArrowLeftLine,
+  RiDownloadLine,
   RiFileListLine,
   RiLightbulbLine,
 } from "react-icons/ri";
@@ -139,6 +141,8 @@ const HistoryDetailView = () => {
   const router = useRouter();
   const params = useParams<{ id?: string | string[] }>();
   const [loading, setLoading] = useState(false);
+  const [isExporting, setIsExporting] = useState(false);
+  const [exportError, setExportError] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
   const [result, setResult] = useState<TConsultationResult | null>(null);
 
@@ -173,6 +177,37 @@ const HistoryDetailView = () => {
 
   const handleBack = () => {
     router.push(ROUTE_PATHS.USER.HISTORY);
+  };
+
+  const handleExport = async () => {
+    if (!consultationId) return;
+
+    setIsExporting(true);
+    setExportError("");
+
+    try {
+      const response =
+        await ConsultationService.exportConsultationHistory(consultationId);
+      const contentDisposition = response.headers["content-disposition"];
+      const filename =
+        contentDisposition?.match(/filename="?([^";]+)"?/i)?.[1] ??
+        `hasil-konsultasi-${consultationId}.pdf`;
+      const downloadUrl = URL.createObjectURL(response.data);
+      const anchor = document.createElement("a");
+
+      anchor.href = downloadUrl;
+      anchor.download = filename;
+      document.body.appendChild(anchor);
+      anchor.click();
+      anchor.remove();
+      window.setTimeout(() => URL.revokeObjectURL(downloadUrl), 1000);
+    } catch (error) {
+      setExportError(
+        getErrorMessage(error) || "Gagal mengunduh PDF riwayat konsultasi.",
+      );
+    } finally {
+      setIsExporting(false);
+    }
   };
 
   const consultationDateRaw =
@@ -220,14 +255,30 @@ const HistoryDetailView = () => {
             Detail Riwayat Konsultasi
           </Typography>
         </Box>
-        <Button
-          variant="outlined"
-          onClick={handleBack}
-          startIcon={<RiArrowLeftLine />}
-        >
-          Kembali
-        </Button>
+        <Stack direction="row" gap={1}>
+          <Button
+            variant="contained"
+            onClick={handleExport}
+            startIcon={<RiDownloadLine />}
+            disabled={isExporting}
+          >
+            {isExporting ? "Mengunduh..." : "Unduh PDF"}
+          </Button>
+          <Button
+            variant="outlined"
+            onClick={handleBack}
+            startIcon={<RiArrowLeftLine />}
+          >
+            Kembali
+          </Button>
+        </Stack>
       </Stack>
+
+      {exportError && (
+        <Alert severity="error" onClose={() => setExportError("")}>
+          {exportError}
+        </Alert>
+      )}
 
       <Paper elevation={2} sx={{ p: 2.5, borderRadius: 2 }}>
         <Typography variant="subtitle2" color="text.secondary">

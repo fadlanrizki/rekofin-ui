@@ -39,6 +39,10 @@ const getConsultationHistory = async (params: any): Promise<any> => {
   return await apiClient.get(`${API_ROUTE.CONSULTATION}/history`, params);
 };
 
+const exportConsultationHistory = async (id: number | string) => {
+  return await apiClient.getFile(`${API_ROUTE.CONSULTATION}/${id}/export/pdf`);
+};
+
 export const ConsultationService = {
   startConsultation,
   getQuestions,
@@ -47,4 +51,5 @@ export const ConsultationService = {
   getConsultationResult,
   getLatestConsultationResult,
   getConsultationHistory,
+  exportConsultationHistory,
 };
