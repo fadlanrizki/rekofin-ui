@@ -36,6 +36,10 @@ type TRecommendation = {
   id: number;
   title: string;
   content: string;
+  source?: {
+    sourceType?: string;
+    title?: string;
+  } | null;
 };
 
 type TConclusion = {
@@ -53,6 +57,14 @@ type TConsultationResult = {
   endedAt?: string;
   facts: TFact[];
   conclusions: TConclusion[];
+};
+
+const SOURCE_TYPE_LABELS: Record<string, string> = {
+  BOOK: "Buku",
+  WEBSITE: "Situs Web",
+  EXPERT: "Pakar",
+  JOURNAL: "Jurnal",
+  OTHER: "Lainnya",
 };
 
 const RecommendationCard = ({
@@ -112,6 +124,28 @@ const RecommendationCard = ({
                 ? `${recommendation.content.slice(0, maxLength)}...`
                 : recommendation.content}
             </Typography>
+            {recommendation.source && (
+              <Stack direction="row" gap={1} flexWrap="wrap">
+                {recommendation.source.sourceType && (
+                  <Chip
+                    size="small"
+                    color="primary"
+                    variant="outlined"
+                    label={
+                      SOURCE_TYPE_LABELS[recommendation.source.sourceType] ??
+                      recommendation.source.sourceType
+                    }
+                  />
+                )}
+                {recommendation.source.title && (
+                  <Chip
+                    size="small"
+                    variant="outlined"
+                    label={recommendation.source.title}
+                  />
+                )}
+              </Stack>
+            )}
             {hasLongContent && (
               <Button
                 size="small"
